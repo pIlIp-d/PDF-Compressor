@@ -7,7 +7,7 @@ It Takes its Time, but it is really the Best. (Crunch)
 
 ## Compression Rate
 
-Goodnote Files with mode `extreme` are compressed to about 2% and are still clear enoght for every application.  
+Goodnote Files with mode `extreme` are compressed to about 2% and are still clear enough for every application.  
 `medium-high` compressses to about 7%. 
 
 And if your really need your 600pdi you can use mode `low`
