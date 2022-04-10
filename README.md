@@ -16,7 +16,7 @@ It Takes its Time, but it is really the Best. (Crunch)
 
 varies on Input of File and gets better with larger Files.
 
-And if your really need your 600pdi you can use mode `low`
+And if your really need your 600dpi you can use mode `low`
 
 
 # Dependency
