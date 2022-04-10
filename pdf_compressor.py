@@ -6,16 +6,27 @@
 #
 #========================
 
+import os
+
 import lib.crunch as crunch
 import argparse
-import os
 from pdf2image import convert_from_path
 from img2pdf import convert
 
+import pytesseract
+from PyPDF4 import PdfFileMerger
+import io
+
 s = os.path.sep
 
+TESSERACT_PATH =  os.path.join(os.path.expanduser('~'),"AppData","Local","Programs","Tesseract-OCR","tesseract.exe")
+TESSDATA_PREFIX =  "--tessdata-dir '"+os.path.join(os.path.expanduser('~'),"AppData","Local","Programs","Tesseract-OCR","tessdata")+"'"
+if not os.path.isfile(TESSERACT_PATH):
+    print("[ ! ] - tesseract Path not found. Install https://github.com/UB-Mannheim/tesseract/wiki or edit 'TESSERACT_PATH' to your specific tesseract.exe")
+    quit()
+
 FOLDER_ENDING = "_pics"
-COMPRESSION_MODES = {"low":600, "medium":400, "medium-high":250, "high":150, "extreme":50}
+COMPRESSION_MODES = {"low":600, "medium":400, "standard":250, "high":150, "extreme":50}
 
 def compress(files):
     print("--Compressing via Crunch--")
@@ -53,15 +64,22 @@ def get_image_list(folder):
     		imgs.append(os.path.join(r, fname))
     return imgs
 
-def img2pdf(pdf_name,imgs,output_file):
-    print("--merging compressed images into new pdf--")
-    with open(pdf_name+"_smaller.pdf","wb") as f:
-    	f.write(convert(imgs))
-
 def print_stats(origin_path, result_path):
     orig = os.stat(origin_path).st_size
     res = os.stat(result_path).st_size
     print("\nCompressed File from "+ str(round(orig / 1000000,2)) + "mb to "+ str(round(res / 1000000, 2)) + "mb ("+str(round(res / orig * 100, 2))+"%)")
+
+def img2pdf(pdf_name,imgs,output_file):
+    print("--merging compressed images into new pdf and creating OCR--")
+    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+    f = open(output_file, "w+b")
+    merger = PdfFileMerger(strict=False)
+    for img in imgs:
+        result =  pytesseract.image_to_pdf_or_hocr(img, lang="deu", config=TESSDATA_PREFIX)
+        merger.append(io.BytesIO(result))
+    merger.write(f)
+    merger.close()
+    f.close()
 
 def main(args):
     pdf_path = args["file"]
@@ -81,7 +99,7 @@ def main(args):
 if __name__ == "__main__":
     all_args = argparse.ArgumentParser(prog='PDF Compress', usage='%(prog)s [options]', description='Compresses PDFs using png compression crunch(pngquant, zopfli).')
     all_args.add_argument("-f", "--file", required=True, help="path to pdf file")
-    all_args.add_argument("-m", "--mode", required=False, help="compression mode ['low', 'medium', 'standard', 'high', 'extreme']", default='extreme')
+    all_args.add_argument("-m", "--mode", required=False, help="compression mode ['low', 'medium', 'standard', 'high', 'extreme']", default='standard')
     all_args.add_argument("-o", "--output-file", required=False, help="Compressed file Output Path. Default: 'filename_smaller.pdf'", default="default")
     args = vars(all_args.parse_args())
     main(args)
