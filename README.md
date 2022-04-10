@@ -1,9 +1,9 @@
 
 # Pdf Compressor
-Solves the porblem with small Upload size limit or just to big files from GoodNotes export.  
+Solves the problem with small Upload size limit or just to big files from GoodNotes export.  
 
 It Takes its Time, but it is really the Best. (Crunch)  
-... so I put it together with pdf2image and backward to compress pdfs with crunch.
+... so I put it together with pdf2image and backwards to compress pdfs with crunch.
 
 ## Compression Rate
 
