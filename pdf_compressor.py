@@ -7,7 +7,7 @@
 #===================================================================
 
 import os, argparse, subprocess, shutil
-import lib.crunch as crunch
+import compressor_lib.crunch as crunch
 import multiprocessing
 from img2pdf import convert
 
@@ -21,10 +21,9 @@ except:
     print("\033[0;31mNo Module pytesseract Found. (Skipping OCR)\033[00m")
 
 s = os.path.sep
-
-CPDFSQUEEZE_PATH = os.path.join("lib","cpdfsqueeze","cpdfsqueeze.exe")
-PNGQUANT_PATH = os.path.join("lib","pngquant","pngquant.exe")
-ADVPNG_PATH = os.path.join("lib","advpng","advpng.exe")
+CPDFSQUEEZE_PATH = os.path.join("compressor_lib","cpdfsqueeze","cpdfsqueeze.exe")
+PNGQUANT_PATH = os.path.join("compressor_lib","pngquant","pngquant.exe")
+ADVPNG_PATH = os.path.join("compressor_lib","advpng","advpng.exe")
 
 FOLDER_ENDING = "_tmp"#appendix for temporary folder
 

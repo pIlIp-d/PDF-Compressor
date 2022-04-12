@@ -19,7 +19,7 @@ Tesseract is optional for OCR - Optical Character Recognition
 
 ## Python Packages
 
-`PyMuPdf`, `img2pdf`, `pytesseract`, and my version of [crunch](./lib/crunch.py)
+`PyMuPdf`, `img2pdf`, `pytesseract`, and my version of [crunch](https://github.com/chrissimpkins/Crunch)
 
 ----
 # Setup
@@ -86,9 +86,9 @@ open and edit `pdf_compressor.py`
 
 change path variables to something like this
 ```
-CPDFSQUEEZE_PATH ~./lib/cpdfsqueeze/cpdfsqeeze
-PNGQUANT_PATH ~ ./lib/pngquant/pngquant
-ADVPNG_PATH advpng ~ /lib/advpng/advpng
+CPDFSQUEEZE_PATH ~./compressor-lib/cpdfsqueeze/cpdfsqeeze
+PNGQUANT_PATH ~ ./compressor-lib/pngquant/pngquant
+ADVPNG_PATH advpng ~ /compressor-lib/advpng/advpng
 
 TESSERACT_PATH ~ /usr/share/tesseract-ocr/4.00/tesseract
 TESSDATA_PREFIX ~ /usr/share/tesseract-ocr/4.00/tessdata
@@ -99,7 +99,7 @@ TESSDATA_PREFIX ~ /usr/share/tesseract-ocr/4.00/tessdata
 Extract and place all the file as show below.(.exe or whatever binaries you have)
 
 ```
-├── lib
+├── compressor-lib
 │   ├── pngquant
 │   │   └── pngquant.exe
 │   ├── advpng
