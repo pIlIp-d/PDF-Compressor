@@ -19,7 +19,7 @@ Tesseract is optional for OCR - Optical Character Recognition
 
 ## Python Packages
 
-`PyMuPdf`, `img2pdf`, `pytesseract`, and my version of [crunch](https://github.com/chrissimpkins/Crunch)
+`PyMuPdf`, `img2pdf`, `pytesseract`, and my version of [crunch](https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py)
 
 ----
 # Setup
@@ -168,4 +168,4 @@ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/> LGPL
 
 **crunch** – https://github.com/chrissimpkins/Crunch <br>
 Copyright 2019 Christopher Simpkins - MIT License  
-*Edited by pIlIp-d* https://github.com/pIlIp-d
+*Edited by pIlIp-d* https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py
