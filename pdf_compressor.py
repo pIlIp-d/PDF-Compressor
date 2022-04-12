@@ -11,6 +11,7 @@ import compressor_lib.crunch as crunch
 import multiprocessing
 from img2pdf import convert
 
+from datetime import datetime
 import fitz #package name PyMuPdf
 
 USE_PY_TESS = True
@@ -118,7 +119,7 @@ def clean_up(folder):#removes the directory and files that were used in compress
 
 def log(err_string):
     with open("error.log","a") as f:
-        f.write("\n"+datetime.now()+err_string)
+        f.write("\n"+str(datetime.now())[:-4]+err_string)
 
 def main(args):
     path = [args["file"]]
@@ -128,12 +129,12 @@ def main(args):
     if os.path.isdir(path[0]):#if directory do it for each File inside
         path = get_file_list(path[0],".pdf")
         extra_path = "compressed"+s#creates subdir for compressed files if full folder is compressed
-        if args["out"] != "default":
-            extra_path = args["out"]
+        if args["output_file"] != "default":
+            extra_path = args["output_file"]
         out_file_end = ".pdf"
 
     for origin_pdf in path[args["continue"]:]:
-        print("--Compressing %s--" % origin_pdf)
+        print("--Compressing \033[0;33;33m%s\033[00m--" % origin_pdf)
         orig_size = os.stat(origin_pdf).st_size
         if [ele for ele in ["(",")","[","]","{","}","'","\"","`","’"] if(ele in origin_pdf)]:
             err = "File: \"%s\" couldn't be compressed due to file name." % origin_pdf
@@ -171,9 +172,7 @@ def main(args):
             pool.join()
             print("** - 100%")
         img2pdf(pdf_name,imgs, output_file)
-        print(os.stat(origin_pdf).st_size, os.stat(output_file).st_size)
         cpdfsqueeze(output_file)
-        print(os.stat(origin_pdf).st_size, os.stat(output_file).st_size)
         if os.stat(origin_pdf).st_size < os.stat(output_file).st_size and not force_ocr:
             if not cpdfsqueeze(origin_pdf, output_file):
                 shutil.copy(origin_pdf,output_file)

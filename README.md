@@ -153,6 +153,7 @@ python3 pdf_converter.py -f 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 
 * pngquant sometimes fails to compress, program just skips it
 
+* **-o option doesnt work with folders yet**
 
 # Software License Agreements
 
