@@ -71,7 +71,7 @@ Download [advpng](http://www.advancemame.it/download)
 
 Install [cpdfsqueeze](https://github.com/coherentgraphics/cpdfsqueeze-binaries)
 
-Download [](Crunch)
+Download [crunch](https://github.com/pIlIp-d/compressor-lib/blob/f08adc46f6e865b5740671e7c15145b32541c237/crunch.py)
 
 #### Install Tesseract
 ```
@@ -153,4 +153,18 @@ python3 pdf_converter.py -f 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 
 * pngquant sometimes fails to compress, program just skips it
 
-# LICENCE
+
+# Software License Agreements
+
+**pngquant** – https://pngquant.org <br>
+Special Licence see [FILE]("https://github.com/pIlIp-d/compressor-lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/pngquant/LICENCE.txt")
+
+**advpng** – http://www.advancemame.it/download <br>
+Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/> GPL v3
+
+**cpdfsqeeze** – https://github.com/coherentgraphics/cpdfsqueeze-binaries <br>
+Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/> LGPL
+
+**crunch** – https://github.com/chrissimpkins/Crunch <br>
+Copyright 2019 Christopher Simpkins - MIT License  
+*Edited by pIlIp-d* https://github.com/pIlIp-d
