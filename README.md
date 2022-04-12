@@ -50,7 +50,7 @@ Select Additional Languages that you want. (f.e German under Additional Language
 
 ----
 ### 3. Install Python Packages
- run 
+ run
  ```
  python3 setup.py install
  ```
@@ -110,6 +110,12 @@ Extract and place all the file as show below.(.exe or whatever binaries you have
 └── pdf_converter.py
 ```
 
+### 4. Install Python Packages
+ run
+ ```
+ python3 setup.py install
+ ```
+
 # Usage
 
 ## required parameters
@@ -121,7 +127,7 @@ Extract and place all the file as show below.(.exe or whatever binaries you have
 Varies on Input of File and gets better with larger Files.  
 
 Extremly small files get Larger when the mode is set to high(~low compression).  
--> no OCR is saved and old document just gets compressed via cpdfsqeeze. 
+-> no OCR is saved and old document just gets compressed via cpdfsqeeze.
 Solution -s / --force-ocd
 
 ## Help
