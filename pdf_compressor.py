@@ -181,7 +181,7 @@ def main(args):
         print_stats(orig_size, os.stat(output_file).st_size)
 
 if __name__ == "__main__":
-    all_args = argparse.ArgumentParser(prog='PDF Compress', usage='%(prog)s [options]', description='Compresses PDFs using png compression crunch(pngquant, zopfli).')
+    all_args = argparse.ArgumentParser(prog='PDF Compress', usage='%(prog)s [options]', description='Compresses PDFs using lossy png and lossless PDF compression. Optimized for GoodNotes')
     all_args.add_argument("-f", "--file", required=True, help="path to pdf file or to folder containing pdf files")
     all_args.add_argument("-m", "--mode", required=False, type=int, help="compression mode 1-10. 1:high 10:low compression. Default=3", default=3)
     all_args.add_argument("-o", "--output-file", required=False, help="Compressed file Output Path. Default: 'filename_smaller.pdf' or 'compressed/...' for folders", default="default")
