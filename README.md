@@ -133,22 +133,21 @@ Solution -s / --force-ocd
 ## Help
 ```
 -h --help           show this help message and exit
--f --file           path to pdf file or to folder containing pdf files
--m --mode           compression mode 1-10. 1:high 10:low compression. Default=3
--o --output-file    Compressed file Output Path. Default: 'filename_smaller.pdf' or
+-p --path PATH      Path to pdf file or to folder containing pdf files
+-m --mode MODE      compression mode 1-10. 1:high 10:low compression. Default=3
+-o --output-path    Compressed file Output Path. Default: 'filename_smaller.pdf' or
                     'compressed/...' for folders
--s --force-ocr      When turned on allows output file to be larger than input file, to
-                    force ocr. Default: off and only smaller output files are saved.'
+-s --force-ocr      When turned on allows output file to be larger than input file, to force
+                    ocr. Default: off and only smaller output files are saved.'
 -n --no-ocr         Don't create OCR on pdf.
 -c --continue       Number. When compressing folder and Interrupted, skip files already
-                    converted. (=amount of files already converted)
-```
+                    converted. (=amount of files already converted)```
 
 
 ## Examples
 ```
-python3 pdf_converter.py -f mypdf.pdf
-python3 pdf_converter.py -f 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
+python3 pdf_converter.py -p mypdf.pdf
+python3 pdf_converter.py -p 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 ```
 
 # Known Problems
@@ -158,8 +157,6 @@ python3 pdf_converter.py -f 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 * sometimes KeyboardInterrupt only works if currently not in Crunch compression process
 
 * pngquant sometimes fails to compress, program just skips it
-
-* **-o option doesnt work with folders yet**
 
 # Software License Agreements
 
