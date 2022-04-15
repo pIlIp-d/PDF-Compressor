@@ -21,6 +21,8 @@ except:
     USE_PY_TESS = False
     print("\033[0;31mNo Module pytesseract Found. (Skipping OCR)\033[00m")
 
+
+
 s = os.path.sep
 CPDFSQUEEZE_PATH = os.path.join(os.path.dirname(__file__),"compressor_lib","cpdfsqueeze","cpdfsqueeze.exe")
 PNGQUANT_PATH = os.path.join(os.path.dirname(__file__),"compressor_lib","pngquant","pngquant.exe")
@@ -117,6 +119,10 @@ def print_stats(orig, res):#sizes
 def clean_up(folder):#removes the directory and files that were used in compression process
     print("--cleaning up--")
     shutil.rmtree(folder)
+
+def log(err_string):
+    with open("error.log","a") as f:
+        f.write("\n"+str(datetime.now())[:-4]+err_string)
 
 def get_paths(args):
     path = [rf"{os.path.abspath(args['path'])}"]
