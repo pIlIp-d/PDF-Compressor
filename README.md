@@ -120,7 +120,7 @@ Extract and place all the file as show below.(.exe or whatever binaries you have
 
 ## required parameters
 
-    -f FileOrFolder
+    -p FileOrFolder
 
 ## compression rate
 
