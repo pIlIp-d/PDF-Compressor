@@ -10,12 +10,12 @@ setup(
   python_requires='>=3.6',
   platforms = ["any"],
   packages = find_packages(),
-  install_requires = ["PyMuPdf","pytesseract","img2pdf"],
+  install_requires = ["os","argparse","shutil","subprocess","multiprocessing","PIL","PyMuPdf","img2pdf","pytesseract"],
   include_package_data = True,
   classifiers = [
     "License :: MIT",
     "Topic :: Software Development :: Libraries :: Python Module",
-    "Topic :: Utilities",
+    "Topic :: Utilities :: Compression",
     "Programming Language :: Python :: 3"
   ]
 )

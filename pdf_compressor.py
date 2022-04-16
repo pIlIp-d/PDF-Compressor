@@ -1,35 +1,71 @@
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # ==================================================================
 #
 #   Copyright 2021 Philip Dell (https://github.com/pIlIp-d)
 #   MIT Licence
 #
-#===================================================================
+# ===================================================================
 
-import os, argparse, subprocess, shutil
-import compressor_lib.crunch as crunch
+import argparse
 import multiprocessing
-from img2pdf import convert
+import os
+import shutil
+import subprocess
 
-from datetime import datetime
+import compressor_lib.crunch as crunch
+
 import fitz #package name PyMuPdf
 
-USE_PY_TESS = True
+from img2pdf import convert
+from PIL import Image
+
 try:
-    import pytesseract#OCR for pdf
+    import pytesseract #OCR for pdf
 except:
     USE_PY_TESS = False
-    print("\033[0;31mNo Module pytesseract Found. (Skipping OCR)\033[00m")
+else:
+    USE_PY_TESS = True
 
 
+# colors for ANSI compatible shells
+RED = "\033[0;31m"
+YELLOW = "\033[0;33;33m"
+GREEN = "\n\033[0;32m"
+END = "\033[0m"
 
-s = os.path.sep
 CPDFSQUEEZE_PATH = os.path.join(os.path.dirname(__file__),"compressor_lib","cpdfsqueeze","cpdfsqueeze.exe")
 PNGQUANT_PATH = os.path.join(os.path.dirname(__file__),"compressor_lib","pngquant","pngquant.exe")
 ADVPNG_PATH = os.path.join(os.path.dirname(__file__),"compressor_lib","advpng","advpng.exe")
 
-FOLDER_ENDING = "_tmp"#appendix for temporary folder
+###############################
+### Compress
+###############################
+def compress(file, length, pos):
+    #file   - string
+    #length - amount of files to compress in sum across all threads
+    #pos    - current file pos to calculate done progress in percentage
+    print("** - {:.2f}%".format(100*pos/length))
+    compressed = file[:-4]+"-crunch.png"#temporary file
+    crunch.crunch(file, pngquant_path=PNGQUANT_PATH, advpng_path=ADVPNG_PATH, quiet_=True)
+    #replace with compressed file
+    os.remove(file)
+    os.rename(compressed, file)
 
+def cpdfsqueeze(origin_file, output_file = None):
+    if output_file is None:
+        output_file = origin_file
+    try:
+        subprocess.check_output(CPDFSQUEEZE_PATH+" \""+origin_file+"\" \""+output_file+"\"", stderr=subprocess.STDOUT, shell=True)
+        print("--Compressed output pdf with cpdfsqueeze--")
+    except Exception as e:
+        print(get_error_string("cpdfsqueeze failed."))
+        return 0# ignore errors at this stage
+    return 1
+
+###############################
+### Convert
+###############################
 def init_pytesseract(args):
     global USE_PY_TESS, TESSERACT_PATH, TESSDATA_PREFIX
     #pytesseract setup
@@ -37,7 +73,7 @@ def init_pytesseract(args):
         TESSERACT_PATH =  os.path.join(os.path.expanduser('~'),"AppData","Local","Programs","Tesseract-OCR","tesseract.exe")
         TESSDATA_PREFIX =  "--tessdata-dir '"+os.path.join(os.path.expanduser('~'),"AppData","Local","Programs","Tesseract-OCR","tessdata")+"'"
         if not os.path.isfile(TESSERACT_PATH):
-            print("[ ! ] - tesseract Path not found. Install https://github.com/UB-Mannheim/tesseract/wiki or edit 'TESSERACT_PATH' to your specific tesseract.exe")
+            print(get_error_string("[ ! ] - tesseract Path not found. Install https://github.com/UB-Mannheim/tesseract/wiki or edit 'TESSERACT_PATH' to your specific tesseract.exe"))
             quit()
         pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
     except:
@@ -45,10 +81,10 @@ def init_pytesseract(args):
         if args["force_ocr"]:
             print("Tesseract Not Loaded, Can't create OCR. (leave option '--ocr-force' out to compresss without hocr)")
             return False
-        print("\033[0;31mTesseract failed. -> no OCR on pdfs\033[00m")
+        print(get_error_string("Tesseract failed. -> no OCR on pdfs"))
     return True
 
-def pdf2img(pdf_path,pdf_name,folder, mode):
+def pdf2img(pdf_path, folder, mode):
     print("--splitting pdf into images--")
     #open pdf and split it into rgb-pixelmaps -> png
     doc = fitz.open(pdf_path)
@@ -56,31 +92,13 @@ def pdf2img(pdf_path,pdf_name,folder, mode):
         print("** - {:.2f}%".format(100*page.number/len(doc)))
         pix = page.get_pixmap(matrix=fitz.Matrix(mode, mode))
         pix.save(os.path.join(folder, 'page_%i.png' % page.number))
-    print("** - 100%")
+    print("** - 100.00%")
 
-def compress(file, length, pos):
-    print("** - {:.2f}%".format(100*pos/length))
-    #file = file.replace("[", "\[").replace("]", "\]").replace("(", "\(").replace(")", "\)").replace("{", "\{").replace("}", "\}")
-    compressed = file[:-4]+"-crunch.png"#temporary file
-    crunch.crunch(file, pngquant_path=PNGQUANT_PATH, advpng_path=ADVPNG_PATH, quiet_=True)
-    #replace with compressed file
-    os.remove(file)
-    os.rename(compressed, file)
-
-def get_file_list(folder, ending=".png"):# get all the png files in temporary folder <=> all pdf pages
-    files = []
-    for r, _, f in os.walk(folder):
-        for fname in f:
-            if not fname.endswith(ending):
-                continue
-            files.append(os.path.join(r, fname))
-    return files
-
-def img2pdf(pdf_name,imgs,output_file):#merging pngs to pdf and create OCR
+def img2pdf(imgs,output_file):
+    #merging pngs to pdf and create OCR
     print("--merging compressed images into new pdf and creating OCR--")
     pdf = fitz.open()
     i = 0
-    from PIL import Image
     for img in imgs:
         print("** - {:.2f}%".format(100*i/len(imgs)))
         i += 1
@@ -95,36 +113,49 @@ def img2pdf(pdf_name,imgs,output_file):#merging pngs to pdf and create OCR
             if USE_PY_TESS: print("OCR couldn't be processed.")
             #ignore if ocr cant be done
         pdf.insert_pdf(fitz.open(img+".pdf"))
-    if not os.path.isdir(s.join(output_file.split(s)[:-1])) and not s.join(output_file.split(s)[:-1]) == "":
-        print(output_file.split(s))
-        os.mkdir(s.join(output_file.split(s)[:-1]))
-    print("** - 100%")
-    pdf.save(output_file)#raises exception if no matching permissions in output folder
-        
+    if not os.path.isdir(os.path.sep.join(output_file.split(os.path.sep)[:-1])) and not os.path.sep.join(output_file.split(os.path.sep)[:-1]) == "":
+        print(output_file.split(os.path.sep))
+        os.mkdir(os.path.sep.join(output_file.split(os.path.sep)[:-1]))
+    print("** - 100.00%")
+    #raises exception if no matching permissions in output folder    
+    pdf.save(output_file)
 
-def cpdfsqueeze(origin_file, output_file = None):
-    if output_file is None:
-        output_file = origin_file
-    try:
-        subprocess.check_output(CPDFSQUEEZE_PATH+" \""+origin_file+"\" \""+output_file+"\"", stderr=subprocess.STDOUT, shell=True)
-        print("--Compressed output pdf with cpdfsqueeze--")
-    except Exception as e:
-        print("\033[0;31mcpdfsqueeze failed.\033[00m")
-        return 0# ignore errors at this stage
-    return 1
+###############################
+### Utility 
+###############################
+def get_error_string(string):
+    #returns string but in red for ANSI compatible shells
+    return (RED + string + END)
 
-def print_stats(orig, res):#sizes
-    print("\n\033[0;32mCompressed File from "+ str(round(orig / 1000000,2)) + "mb to "+ str(round(res / 1000000, 2)) + "mb (-"+str(round(100 - (res / orig * 100), 2))+"%)\033[00m")
+def get_file_string(file):
+    #returns string but in yellow for ANSI compatible shells
+    return (YELLOW + str(file) + END)
 
-def clean_up(folder):#removes the directory and files that were used in compression process
+def print_stats(orig, result):
+    print(GREEN+"Compressed File from "+ str(round(orig / 1000000,2)) + "mb to "+str(round(result / 1000000, 2)) + "mb (-"+str(round(100 - (result / orig * 100), 2))+"%)"+END)
+
+def clean_up(folder):
+    #removes the directory and files that were used in compression process
     print("--cleaning up--")
     shutil.rmtree(folder)
 
-def log(err_string):
-    with open("error.log","a") as f:
-        f.write("\n"+str(datetime.now())[:-4]+err_string)
+def get_file_list(folder, ending=".png"):
+    # get all the png files in temporary folder <=> all pdf pages
+    files = []
+    for r, _, f in os.walk(folder):
+        for fname in f:
+            if not fname.endswith(ending):
+                continue
+            files.append(os.path.join(r, fname))
+    return files
 
-def get_paths(args):
+def create_folder_if_not_exist(file_or_folder_path):
+    if not os.path.isdir(os.path.dirname(file_or_folder_path)):
+        os.mkdir(os.path.dirname(file_or_folder_path))
+
+def get_paths_from_args(args):
+    # returns properly formatted and absolute path to origin and ouput file
+    # path is list of origin files(without .pdf) and output_path is either folder or file
     path = [rf"{os.path.abspath(args['path'])}"]
     output_path = rf"{args['output_path']}"
     is_dir = os.path.isdir(path[0])
@@ -135,34 +166,38 @@ def get_paths(args):
         if output_path == "default":
             output_path = os.path.abspath(path[0])+"_compressed"
         path = get_file_list(path[0],".pdf")
-    elif not is_dir and output_path == "default":
-        output_path = os.path.abspath(path[0][:-4])+"_compressed.pdf"
-    elif not is_dir and not output_path[-4:] == ".pdf":#output is a directory
-        output_path = os.path.join(os.path.abspath(output_path), path[0].split(s)[-1])
-    
+    else:
+        if output_path == "default":
+            output_path = os.path.abspath(path[0][:-4])+"_compressed.pdf"
+        elif not output_path[-4:] == ".pdf":#output is a directory
+            output_path = os.path.join(os.path.abspath(output_path), path[0].split(s)[-1])
+        else:
+            pass#output as in parameter
     return path, output_path, is_dir
 
-def main(args):#TODO always use prefix absolute file path
-    path, output_path, is_dir = get_paths(args)
-    
+def main(args):
+    path, output_path, is_dir = get_paths_from_args(args)
     if len(path) == 0:
-        print("No PDF Found!")
-        print(path)
-        print(output_path)
-    force_ocr = args["force_ocr"]
-    
-    for pdf_file in path[args["continue"]:]:
-        print("--Compressing \033[0;33;33m%s\033[00m--" % pdf_file)#print filename in yellow
+        print(get_error_string("No PDF Found!"))
+        quit(-1)
+    #compress either single file or all files in folder
+    for pdf_file in path[args["continue"]:]:#--continue parameter
+        
+        #print filename in yellow
+        print("--Compressing "+ get_file_string(pdf_file) +"--")
+        
+        #save size for comparison
         orig_size = os.stat(pdf_file).st_size
-        pdf_name = pdf_file[:-4].split(os.path.sep)[-1]#remove .pdf, path (only Filename)
+        
+        #remove .pdf, path (only Filename)
+        pdf_name = pdf_file[:-4].split(os.path.sep)[-1]
 
         #folder for temporary files(images...)
-        tmp_folder = (pdf_name + FOLDER_ENDING).replace(" ","_")
-        #create it if not already exists
-        if not os.path.isdir(tmp_folder):
-            os.mkdir(tmp_folder)
+        tmp_folder = os.path.abspath((pdf_name + "_tmp").replace(" ","_"))+os.path.sep
+        create_folder_if_not_exist(tmp_folder)
+        
         #split pdf into images
-        pdf2img(pdf_file, pdf_name, tmp_folder, args["mode"])
+        pdf2img(pdf_file, tmp_folder, args["mode"])
 
         #list of pdf pages in png format
         imgs = get_file_list(tmp_folder,".png")
@@ -183,29 +218,32 @@ def main(args):#TODO always use prefix absolute file path
         finally: # To make sure processes are closed in the end, even if errors happen
             pool.close()
             pool.join()
-            print("** - 100%")
+            print("** - 100.00%")#final progress step
 
-        output_file = output_path
+        output_file = os.path.abspath(output_path)
         if is_dir:
             output_file = os.path.join(output_path, pdf_name)+".pdf"
-        #create if not exists #TODO refactor to func
-        if not os.path.isdir(os.path.dirname(output_file)):
-            os.mkdir(os.path.dirname(output_file))
+        
+        create_folder_if_not_exist(output_file)
         
         # merge images/pages into new pdf and apply OCR
-        img2pdf(pdf_name,imgs, output_file)
-        # compress lossless
+        img2pdf(imgs, output_file)
+        
+        # compress pdf lossless
         cpdfsqueeze(output_file)
-        # disgard progress if not smaller. try simple compression with cpdfsqueeze instead
-        if os.stat(pdf_file).st_size < os.stat(output_file).st_size and not force_ocr:
-            if not cpdfsqueeze(pdf_file, output_file):
+        
+        # discard progress if not smaller. try simple compression with cpdfsqueeze instead
+        if os.stat(pdf_file).st_size < os.stat(output_file).st_size and not args["force_ocr"]:
+            if not cpdfsqueeze(pdf_file, output_file):#TODO auot mode change
                 shutil.copy(pdf_file,output_file)
-            print("\033[0;31mNo OCR created.\033[00m")
+            print(get_error_string("No OCR created."))
+       
+        # finish up
         clean_up(tmp_folder)
-        print("created \033[0;33;33m%s\033[0;m " % output_path)
         print_stats(orig_size, os.stat(output_file).st_size)
+        print("created " + get_file_string(output_file))
 
-if __name__ == "__main__":
+def get_args():
     all_args = argparse.ArgumentParser(prog='PDF Compress', usage='%(prog)s [options]', description='Compresses PDFs using lossy png and lossless PDF compression. Optimized for GoodNotes')
     all_args.add_argument("-p", "--path", required=True, help="Path to pdf file or to folder containing pdf files")
     all_args.add_argument("-m", "--mode", required=False, type=int, help="compression mode 1-10. 1:high 10:low compression. Default=3", default=3)
@@ -217,9 +255,16 @@ if __name__ == "__main__":
     if args["continue"] < 0:
         print("option -c --continue must be greater than or equals to 0")
         exit(-1)
+    return args, all_args
+
+if __name__ == "__main__":
+    args, args_obj = get_args()
     if USE_PY_TESS:
+
         if args["no_ocr"]:# switch off OCR
             USE_PY_TESS = False
         elif not init_pytesseract(args):
-            all_args.print_help()
+            args_obj.print_help()
+    else:
+        print(get_error_string("No Module pytesseract Found. (Skipping OCR)"))
     main(args)

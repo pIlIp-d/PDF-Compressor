@@ -19,7 +19,7 @@ Tesseract is optional for OCR - Optical Character Recognition
 
 ## Python Packages
 
-`PyMuPdf`, `img2pdf`, `pytesseract`, and my version of [crunch](https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py)
+`PyMuPdf`, `img2pdf`, `pytesseract`, `PIL`, and my version of [crunch](https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py)
 
 ----
 # Setup
@@ -27,7 +27,7 @@ Tesseract is optional for OCR - Optical Character Recognition
 Windows
 1. clone Repo recusively
 2. Installing Tesseract if you want OCR  
-3. run setup.py
+3. run `setup.py install --user`
 
 Linux/Mac and manual Windows
 1. clone Repo
@@ -52,7 +52,7 @@ Select Additional Languages that you want. (f.e German under Additional Language
 ### 3. Install Python Packages
  run
  ```
- python3 setup.py install
+ python3 setup.py install --user
  ```
 
 ----
@@ -123,12 +123,16 @@ Extract and place all the file as show below.(.exe or whatever binaries you have
     -p FileOrFolder
 
 ## compression rate
-
+----
 Varies on Input of File and gets better with larger Files.  
+
+change `-m` parameter to get higher compression or higher quality. Combine with `--force-ocr` or `--no-ocr` to ensure the result to be with ocr/without  
+
+if no special ocr mode is activated the pdf compression tries to compress through png split... and if the result is larger tha the original remove that and replaces it with an pdf that is only compresed via lossless pdf cpdfsqeeze.
 
 Extremly small files get Larger when the mode is set to high(~low compression).  
 -> no OCR is saved and old document just gets compressed via cpdfsqeeze.
-Solution -s / --force-ocd
+Solution `-s` / `--force-ocd`
 
 ## Help
 ```
