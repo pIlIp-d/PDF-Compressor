@@ -146,7 +146,7 @@ Solution `-s` / `--force-ocd`
 -n --no-ocr         Don't create OCR on pdf.
 -c --continue       Number. When compressing folder and Interrupted, skip files already
                     converted. (=amount of files already converted)```
-
+```
 
 ## Examples
 ```
