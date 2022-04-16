@@ -113,7 +113,7 @@ Extract and place all the file as show below.(.exe or whatever binaries you have
 ### 4. Install Python Packages
  run
  ```
- python3 setup.py install
+ python3 setup.py install --user
  ```
 
 # Usage
