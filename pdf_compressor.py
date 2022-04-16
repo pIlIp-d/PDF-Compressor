@@ -45,13 +45,13 @@ def compress(file, length, pos):
     #file   - string
     #length - amount of files to compress in sum across all threads
     #pos    - current file pos to calculate done progress in percentage
-    print("** - {:.2f}%".format(100*pos/length))
     compressed = file[:-4]+"-crunch.png"#temporary file
     crunch.crunch(file, pngquant_path=PNGQUANT_PATH, advpng_path=ADVPNG_PATH, quiet_=True)
     #replace with compressed file
     os.remove(file)
     os.rename(compressed, file)
-
+    print("** - {:.2f}%".format(100*pos/length))
+    
 def cpdfsqueeze(origin_file, output_file = None):
     if output_file is None:
         output_file = origin_file
@@ -211,6 +211,7 @@ def main(args):
         except KeyboardInterrupt:
             #shutil.rmtree(folder)#clean up
             pool.terminate()
+            pool.join()
             quit()
         except Exception as e:
             #shutil.rmtree(folder)#clean up after failure
