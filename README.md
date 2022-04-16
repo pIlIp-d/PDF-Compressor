@@ -1,6 +1,6 @@
 
 # Pdf Compressor
-Solves the problem with small Upload size limit or just to big files from GoodNotes export.  
+Solves the problem with small Upload size limit or just too big files from GoodNotes export.  
 
 Pdf Compressor converts Pdfs to PNGs and uses lossy png compression. Afterwards it converts the PNGs back to pdfs and runs another round of lossless pdf compression.  
 
