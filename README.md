@@ -150,8 +150,13 @@ Solution `-s` / `--force-ocd`
 
 ## Examples
 ```
+#default mode default output
 python3 pdf_converter.py -p mypdf.pdf
+#custom Mode and Output
 python3 pdf_converter.py -p 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
+
+#goodnotes mode 2-4 works really good
+#scanned documents or photographs work good with mode 1-3
 ```
 
 # Known Problems
