@@ -1,6 +1,6 @@
 
 # Pdf Compressor
-Solves the problem with small Upload size limit or just to big files from GoodNotes export.  
+Solves the problem with small Upload size limit or just too big files from GoodNotes export.  
 
 Pdf Compressor converts Pdfs to PNGs and uses lossy png compression. Afterwards it converts the PNGs back to pdfs and runs another round of lossless pdf compression.  
 
@@ -113,7 +113,7 @@ Extract and place all the file as show below.(.exe or whatever binaries you have
 ### 4. Install Python Packages
  run
  ```
- python3 setup.py install
+ python3 setup.py install --user
  ```
 
 # Usage
@@ -150,8 +150,13 @@ Solution `-s` / `--force-ocd`
 
 ## Examples
 ```
+#default mode default output
 python3 pdf_converter.py -p mypdf.pdf
+#custom Mode and Output
 python3 pdf_converter.py -p 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
+
+#goodnotes mode 2-4 works really good
+#scanned documents or photographs work good with mode 1-3
 ```
 
 # Known Problems
