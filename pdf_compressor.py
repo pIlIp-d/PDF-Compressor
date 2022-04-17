@@ -41,7 +41,7 @@ ADVPNG_PATH = os.path.join(os.path.dirname(__file__),"compressor_lib","advpng","
 ###############################
 ### Compress
 ###############################
-def compress(file, length, pos):
+def crunch_compress(file, length, pos):
     #file   - string
     #length - amount of files to compress in sum across all threads
     #pos    - current file pos to calculate done progress in percentage
@@ -175,6 +175,65 @@ def get_paths_from_args(args):
             pass#output as in parameter
     return path, output_path, is_dir
 
+def get_filename(full_path_to_file):
+    #remove .pdf, path (only Filename)
+    return full_path_to_file[:-4].split(os.path.sep)[-1]
+
+def pdf_compressor(pdf_file, output_file):
+    #print filename in yellow
+    print("--Compressing "+ get_file_string(pdf_file) +"--")
+
+    #save size for comparison
+    orig_size = os.stat(pdf_file).st_size
+
+    #folder for temporary files(images...)
+    tmp_folder = os.path.abspath((get_filename(pdf_file) + "_tmp").replace(" ","_"))+os.path.sep
+    create_folder_if_not_exist(tmp_folder)
+
+    #split pdf into images
+    pdf2img(pdf_file, tmp_folder, args["mode"])
+
+    #list of pdf pages in png format
+    imgs = get_file_list(tmp_folder,".png")
+
+    print("--Compressing via Crunch--")
+    pool = multiprocessing.Pool()
+    try:
+        # multithreaded compression of single images
+        # parameter is function and splitted imgs list with some length counts to display progress
+        pool.starmap(crunch_compress, zip(imgs, [ len(imgs) for x in range(len(imgs)) ], [ x for x in range(len(imgs)) ]))
+    except KeyboardInterrupt:
+        #shutil.rmtree(folder)#clean up
+        pool.terminate()
+        pool.join()
+        quit()
+    except Exception as e:
+        #shutil.rmtree(folder)#clean up after failure
+        raise e
+    finally: # To make sure processes are closed in the end, even if errors happen
+        pool.close()
+        pool.join()
+        print("** - 100.00%")#final progress step
+
+    create_folder_if_not_exist(output_file)
+
+    # merge images/pages into new pdf and apply OCR
+    img2pdf(imgs, output_file)
+
+    # compress pdf lossless
+    cpdfsqueeze(output_file)
+
+    # discard progress if not smaller. try simple compression with cpdfsqueeze instead
+    if os.stat(pdf_file).st_size < os.stat(output_file).st_size and not args["force_ocr"]:
+        if not cpdfsqueeze(pdf_file, output_file):#TODO auot mode change
+            shutil.copy(pdf_file,output_file)
+        print(get_error_string("No OCR created."))
+
+    # finish up
+    clean_up(tmp_folder)
+    print_stats(orig_size, os.stat(output_file).st_size)
+    print("created " + get_file_string(output_file))
+
 def main(args):
     path, output_path, is_dir = get_paths_from_args(args)
     if len(path) == 0:
@@ -182,67 +241,14 @@ def main(args):
         quit(-1)
     #compress either single file or all files in folder
     for pdf_file in path[args["continue"]:]:#--continue parameter
-        
-        #print filename in yellow
-        print("--Compressing "+ get_file_string(pdf_file) +"--")
-        
-        #save size for comparison
-        orig_size = os.stat(pdf_file).st_size
-        
         #remove .pdf, path (only Filename)
-        pdf_name = pdf_file[:-4].split(os.path.sep)[-1]
-
-        #folder for temporary files(images...)
-        tmp_folder = os.path.abspath((pdf_name + "_tmp").replace(" ","_"))+os.path.sep
-        create_folder_if_not_exist(tmp_folder)
+        pdf_name = get_filename(pdf_file)
         
-        #split pdf into images
-        pdf2img(pdf_file, tmp_folder, args["mode"])
-
-        #list of pdf pages in png format
-        imgs = get_file_list(tmp_folder,".png")
-       
-        print("--Compressing via Crunch--")
-        pool = multiprocessing.Pool()
-        try:
-            # multithreaded compression of single images
-            # parameter is function and splitted imgs list with some length counts to display progress
-            pool.starmap(compress, zip(imgs, [ len(imgs) for x in range(len(imgs)) ], [ x for x in range(len(imgs)) ]))
-        except KeyboardInterrupt:
-            #shutil.rmtree(folder)#clean up
-            pool.terminate()
-            pool.join()
-            quit()
-        except Exception as e:
-            #shutil.rmtree(folder)#clean up after failure
-            raise e
-        finally: # To make sure processes are closed in the end, even if errors happen
-            pool.close()
-            pool.join()
-            print("** - 100.00%")#final progress step
-
         output_file = os.path.abspath(output_path)
         if is_dir:
             output_file = os.path.join(output_path, pdf_name)+".pdf"
-        
-        create_folder_if_not_exist(output_file)
-        
-        # merge images/pages into new pdf and apply OCR
-        img2pdf(imgs, output_file)
-        
-        # compress pdf lossless
-        cpdfsqueeze(output_file)
-        
-        # discard progress if not smaller. try simple compression with cpdfsqueeze instead
-        if os.stat(pdf_file).st_size < os.stat(output_file).st_size and not args["force_ocr"]:
-            if not cpdfsqueeze(pdf_file, output_file):#TODO auot mode change
-                shutil.copy(pdf_file,output_file)
-            print(get_error_string("No OCR created."))
+        pdf_compressor(pdf_file, output_file)
        
-        # finish up
-        clean_up(tmp_folder)
-        print_stats(orig_size, os.stat(output_file).st_size)
-        print("created " + get_file_string(output_file))
 
 def get_args():
     all_args = argparse.ArgumentParser(prog='PDF Compress', usage='%(prog)s [options]', description='Compresses PDFs using lossy png and lossless PDF compression. Optimized for GoodNotes')
