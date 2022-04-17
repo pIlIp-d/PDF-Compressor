@@ -153,6 +153,7 @@ def create_folder_if_not_exist(file_or_folder_path):
     if not os.path.isdir(os.path.dirname(file_or_folder_path)):
         os.mkdir(os.path.dirname(file_or_folder_path))
 
+
 def get_paths_from_args(args):
     # returns properly formatted and absolute path to origin and ouput file
     # path is list of origin files(without .pdf) and output_path is either folder or file
