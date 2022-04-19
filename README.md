@@ -24,18 +24,11 @@ Tesseract is optional for OCR - Optical Character Recognition
 ----
 # Setup
 
-Windows
+##  Windows
+
 1. clone Repo recusively
 2. Installing Tesseract if you want OCR  
 3. run `setup.py install --user`
-
-Linux/Mac and manual Windows
-1. clone Repo
-2. install dependencies
-3. configuring Vaiables to binaries
-4. run setup.py
-
-##  Windows
 ----
 ### 1. Inlcuding all binaries
 ```
@@ -58,6 +51,11 @@ Select Additional Languages that you want. (f.e German under Additional Language
 ----
 ## Linux/Mac and manual Windows
 
+1. clone Repo
+2. install dependencies
+3. configuring Vaiables to binaries
+4. run setup.py
+----
 ### **1. without any binaries**
 ```
 git clone https://github.com/pIlIp-d/PDF-Compressor
