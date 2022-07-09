@@ -2,7 +2,6 @@ from Converter import *
 from Converter.ConvertException import ConvertException
 from Converter.PyTesseractNotFoundException import PytesseractNotFoundException
 from Utility.OsUtility import OsUtility
-from Utility.OsType import OsType
 
 import os
 
