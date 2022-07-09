@@ -1,10 +1,16 @@
+import os.path
 from unittest import TestCase
+
+from Project.Converter.PdfToImageConverter import PdfToImageConverter
 
 
 class TestPdfToImagesConverter(TestCase):
 
     def test_class_init(self):
-        self.fail("Not Implemented Yet")
+        # without mode
+        PdfToImageConverter("originFile.pdf", "destinationFile.pdf")
+        # with mode
+        PdfToImageConverter("originFile.pdf", "destinationFile.pdf", 5)
 
     def test_single_page_pdf_convert(self):
         self.fail("Not Implemented Yet")
