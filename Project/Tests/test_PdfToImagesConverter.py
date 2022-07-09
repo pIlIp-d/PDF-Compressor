@@ -24,15 +24,16 @@ class TestPdfToImagesConverter(TestCase):
 
     def test_multiple_page_pdf_convert(self):
         pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
-                                            self.working_dir, 5)
+                                            self.working_dir, 1)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))
         self.assertTrue(os.path.exists(self.working_dir + "/page_1.png"))
         self.assertFalse(os.path.exists(self.working_dir + "/page_2.png"))
 
     def test_wrong_format_pdf(self):
+        # TODO expected exception
         pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
-                                            self.working_dir, 5)
+                                            self.working_dir, 1)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))
         self.assertTrue(os.path.exists(self.working_dir + "/page_1.png"))
