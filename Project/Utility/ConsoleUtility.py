@@ -4,10 +4,12 @@ class ConsoleUtility:
     GREEN = "\n\033[0;32m"
     END = "\033[0m"
 
-    def get_error_string(self, string) -> str:
+    @staticmethod
+    def get_error_string(string: str) -> str:
         # returns string but in red for ANSI compatible shells
-        return self.RED + string + self.END
+        return ConsoleUtility.RED + string + ConsoleUtility.END
 
-    def get_file_string(self, file) -> str:
+    @staticmethod
+    def get_file_string(file: str) -> str:
         # returns string but in yellow for ANSI compatible shells
-        return self.YELLOW + str(file) + self.END
+        return ConsoleUtility.YELLOW + str(file) + ConsoleUtility.END
