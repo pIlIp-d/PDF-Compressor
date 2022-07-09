@@ -165,6 +165,8 @@ python3 pdf_converter.py -p 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 
 * pngquant sometimes fails to compress, program just skips it
 
+* Linux and MacOs aren't tested enough and it's not very easy to install it with all the packages
+
 # Software License Agreements
 
 **pngquant** – https://pngquant.org <br>
