@@ -171,7 +171,7 @@ def get_paths_from_args(args):
         if output_path == "default":
             output_path = os.path.abspath(path[0][:-4])+"_compressed.pdf"
         elif not output_path[-4:] == ".pdf":#output is a directory
-            output_path = os.path.join(os.path.abspath(output_path), path[0].split(s)[-1])
+            output_path = os.path.join(os.path.abspath(output_path), path[0].split(os.path.sep)[-1])
         else:
             pass#output as in parameter
     return path, output_path, is_dir
