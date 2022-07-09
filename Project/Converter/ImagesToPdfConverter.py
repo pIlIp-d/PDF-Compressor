@@ -22,10 +22,9 @@ else:
 class ImagesToPdfConverter(Converter):
     pytesseract_path: str
 
-    def __init__(self, origin_path, dest_path, mode=5, pytesseract_path=None, force_ocr=False):
+    def __init__(self, origin_path: str, dest_path: str, pytesseract_path: str = None, force_ocr: bool = False):
         super().__init__(origin_path, dest_path)
         self.images = OsUtility.get_file_list(origin_path, ".png")
-        self.mode = mode
         self.force_ocr = force_ocr and PY_TESS_AVAILABLE
         if pytesseract_path is not None:
             self.pytesseract_path = pytesseract_path
@@ -36,7 +35,7 @@ class ImagesToPdfConverter(Converter):
                 pytesseract_path = None
                 force_ocr = False
 
-    def init_pytesseract(self): # TODO
+    def init_pytesseract(self):  # TODO
         global TESSERACT_PATH, TESSDATA_PREFIX
         # pytesseract setup
         TESSERACT_PATH = self.pytesseract_path
@@ -45,7 +44,7 @@ class ImagesToPdfConverter(Converter):
                 self.pytesseract_path = os.path.join(os.path.expanduser('~'),
                                                      "AppData", "Local", "Programs", "Tesseract-OCR", "tesseract.exe")
             TESSDATA_PREFIX = "--tessdata-dir '" + os.path.join(
-                            os.path.expanduser('~'), "AppData", "Local", "Programs", "Tesseract-OCR", "tessdata") + "'"
+                os.path.expanduser('~'), "AppData", "Local", "Programs", "Tesseract-OCR", "tessdata") + "'"
             if not os.path.isfile(TESSERACT_PATH):
                 raise PytesseractNotFoundException()
                 quit(5)  # TODO documentation
