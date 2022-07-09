@@ -25,7 +25,7 @@ class TestPdfToImagesConverter(TestCase):
         ImagesToPdfConverter("originFile.pdf", "destinationFile.pdf", 5, r"pathToPyTesseract", False)
 
     def test_class_init_with_force_ocr(self):
-        testStout = StringIO()
-        sys.stdout = testStout
+        test_stout = StringIO()
+        sys.stdout = test_stout
         ImagesToPdfConverter("originFile.pdf", "destinationFile.pdf", 5, r"pathToPyTesseract", True)
-        self.assertEqual(testStout.getvalue(), "")  # TODO maybe change condition
+        self.assertEqual(test_stout.getvalue(), "")  # TODO maybe change condition
