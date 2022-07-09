@@ -22,9 +22,14 @@ class OsUtility:
         shutil.rmtree(folder)
 
     @staticmethod
-    def create_folder_if_not_exist(file_or_folder_path):
-        if not os.path.isdir(os.path.dirname(file_or_folder_path)):
-            os.mkdir(os.path.dirname(file_or_folder_path))
+    def create_folder_if_not_exist(file_path):
+        # TODO proper support for directories
+        if not os.path.isdir(os.path.dirname(file_path)):
+            # file_path is a file
+            os.mkdir(os.path.dirname(file_path))
+        elif file_path[-1] == "/":
+            # file_path is a directory because it endswith /
+            os.mkdir(file_path)
 
     @staticmethod
     def get_filename(full_path_to_file):
