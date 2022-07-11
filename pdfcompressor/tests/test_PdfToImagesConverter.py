@@ -2,8 +2,8 @@ import os.path
 import shutil
 from unittest import TestCase
 
-from Project.Converter.PdfToImageConverter import PdfToImageConverter
-from Project.Utility.OsUtility import OsUtility
+from pdfcompressor.compressor.converter.PdfToImageConverter import PdfToImageConverter
+from pdfcompressor.utility.OsUtility import OsUtility
 
 
 class TestPdfToImagesConverter(TestCase):
@@ -16,14 +16,14 @@ class TestPdfToImagesConverter(TestCase):
         PdfToImageConverter("originFile.pdf", "destinationFile.pdf", 5)
 
     def test_single_page_pdf_convert(self):
-        pdf_converter = PdfToImageConverter(r"./TestData/singlePagePdf.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/singlePagePdf.pdf",
                                             self.working_dir, 5)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir+"/page_0.png"))
         self.assertFalse(os.path.exists(self.working_dir + "/page_1.png"))
 
     def test_multiple_page_pdf_convert(self):
-        pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/multiPageTestData.pdf",
                                             self.working_dir, 1)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))
@@ -32,7 +32,7 @@ class TestPdfToImagesConverter(TestCase):
 
     def test_wrong_format_pdf(self):
         # TODO expected exception
-        pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/multiPageTestData.pdf",
                                             self.working_dir, 1)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))
@@ -40,12 +40,12 @@ class TestPdfToImagesConverter(TestCase):
         self.assertFalse(os.path.exists(self.working_dir + "/page_2.png"))
 
     def test_mode_is_min_value(self):
-        pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/multiPageTestData.pdf",
                                             self.working_dir, 0)
         self.assertRaises(RuntimeError, pdf_converter.convert)
 
     def test_mode_is_max_value(self):
-        pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/multiPageTestData.pdf",
                                             self.working_dir, 10)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))
@@ -53,8 +53,7 @@ class TestPdfToImagesConverter(TestCase):
         self.assertFalse(os.path.exists(self.working_dir + "/page_2.png"))
 
     def test_mode_is_negative_value(self):
-
-        pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/multiPageTestData.pdf",
                                             self.working_dir, -1)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))
@@ -62,7 +61,7 @@ class TestPdfToImagesConverter(TestCase):
         self.assertFalse(os.path.exists(self.working_dir + "/page_2.png"))
 
     def test_mode_is_too_large_value(self):
-        pdf_converter = PdfToImageConverter(r"./TestData/multiPageTestData.pdf",
+        pdf_converter = PdfToImageConverter(r"TestData/TestFolder/multiPageTestData.pdf",
                                             self.working_dir, 11)
         pdf_converter.convert()
         self.assertTrue(os.path.exists(self.working_dir + "/page_0.png"))

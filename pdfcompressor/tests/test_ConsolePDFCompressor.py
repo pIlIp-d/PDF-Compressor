@@ -5,7 +5,7 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
-from Project.Utility.OsUtility import OsUtility
+from pdfcompressor.utility.OsUtility import OsUtility
 
 
 class TestConsolePDFCompressor(TestCase):
@@ -16,7 +16,7 @@ class TestConsolePDFCompressor(TestCase):
     def test_compress_single_file(self):
         result_path = './TestData/multiPageTestData_compressed.pdf'
         self.remove_if_not_exists(result_path)
-        subprocess.call(["python3", os.path.abspath('../PDFCompressor.py'),
+        subprocess.call(["python3", os.path.abspath('../pdfcompressor.py'),
                          "-p", os.path.abspath('./TestData/multiPageTestData.pdf')])
         self.assertTrue(os.path.exists(result_path))
 
@@ -25,7 +25,7 @@ class TestConsolePDFCompressor(TestCase):
         self.remove_if_not_exists(result_path)
         OsUtility.clean_up_folder(os.path.abspath("./TestData/multiPageTestData_tmp"))
 
-        subprocess.call(["python3", os.path.abspath('../PDFCompressor.py'),
+        subprocess.call(["python3", os.path.abspath('../pdfcompressor.py'),
                          "-p", os.path.abspath('./TestData/multiPageTestData.pdf'),
                          "-o", os.path.abspath(result_path), "-m", "9"])
         file_exists = os.path.exists(result_path)

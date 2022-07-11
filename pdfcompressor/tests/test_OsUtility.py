@@ -2,7 +2,7 @@ import os.path
 import shutil
 from unittest import TestCase
 
-from Project.Utility.OsUtility import OsUtility
+from pdfcompressor.utility.OsUtility import OsUtility
 
 
 class TestOsUtility(TestCase):
@@ -24,8 +24,8 @@ class TestOsUtility(TestCase):
         self.assertTrue(os.path.isdir(os.path.dirname(self.test_filename)))
         os.rmdir(os.path.dirname(self.test_filename))
 
-    def test_get_filename(self):
-        self.fail("Not Implemented Yet")
+    def test_get_filename(self):  # TODO more TestCases
+        self.assertEquals("singlePagePdf", OsUtility.get_filename(os.path.abspath("TestData/single Page Pdf.pdf")))
 
     def tearDown(self):
         if os.path.isdir(self.test_filename):
