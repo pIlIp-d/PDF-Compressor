@@ -1,3 +1,3 @@
 [submodule "compressor_lib"]
-	path = compressor_lib
+	path = Project/Compressor/compressor_lib
 	url = https://github.com/pIlIp-d/compressor_lib

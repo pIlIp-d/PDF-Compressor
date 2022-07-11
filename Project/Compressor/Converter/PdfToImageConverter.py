@@ -1,4 +1,5 @@
-from Project.Converter.Converter import *
+from Project.Compressor.Converter.Converter import *
+from Project.Utility.ConsoleUtility import ConsoleUtility
 from Project.Utility.OsUtility import OsUtility
 
 import os
@@ -13,13 +14,13 @@ class PdfToImageConverter(Converter):
         self.mode = mode
 
     def convert(self):
-        print(self.dest_path)
+        ConsoleUtility.print(self.dest_path)
         OsUtility.create_folder_if_not_exist(self.dest_path)
-        print("--splitting pdf into images--")
+        ConsoleUtility.print("--splitting pdf into images--")
         # open pdf and split it into rgb-pixelmaps -> png
         doc = fitz.open(self.origin_path)
         for page in doc:
-            print("** - {:.2f}%".format(100 * page.number / len(doc)))
+            ConsoleUtility.print("** - {:.2f}%".format(100 * page.number / len(doc)))
             pix = page.get_pixmap(matrix=fitz.Matrix(self.mode, self.mode))
             pix.save(os.path.join(self.dest_path, 'page_%i.png' % page.number))
-        print("** - 100.00%")
+        ConsoleUtility.print("** - 100.00%")

@@ -1,14 +1,15 @@
-import os
+from Project.Compressor.Converter.Converter import Converter
+from Project.Compressor.Converter.ConvertException import ConvertException
+from Project.Compressor.Converter.PyTesseractNotFoundException import PytesseractNotFoundException
+from Project.Utility.ConsoleUtility import ConsoleUtility
+from Project.Utility.OsUtility import OsUtility
 
 # package name PyMuPdf
 import fitz
+
+import os
 from PIL import Image
 from img2pdf import convert
-
-from Project.Converter.Converter import Converter
-from Project.Converter.ConvertException import ConvertException
-from Project.Converter.PyTesseractNotFoundException import PytesseractNotFoundException
-from Project.Utility.OsUtility import OsUtility
 
 # OCR for pdf
 try:
@@ -17,6 +18,9 @@ except:
     PY_TESS_AVAILABLE = False
 else:
     PY_TESS_AVAILABLE = True
+
+# optional add --tessdata 'path_to_tessdata_folder'
+TESSDATA_PREFIX = ""
 
 
 class ImagesToPdfConverter(Converter):
@@ -32,28 +36,19 @@ class ImagesToPdfConverter(Converter):
                 self.init_pytesseract()
             except ConvertException as e:
                 print(str(e))
-                pytesseract_path = None
-                force_ocr = False
+                self.force_ocr = False
 
-    def init_pytesseract(self):  # TODO
-        global TESSERACT_PATH, TESSDATA_PREFIX
-        # pytesseract setup
-        TESSERACT_PATH = self.pytesseract_path
+    def init_pytesseract(self):
+        # either initiates pytesseract or deactivate ocr if not possible
         try:
-            if self.pytesseract_path is not None:
-                self.pytesseract_path = os.path.join(os.path.expanduser('~'),
-                                                     "AppData", "Local", "Programs", "Tesseract-OCR", "tesseract.exe")
-            TESSDATA_PREFIX = "--tessdata-dir '" + os.path.join(
-                os.path.expanduser('~'), "AppData", "Local", "Programs", "Tesseract-OCR", "tessdata") + "'"
-            if not os.path.isfile(TESSERACT_PATH):
+            if not os.path.isfile(self.pytesseract_path):
                 raise PytesseractNotFoundException()
-                quit(5)  # TODO documentation
-
-            pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
-        except:
+            pytesseract.tesseract_cmd = self.pytesseract_path
+        except Exception as ee:
+            print(ee)
             if self.force_ocr:
-                print("Tesseract Not Loaded, Can't create OCR."
-                      "(leave out option '--ocr-force' to compresss without ocr)")
+                ConsoleUtility.print(ConsoleUtility.get_error_string("Tesseract Not Loaded, Can't create OCR."
+                                                      "(leave out option '--ocr-force' to compresss without ocr)"))
                 self.force_ocr = False
                 return False
             raise ConvertException("Tesseract (-> no OCR on pdfs)")
@@ -61,29 +56,31 @@ class ImagesToPdfConverter(Converter):
 
     def convert(self):
         # merging pngs to pdf and create OCR
-        print("--merging compressed images into new pdf and creating OCR--")
+        ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
         pdf = fitz.open()
         i = 0
         for img in self.images:
-            print("** - {:.2f}%".format(100 * i / len(self.images)))
+            ConsoleUtility.print("** - {:.2f}%".format(100 * i / len(self.images)))
             i += 1
             try:
                 if not self.force_ocr:
                     raise Exception("skipping tesseract")
                 result = pytesseract.image_to_pdf_or_hocr(Image.open(img), lang="deu", extension="pdf",
                                                           config=TESSDATA_PREFIX)
-                open(img + ".pdf", "wb").write(result)
-            except:  # if ocr/tesseract fails
+                with open(img + ".pdf", "wb") as f:
+                    f.write(result)
+            except Exception:  # if ocr/tesseract fails
                 with open(img + ".pdf", "wb") as f:
                     f.write(convert(img))
                 if self.force_ocr:
-                    print("OCR couldn't be processed.")
+                    ConsoleUtility.print(ConsoleUtility.get_error_string("OCR couldn't be processed."))
                 # ignore if ocr cant be done
-            pdf.insert_pdf(fitz.open(img + ".pdf"))
+            with fitz.open(img + ".pdf") as f:
+                pdf.insert_pdf(f)
         if not os.path.isdir(os.path.sep.join(self.dest_path.split(os.path.sep)[:-1])) and not os.path.sep.join(
                 self.dest_path.split(os.path.sep)[:-1]) == "":
-            print(self.dest_path.split(os.path.sep))
+            ConsoleUtility.print(self.dest_path.split(os.path.sep))
             os.mkdir(os.path.sep.join(self.dest_path.split(os.path.sep)[:-1]))
-        print("** - 100.00%")
+        ConsoleUtility.print("** - 100.00%")
         # raises exception if no matching permissions in output folder
         pdf.save(self.dest_path)
