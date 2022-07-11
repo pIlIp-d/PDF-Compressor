@@ -18,6 +18,11 @@ class ConsoleUtility:
 
     @staticmethod
     def print_stats(orig: int, result: int) -> None:
+        if orig <= 0:
+            raise ValueError("orig must be greater than 0")
+        if result < 0:
+            raise ValueError("result can't be less than 0")
+
         ConsoleUtility.print(ConsoleUtility.GREEN + "Compressed File from " + str(round(orig / 1000000, 2)) + "mb to " +str(
             round(result / 1000000, 2)) + "mb (-" + str(
             round(100 - (result / orig * 100), 2)) + "%)" + ConsoleUtility.END)
