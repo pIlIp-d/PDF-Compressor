@@ -6,27 +6,248 @@ from pdfcompressor.utility.OsUtility import OsUtility
 
 
 class TestOsUtility(TestCase):
-    test_filename = os.path.abspath("./testFolder/test.file")
 
-    def test_get_file_list(self):
-        self.fail("Not Implemented Yet")
+    @staticmethod
+    def create_file(file_path: str) -> None:
+        with open(file_path, "w") as f:
+            f.write("")
 
-    def test_clean_up_folder(self):
-        self.fail("Not Implemented Yet")
+    @staticmethod
+    def create_folder(folder_path: str) -> None:
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+        os.mkdir(folder_path)
 
-    def test_create_folder_if_not_exist(self):
-        # folder doesn't exists
-        self.assertFalse(os.path.isdir(os.path.dirname(self.test_filename)))
+    # get_file_list
+    def test_get_file_list_from_empty_folder(self):
+        folder_dir = os.path.join(".", "TestData", "emptyFolder")
+        self.create_folder(folder_dir)
+        file_list = OsUtility.get_file_list(folder_dir)
+        shutil.rmtree(folder_dir)
+        self.assertEqual(0, len(file_list))
 
-        OsUtility.create_folder_if_not_exist(self.test_filename)
+    def test_get_file_list_from_single_file_in_folder(self):
+        folder_dir = os.path.join(".", "TestData", "singleFileFolder")
+        self.create_folder(folder_dir)
 
-        # folder exists
-        self.assertTrue(os.path.isdir(os.path.dirname(self.test_filename)))
-        os.rmdir(os.path.dirname(self.test_filename))
+        file = os.path.join(folder_dir, "testFile.png")
+        self.create_file(file)
 
-    def test_get_filename(self):  # TODO more TestCases
-        self.assertEquals("singlePagePdf", OsUtility.get_filename(os.path.abspath("TestData/single Page Pdf.pdf")))
+        file_list = OsUtility.get_file_list(folder_dir)
+        shutil.rmtree(folder_dir)
 
-    def tearDown(self):
-        if os.path.isdir(self.test_filename):
-            shutil.rmtree(self.test_filename)
+        self.assertEqual(1, len(file_list))
+        self.assertEqual(file, file_list[0])
+
+    def test_get_file_list_from_multiple_files_in_folder(self):
+        folder_dir = os.path.join(".", "TestData", "singleFileFolder")
+        self.create_folder(folder_dir)
+
+        file1 = os.path.join(folder_dir, "testFile1.png")
+        self.create_file(file1)
+        file2 = os.path.join(folder_dir, "testFile2.png")
+        self.create_file(file2)
+        file3 = os.path.join(folder_dir, "testFile3.png")
+        self.create_file(file3)
+
+        file_list = OsUtility.get_file_list(folder_dir)
+        shutil.rmtree(folder_dir)
+
+        self.assertEqual(3, len(file_list))
+        self.assertTrue(file_list.__contains__(file1))
+        self.assertTrue(file_list.__contains__(file2))
+        self.assertTrue(file_list.__contains__(file3))
+
+    def test_get_file_list_invalid_path(self):
+        self.assertRaises(
+            FileNotFoundError,
+            OsUtility.get_file_list, os.path.join(".", "TestData", "moreFilesFolder")
+        )
+
+    def test_get_file_list_from_not_existing_folder(self):
+        self.assertRaises(
+            FileNotFoundError,
+            OsUtility.get_file_list, os.path.join(".", "TestData", "notExistingFolder")
+        )
+
+    def test_get_file_list_with_empty_string_as_folder(self):
+        self.assertRaises(
+            FileNotFoundError,
+            OsUtility.get_file_list, ""
+        )
+
+    def test_get_file_list_with_relative_folder_path(self):
+        folder_dir = os.path.join(".", "TestData", "singleFileFolder")
+        self.create_folder(folder_dir)
+
+        file = os.path.join(folder_dir, "testFile.png")
+        self.create_file(file)
+
+        file_list = OsUtility.get_file_list(folder_dir)
+        shutil.rmtree(folder_dir)
+
+        self.assertEqual(1, len(file_list))
+
+    def test_get_file_list_with_absolute_folder_path(self):
+        folder_dir = os.path.abspath(os.path.join(".", "TestData", "singleFileFolder"))
+        self.create_folder(folder_dir)
+
+        file = os.path.join(folder_dir, "testFile.png")
+        self.create_file(file)
+
+        file_list = OsUtility.get_file_list(folder_dir)
+        shutil.rmtree(folder_dir)
+
+        self.assertEqual(1, len(file_list))
+
+    def test_get_file_list_with_file_as_folder_path(self):
+        self.assertRaises(
+            ValueError,
+            OsUtility.get_file_list, os.path.join(".", "TestData", "singlePagePdf.pdf")
+        )
+
+    def test_get_file_list_with_empty_ending(self):
+        folder_dir = os.path.join(".", "TestData", "moreFilesFolder")
+        self.create_folder(folder_dir)
+
+        file1 = os.path.join(folder_dir, "testFile1.png")
+        self.create_file(file1)
+        file2 = os.path.join(folder_dir, "testFile2.pdf")
+        self.create_file(file2)
+        file3 = os.path.join(folder_dir, "testFile3.svg")
+        self.create_file(file3)
+
+        file_list = OsUtility.get_file_list(folder_dir, "")
+        shutil.rmtree(folder_dir)
+
+        self.assertEqual(3, len(file_list))
+        self.assertTrue(file_list.__contains__(file1))
+        self.assertTrue(file_list.__contains__(file2))
+        self.assertTrue(file_list.__contains__(file3))
+
+    def test_get_file_list_with_custom_ending(self):
+        folder_dir = os.path.abspath(os.path.join(".", "TestData", "moreFilesFolder"))
+        self.create_folder(folder_dir)
+
+        file1 = os.path.join(folder_dir, "testFile1.png")
+        self.create_file(file1)
+        file2 = os.path.join(folder_dir, "testFile2.pdf")
+        self.create_file(file2)
+        file3 = os.path.join(folder_dir, "testFile3.svg")
+        self.create_file(file3)
+
+        file_list = OsUtility.get_file_list(folder_dir, ".svg")
+        shutil.rmtree(folder_dir)
+
+        self.assertEqual(1, len(file_list))
+        self.assertTrue(file_list.__contains__(file3))
+
+    def test_get_file_list_with_dot_as_ending(self):
+        folder_dir = os.path.join(".", "TestData", "moreFilesFolder")
+        self.create_folder(folder_dir)
+
+        file1 = os.path.join(folder_dir, "testFile1.png")
+        self.create_file(file1)
+        file2 = os.path.join(folder_dir, "testFile2.pdf")
+        self.create_file(file2)
+
+        file_list = OsUtility.get_file_list(folder_dir, ".")
+
+        self.assertEqual(0, len(file_list))
+
+        file3 = os.path.join(folder_dir, "testFile3.")
+        self.create_file(file3)
+
+        file_list = OsUtility.get_file_list(folder_dir, ".")
+
+        self.assertEqual(1, len(file_list))
+        shutil.rmtree(folder_dir)
+
+    def test_get_file_with_text_as_ending(self):
+        folder_dir = os.path.join(".", "TestData", "moreFilesFolder")
+        self.create_folder(folder_dir)
+
+        file1 = os.path.join(folder_dir, "testFile1.png")
+        self.create_file(file1)
+        file2 = os.path.join(folder_dir, "testFile2.pdf")
+        self.create_file(file2)
+
+        file_list = OsUtility.get_file_list(folder_dir, "endswithText")
+
+        self.assertEqual(0, len(file_list))
+
+        file3 = os.path.join(folder_dir, "testFile3endswithText")
+        self.create_file(file3)
+
+        file_list = OsUtility.get_file_list(folder_dir, "endswithText")
+
+        self.assertEqual(1, len(file_list))
+        shutil.rmtree(folder_dir)
+
+    # clean_up_folder
+    def test_clean_up_folder_with_empty_folder(self):
+        folder_dir = os.path.join(".", "TestData", "emptyFolder")
+        self.create_folder(folder_dir)
+
+        OsUtility.clean_up_folder(folder_dir)
+
+        self.assertFalse(os.path.exists(folder_dir))
+
+    def test_clean_up_folder_with_files_in_folder(self):
+        folder_dir = os.path.join(".", "TestData", "filledFolder")
+        self.create_folder(folder_dir)
+
+        self.create_file(os.path.join(folder_dir, "testFile1.png"))
+        self.create_file(os.path.join(folder_dir, "testFile2.png"))
+
+        OsUtility.clean_up_folder(folder_dir)
+
+        self.assertFalse(os.path.exists(folder_dir))
+
+    def test_clean_up_folder_with_not_existing_folder(self):
+        self.assertRaises(
+            FileNotFoundError,
+            OsUtility.clean_up_folder, "./TestData/notAFolder"
+        )
+
+    def test_clean_up_folder_with_relative_path_to_existing_file(self):
+        file = os.path.join(".", "TestData", "fileToDelete.png")
+        self.create_file(file)
+        self.assertRaises(
+            ValueError,
+            OsUtility.clean_up_folder, file
+        )
+
+    def test_clean_up_folder_with_absolute_path_to_existing_file(self):
+        file = os.path.join(".", "TestData", "fileToDelete.png")
+        self.create_file(file)
+        self.assertRaises(
+            ValueError,
+            OsUtility.clean_up_folder, os.path.abspath(file)
+        )
+
+    def test_clean_up_folder_with_relative_path_to_existing_folder(self):
+        folder_dir = os.path.abspath(os.path.join(".", "TestData", "existingFolder"))
+        self.create_folder(folder_dir)
+
+        OsUtility.clean_up_folder(folder_dir)
+        self.assertFalse(os.path.exists(folder_dir))
+
+    def test_clean_up_folder_with_absolute_path_to_existing_folder(self):
+        folder_dir = os.path.join(".", "TestData", "existingFolder")
+        self.create_folder(folder_dir)
+
+        OsUtility.clean_up_folder(folder_dir)
+        self.assertFalse(os.path.exists(folder_dir))
+
+    def test_clean_up_folder_with_empty_path_string(self):
+        self.assertRaises(
+            FileNotFoundError,
+            OsUtility.clean_up_folder, ""
+        )
+
+    # create_folder_if_not_exist
+    def test_create_folder_if_not_exist_with_relative_path_to_existing_file(self):
+        pass
+
+    # get_filename
