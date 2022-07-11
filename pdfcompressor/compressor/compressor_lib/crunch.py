@@ -13,6 +13,7 @@
 #
 #   Edited by Philip Dell
 #   Easy Implementation of crunch png
+#   Changed/Improved compression Tools advpng(advancecomp) and pngquant
 #   Copyright 2021 Philip Dell
 #   MIT Licence
 #
