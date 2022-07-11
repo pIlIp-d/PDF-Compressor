@@ -153,36 +153,6 @@ class PDFCompressor:
         ConsoleUtility.print(ConsoleUtility.get_error_string(error_string))
         raise ValueError(error_string)  # TODO
 
-    def old__init__(self, crunch: Compressor, origin_pdf, output_pdf, mode=5, force_ocr=True, continue_arg=0):
-        if continue_arg < 0:
-            ConsoleUtility.print("option -c --continue must be greater than or equals to 0")
-            raise Exception("option continue must be greater than or equal to 0")  # TODO
-
-        # print filename in yellow
-        ConsoleUtility.print("--Compressing " + ConsoleUtility.get_file_string(pdf_file) + "--")
-
-        # save size for comparison
-        orig_size = os.stat(pdf_file).st_size
-
-        # compress lossy
-        crunch = CrunchCompressor(mode, PNGQUANT_PATH, ADVPNG_PATH)
-        crunch.enable_tesseract(TESSERACT_PATH, force_ocr)
-        crunch.compress(origin_pdf, output_file)
-
-        # compress pdf lossless
-        CPdfSqueezeCompressor(output_file, output_file, CPDFSQUEEZE_PATH, True).compress()
-
-        # discard progress if not smaller. try simple compression with cpdfsqueeze instead
-        if orig_size < os.stat(output_file).st_size and not force_ocr:
-            CPdfSqueezeCompressor(pdf_file, output_file, CPDFSQUEEZE_PATH, True).compress()
-            if orig_size < os.stat(output_file).st_size:
-                shutil.copy(pdf_file, output_file)
-            ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR created."))
-
-        ConsoleUtility.print_stats(orig_size, os.stat(output_file).st_size)
-        ConsoleUtility.print("created " + ConsoleUtility.get_file_string(output_file))
-
-
 def get_args():
     all_args = argparse.ArgumentParser(prog='PDF Compress', usage='%(prog)s [options]',
                                        description='Compresses PDFs using lossy png and lossless PDF compression. '
