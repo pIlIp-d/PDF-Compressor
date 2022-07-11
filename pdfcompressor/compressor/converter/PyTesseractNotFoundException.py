@@ -1,4 +1,4 @@
-from Project.Utility.ConsoleUtility import ConsoleUtility
+from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
 
 
 class PytesseractNotFoundException(Exception):

@@ -1,6 +1,6 @@
-from Project.Utility.ConsoleUtility import ConsoleUtility
+from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
 
 
 class CompressException(Exception):
-    def __init__(self, stage="Compression"):
+    def __init__(self, stage: str = "Compression"):
         super().__init__(ConsoleUtility.get_error_string("[!] Compression Failed during " + stage + " stage."))

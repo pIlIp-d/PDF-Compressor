@@ -1,6 +1,6 @@
-from Project.Compressor.Converter.Converter import *
-from Project.Utility.ConsoleUtility import ConsoleUtility
-from Project.Utility.OsUtility import OsUtility
+from pdfcompressor.compressor.converter.Converter import *
+from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
+from pdfcompressor.utility.OsUtility import OsUtility
 
 import os
 
@@ -9,11 +9,16 @@ import fitz
 
 
 class PdfToImageConverter(Converter):
-    def __init__(self, origin_path, dest_path, mode=5):
+    def __init__(
+            self,
+            origin_path: str,
+            dest_path: str,
+            mode: int = 5
+    ):
         super().__init__(origin_path, dest_path)
         self.mode = mode
 
-    def convert(self):
+    def convert(self) -> None:
         ConsoleUtility.print(self.dest_path)
         OsUtility.create_folder_if_not_exist(self.dest_path)
         ConsoleUtility.print("--splitting pdf into images--")
