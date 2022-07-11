@@ -6,7 +6,11 @@ from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
 
 class OsUtility:
     @staticmethod
-    def get_file_list(folder: str, ending: str = ".png") -> list:
+    def get_file_list(folder: str, ending: str = "") -> list:
+        if not os.path.exists(folder):
+            raise FileNotFoundError
+        if os.path.isfile(folder):
+            raise ValueError
         # get all the png files in temporary folder <=> all pdf pages
         files = []
         for r, _, f in os.walk(folder):
@@ -18,7 +22,11 @@ class OsUtility:
 
     @staticmethod
     def clean_up_folder(folder: str) -> None:
-        # removes the directory and files that were used in compression process
+        if os.path.isfile(folder):
+            raise ValueError
+        if not os.path.exists(folder):
+            raise FileNotFoundError
+        # removes the directory and files in 'folder'
         ConsoleUtility.print("--cleaning up--")
         if os.path.isdir(folder):
             shutil.rmtree(folder)
