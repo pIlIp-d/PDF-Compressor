@@ -67,10 +67,10 @@ class TestConsolePDFCompressor(TestCase):
         console_buffer = self.get_console_buffer()
         return_code = subprocess.call([
             "python3", self.program_path,
-            "-p", os.path.join(os.path.realpath("."), "TestData", "") + "single Page Pdf.pdf"
+            "-p", os.path.join(os.path.realpath("."), "TestData", "") + "single", "Page", "Pdf.pdf"
         ])
         self.assertFalse(console_buffer.getvalue().__contains__("ValueError"))
-        self.assertEqual(1, return_code)
+        self.assertEqual(2, return_code)
 
     def test_pdf_compressor_invalid_path_not_exist(self):
         # TODO supress console output
