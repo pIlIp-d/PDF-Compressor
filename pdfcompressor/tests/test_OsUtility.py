@@ -217,6 +217,7 @@ class TestOsUtility(TestCase):
             ValueError,
             OsUtility.clean_up_folder, file
         )
+        os.remove(file)
 
     def test_clean_up_folder_with_absolute_path_to_existing_file(self):
         file = os.path.join(".", "TestData", "fileToDelete.png")
@@ -225,6 +226,7 @@ class TestOsUtility(TestCase):
             ValueError,
             OsUtility.clean_up_folder, os.path.abspath(file)
         )
+        os.remove(file)
 
     def test_clean_up_folder_with_relative_path_to_existing_folder(self):
         folder_dir = os.path.abspath(os.path.join(".", "TestData", "existingFolder"))
@@ -246,8 +248,39 @@ class TestOsUtility(TestCase):
             OsUtility.clean_up_folder, ""
         )
 
-    # create_folder_if_not_exist
-    def test_create_folder_if_not_exist_with_relative_path_to_existing_file(self):
-        pass
-
     # get_filename
+    def test_get_filename_with_file_without_file_ending(self):
+        file = os.path.join("./TestData/fileWithoutFileEnding")
+        self.assertEqual("fileWithoutFileEnding", OsUtility.get_filename(file))
+
+    def test_get_filename_with_relative_path_to_file(self):
+        file = os.path.join("./singlePagePdf.pdf")
+        self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
+
+    def test_get_filename_with_absolute_path_to_file(self):
+        file = os.path.join(os.path.abspath("./TestData/singlePagePdf.pdf"))
+        self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
+
+    def test_get_filename_with_relative_path_to_folder(self):
+        file = os.path.join("./TestData/TestFolder")
+        self.assertEqual("TestFolder", OsUtility.get_filename(file))
+
+    def test_get_filename_with_absolute_path_to_folder(self):
+        file = os.path.join(os.path.abspath("./TestData/TestFolder"))
+        self.assertEqual("TestFolder", OsUtility.get_filename(file))
+
+    def test_get_filename_with_invalid_path(self):
+        file = os.path.join(os.path.abspath("TestData/singlePagePdf.pdf"))
+        self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
+
+        file2 = os.path.join(os.path.abspath("SomeRubishTest-LALA-File_folder(jjkn)"))
+        self.assertEqual("SomeRubishTest-LALA-File_folder(jjkn)", OsUtility.get_filename(file2))
+
+    def test_get_filename_with_empty_string_as_path(self):
+        self.assertEqual("", OsUtility.get_filename(""))
+
+    def test_get_filename_with_dot_at_end_of_string_as_path(self):
+        self.assertEqual("filename", OsUtility.get_filename("filename."))
+
+    def test_get_filename_with_custom_file_ending_path(self):
+        self.assertEqual("filename", OsUtility.get_filename("filename.old.pdf", r"\..+\..+"))
