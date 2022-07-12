@@ -20,7 +20,7 @@ class PdfToImageConverter(Converter):
 
     def convert(self) -> None:
         ConsoleUtility.print(self.dest_path)
-        OsUtility.create_folder_if_not_exist(self.dest_path)
+        os.makedirs(self.dest_path, exist_ok=True)
         ConsoleUtility.print("--splitting pdf into images--")
         # open pdf and split it into rgb-pixelmaps -> png
         doc = fitz.open(self.origin_path)
