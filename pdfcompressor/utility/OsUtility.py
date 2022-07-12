@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 
 from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
@@ -32,7 +33,6 @@ class OsUtility:
             shutil.rmtree(folder)
 
     @staticmethod
-    def get_filename(full_path_to_file: str) -> str:
-        # TODO file ending regex
-        # remove .pdf, path (only Filename)
-        return full_path_to_file[:-4].split(os.path.sep)[-1]
+    def get_filename(full_path_to_file: str, file_ending_format: str = r"\..*") -> str:
+        filename_with_ending = os.path.basename(full_path_to_file)
+        return re.split(file_ending_format, filename_with_ending)[0]
