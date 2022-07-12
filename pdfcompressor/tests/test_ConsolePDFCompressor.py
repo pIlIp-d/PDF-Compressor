@@ -14,7 +14,9 @@ class TestConsolePDFCompressor(TestCase):
 
     @staticmethod
     def remove_if_not_exists(file_path):
-        if os.path.exists(file_path):
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        elif os.path.exists(file_path):
             shutil.rmtree(file_path)
 
     @staticmethod
