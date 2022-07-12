@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import shutil
 
 from pdfcompressor.compressor.Compressor import Compressor
 from pdfcompressor.compressor.converter.ImagesToPdfConverter import ImagesToPdfConverter
@@ -53,13 +54,17 @@ class CrunchCompressor(Compressor):
         self.tesseract_language = tesseract_language
 
     def __preprocess(self) -> None:
-        # create folder for temporary files(images...)
-        OsUtility.create_folder_if_not_exist(self.temp_folder)
+        # create new empty folder for temporary files
+        shutil.rmtree(self.temp_folder)
+        os.makedirs(self.temp_folder)
         # split pdf into images that can be compressed using crunch
         PdfToImageConverter(self.source_path, self.temp_folder, self.mode).convert()
 
     def __postprocess(self) -> None:
-        OsUtility.create_folder_if_not_exist(self.destination_path)
+        if self.destination_path.endswith(".pdf"):
+            os.makedirs(os.path.dirname(self.destination_path), exist_ok=True)
+        else:
+            os.makedirs(self.destination_path, exist_ok=True)
         # merge images/pages into new pdf and optionally apply OCR
         ImagesToPdfConverter(self.temp_folder, self.destination_path, self.tesseract_path, self.force_ocr, self.tesseract_language).convert()
         OsUtility.clean_up_folder(self.temp_folder)
