@@ -1,39 +1,5 @@
 import argparse
-import os
-
 from pdfcompressor.pdfcompressor import PDFCompressor
-from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
-
-global PNGQUANT_PATH, ADVPNG_PATH, TESSERACT_PATH
-
-if os.name == "nt":
-    PNGQUANT_PATH = os.path.join(os.path.dirname(__file__), "compressor/compressor_lib", "pngquant", "pngquant.exe")
-    ADVPNG_PATH = os.path.join(os.path.dirname(__file__), "compressor/compressor_lib", "advpng", "advpng.exe")
-    TESSERACT_PATH = os.path.join(os.path.expanduser('~'), "AppData", "Local", "Programs", "Tesseract-OCR",
-                                  "tesseract.exe")
-
-else:
-    PNGQUANT_PATH = os.path.join("/", "usr", "bin", "pngquant")
-    ADVPNG_PATH = os.path.join("/", "usr", "bin", "advpng")
-    TESSERACT_PATH = os.path.join(os.path.expanduser('~'), ".local", "bin", "pytesseract")
-    # Linux: errors if paths weren't found
-    if not os.path.exists(PNGQUANT_PATH):
-        ConsoleUtility.print(
-            ConsoleUtility.get_error_string("Pngquant path not found. Install it with 'sudo apt install pngquant'."))
-        exit()
-    if not os.path.exists(ADVPNG_PATH):
-        ConsoleUtility.print(
-            ConsoleUtility.get_error_string("advpng path not found. Install it with 'sudo apt install advancecomp'."))
-        exit()
-    if not os.path.exists(TESSERACT_PATH):
-        ConsoleUtility.print(
-            ConsoleUtility.get_error_string("pytesseract path not found. Install it with 'sudo apt install "
-                                            "pytesseract-ocr'. Additionally add language packs with f.e. "
-                                            "'german/deutsch': 'sudo apt install pytesseract-ocr-deu'"))
-        exit()
-
-CPDFSQUEEZE_PATH = os.path.join(os.path.dirname(__file__), "compressor/compressor_lib", "cpdfsqueeze",
-                                "cpdfsqueeze.exe")
 
 
 def get_args():
@@ -63,6 +29,7 @@ def get_args():
     all_args.add_argument(
         "-s", "--force-ocr",
         required=False,
+        default=False,
         action='store_true',
         help="When turned on allows output file to be larger than input file, to force ocr. "
              "Default: off and only smaller output files are saved.'"
@@ -70,6 +37,7 @@ def get_args():
     all_args.add_argument(
         "-n", "--no-ocr",
         required=False,
+        default=False,
         action='store_true',
         help="Don't create OCR on pdf."
     )
@@ -100,7 +68,7 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    PDFCompressor(
+    pdf_compressor = PDFCompressor(
         args["path"],
         args["output_path"],
         args["mode"],
@@ -110,3 +78,4 @@ if __name__ == '__main__':
         args["quiet_mode"],
         args["tesseract_language"]
     )
+    pdf_compressor.compress_file_list()
