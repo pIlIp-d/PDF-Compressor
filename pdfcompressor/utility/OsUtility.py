@@ -32,14 +32,6 @@ class OsUtility:
             shutil.rmtree(folder)
 
     @staticmethod
-    def create_folder_if_not_exist(file_path: str) -> None:
-        # checks if .pdf file else creates folder if there is no folder, yet
-        if not file_path.endswith(".pdf") and not os.path.isdir(file_path):
-            os.mkdir(file_path)
-        elif not os.path.isdir(os.path.dirname(file_path)):
-            os.mkdir(os.path.dirname(file_path))
-
-    @staticmethod
     def get_filename(full_path_to_file: str) -> str:
         # TODO file ending regex
         # remove .pdf, path (only Filename)
