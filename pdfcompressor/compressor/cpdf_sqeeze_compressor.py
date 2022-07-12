@@ -1,8 +1,8 @@
 import os
 import subprocess
 
-from pdfcompressor.compressor.CompressException import CompressException
-from pdfcompressor.compressor.Compressor import Compressor
+from .compress_exception import CompressException
+from .compressor import Compressor
 
 
 class CPdfSqueezeCompressor(Compressor):

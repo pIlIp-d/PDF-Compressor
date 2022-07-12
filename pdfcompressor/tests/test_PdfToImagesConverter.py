@@ -2,8 +2,8 @@ import os.path
 import shutil
 from unittest import TestCase
 
-from pdfcompressor.compressor.converter.PdfToImageConverter import PdfToImageConverter
-from pdfcompressor.utility.OsUtility import OsUtility
+from pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 class TestPdfToImagesConverter(TestCase):

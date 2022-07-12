@@ -28,6 +28,7 @@ from subprocess import CalledProcessError
 
 from multiprocessing import Lock
 
+
 stdstream_lock = Lock()
 
 quiet = False
@@ -101,10 +102,7 @@ def optimize_png(png_path):
         subprocess.check_output(pngquant_command, stderr=subprocess.STDOUT, shell=True)
         if not quiet:
             print("    pngquant compression finished.")
-            print("    pngquant compression finished.")
     except CalledProcessError as cpe:
-        print(cpe)
-
         if cpe.returncode == 98:
             # this is the status code when file size increases with execution of pngquant.
             # ignore at this stage, original file copied at beginning of zopflipng processing

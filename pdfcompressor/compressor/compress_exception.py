@@ -1,4 +1,4 @@
-from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
+from ..utility.console_utility import ConsoleUtility
 
 
 class CompressException(Exception):

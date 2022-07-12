@@ -1,6 +1,6 @@
-from pdfcompressor.compressor.converter.Converter import *
-from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
-from pdfcompressor.utility.OsUtility import OsUtility
+from pdfcompressor.compressor.converter.converter import *
+from pdfcompressor.utility.console_utility import ConsoleUtility
+from pdfcompressor.utility.os_utility import OsUtility
 
 import os
 

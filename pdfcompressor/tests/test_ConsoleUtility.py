@@ -3,7 +3,7 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
-from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
+from pdfcompressor.utility.console_utility import ConsoleUtility
 
 
 class ConsoleUtilityTest(TestCase):

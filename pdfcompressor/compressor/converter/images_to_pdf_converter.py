@@ -1,11 +1,11 @@
-from pdfcompressor.compressor.converter.Converter import Converter
-from pdfcompressor.compressor.converter.ConvertException import ConvertException
-from pdfcompressor.compressor.converter.PyTesseractNotFoundException import PytesseractNotFoundException
-from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
-from pdfcompressor.utility.OsUtility import OsUtility
+from pdfcompressor.compressor.converter.converter import Converter
+from pdfcompressor.compressor.converter.convert_exception import ConvertException
+from pdfcompressor.compressor.converter.py_tesseract_not_found_exception import PytesseractNotFoundException
+from pdfcompressor.utility.console_utility import ConsoleUtility
+from pdfcompressor.utility.os_utility import OsUtility
 
 # package name PyMuPdf
-import fitz
+import fitz  # also imports convert() method
 
 import os
 from PIL import Image
@@ -19,8 +19,7 @@ try:
 except:
     PY_TESS_AVAILABLE = False
 
-
-# optional add --tessdata 'path_to_tessdata_folder'
+# optionally add --tessdata 'path_to_tessdata_folder'
 TESSDATA_PREFIX = ""
 
 
@@ -41,7 +40,7 @@ class ImagesToPdfConverter(Converter):
         if force_ocr and no_ocr:
             raise ValueError("force_ocr and no_ocr can't be used together")
 
-        self.force_ocr = force_ocr and PY_TESS_AVAILABLE
+        self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
         if pytesseract_path is not None:
@@ -70,10 +69,11 @@ class ImagesToPdfConverter(Converter):
         # merging pngs to pdf and create OCR
         ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
         pdf = fitz.open()
-        i = 0
+
+        page_id = 0
         for img in self.images:
-            ConsoleUtility.print("** - {:.2f}%".format(100 * i / len(self.images)))
-            i += 1
+            ConsoleUtility.print("** - {:.2f}%".format(100 * page_id / len(self.images)))
+            page_id += 1
             try:
                 if not self.force_ocr or self.no_ocr:
                     raise InterruptedError("skipping tesseract")
@@ -82,14 +82,17 @@ class ImagesToPdfConverter(Converter):
                                                           config=TESSDATA_PREFIX)
                 with open(img + ".pdf", "wb") as f:
                     f.write(result)
-            except InterruptedError:  # if ocr/tesseract fails
+            except InterruptedError as e:  # if ocr/tesseract fails
+                raise e
                 with open(img + ".pdf", "wb") as f:
                     f.write(convert(img))
-                if self.force_ocr:
-                    ConsoleUtility.print(ConsoleUtility.get_error_string("OCR couldn't be processed."))
+                ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR applied."))
                 # ignore if ocr cant be done
+
+            # merge pdfs
             with fitz.open(img + ".pdf") as f:
                 pdf.insert_pdf(f)
+
         if not os.path.isdir(os.path.sep.join(self.dest_path.split(os.path.sep)[:-1])) and not os.path.sep.join(
                 self.dest_path.split(os.path.sep)[:-1]) == "":
             ConsoleUtility.print(self.dest_path.split(os.path.sep))

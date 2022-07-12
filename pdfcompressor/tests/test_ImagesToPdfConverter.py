@@ -3,10 +3,10 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
-from pdfcompressor.compressor.converter.ImagesToPdfConverter import ImagesToPdfConverter
-from pdfcompressor.compressor.converter.PdfToImageConverter import PdfToImageConverter
-from pdfcompressor.utility.ConsoleUtility import ConsoleUtility
-from pdfcompressor.utility.OsUtility import OsUtility
+from pdfcompressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
+from pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
+from pdfcompressor.utility.console_utility import ConsoleUtility
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 class TestPdfToImagesConverter(TestCase):

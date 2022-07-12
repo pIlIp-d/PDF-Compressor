@@ -2,7 +2,7 @@ import os.path
 import shutil
 from unittest import TestCase
 
-from pdfcompressor.utility.OsUtility import OsUtility
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 class TestOsUtility(TestCase):
