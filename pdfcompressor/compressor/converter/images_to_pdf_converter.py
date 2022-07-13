@@ -83,7 +83,6 @@ class ImagesToPdfConverter(Converter):
                 with open(img + ".pdf", "wb") as f:
                     f.write(result)
             except InterruptedError as e:  # if ocr/tesseract fails
-                raise e
                 with open(img + ".pdf", "wb") as f:
                     f.write(convert(img))
                 ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR applied."))
