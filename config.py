@@ -22,15 +22,15 @@ check_existence(
 )
 
 if os.name == "nt":
-    pngquant_path = os.path.join(os.path.dirname(__file__), "compressor", "compressor_lib", "pngquant", "pngquant.exe")
-    advpng_path = os.path.join(os.path.dirname(__file__), "compressor", "compressor_lib", "advpng", "advpng.exe")
-    tesseract_path = os.path.join(os.path.expanduser('~'), "AppData", "Local", "Programs", "Tesseract-OCR",
+    pngquant_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "compressor", "compressor_lib", "pngquant", "pngquant.exe")
+    advpng_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "compressor", "compressor_lib", "advpng", "advpng.exe")
+    tesseract_path = os.path.join(os.path.abspath(os.path.expanduser('~')), "AppData", "Local", "Programs", "Tesseract-OCR",
                                   "tesseract.exe")
 
 else:
     pngquant_path = os.path.join("/", "usr", "bin", "pngquant")
     advpng_path = os.path.join("/", "usr", "bin", "advpng")
-    tesseract_path = os.path.join(os.path.expanduser('~'), ".local", "bin", "pytesseract")
+    tesseract_path = os.path.join(os.path.abspath(os.path.expanduser('~')), ".local", "bin", "pytesseract")
     # Linux: errors if paths weren't found
     check_existence(
         pngquant_path,
