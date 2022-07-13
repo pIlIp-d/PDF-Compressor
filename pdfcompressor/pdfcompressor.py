@@ -20,8 +20,8 @@ class PDFCompressor:
     def __init__(
             self,
             source_path: str,
-            destination_path: str,
-            mode: int,
+            destination_path: str = "default",
+            mode: int = 3,
             continue_position: int = 0,
             force_ocr: bool = False,
             no_ocr: bool = False,
@@ -30,10 +30,17 @@ class PDFCompressor:
     ):
         ConsoleUtility.QUIET_MODE = quiet
 
-        print(source_path)
-        source_path = os.path.abspath(source_path)
-        print(source_path)
-        if not os.path.exists(source_path):
+        self.uses_default_destination = destination_path == "default"
+
+        self.source_path = rf"{os.path.abspath(source_path)}"
+        self.destination_path = rf"{os.path.abspath(destination_path)}"
+
+        pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+        os.chdir(pdf_dir)
+        print(pdf_dir)
+        print(self.source_path)
+
+        if not os.path.exists(self.source_path):
             PDFCompressor.__raise_value_error(
                 "option -p/--path must be a valid path to a file or folder."
             )
@@ -54,10 +61,6 @@ class PDFCompressor:
                 "option -s/--force-ocr and -n/--no-ocr can't be used together"
             )
 
-        self.uses_default_destination = destination_path == "default"
-
-        self.source_path = rf"{os.path.abspath(source_path)}"
-        self.destination_path = rf"{os.path.abspath(destination_path)}"
         self.source_file_list = []
         self.destination_file_list = []
         self.__parse_paths()
@@ -78,13 +81,13 @@ class PDFCompressor:
 
     @staticmethod
     def get_config():
-        config_path = os.path.abspath("../../config.json")
+        config_path = os.path.abspath("./config.json")
         if not os.path.isfile(config_path):
             raise FileNotFoundError("config.json not found, set the proper paths and run config.py")
         with open(config_path, "r") as config_file:
             json_config = jsons.loads(config_file.read())
-            return json_config["pngquant_path"], json_config["advpng_path"], json_config["cpdfsqueeze_path"], json_config["tesseract_path"]
-
+            return json_config["pngquant_path"], json_config["advpng_path"], json_config["cpdfsqueeze_path"], \
+                   json_config["tesseract_path"]
 
     def __parse_paths(self) -> None:
         # fills file_list with all pdf files that are going to be compressed
@@ -108,12 +111,9 @@ class PDFCompressor:
         else:
             if self.uses_default_destination:
                 self.destination_path = os.path.abspath(self.source_path[:-4]) + "_compressed.pdf"
+            elif not self.destination_path.endswith(".pdf"):
+                self.destination_path = os.path.join(self.destination_path, os.path.basename(self.source_path))
 
-            elif not os.path.isfile(self.destination_path):
-                self.destination_path = os.path.join(
-                    self.destination_path,
-                    self.source_path.split(os.path.sep)[-1]
-                )
             self.source_file_list.append(self.source_path)
             self.destination_file_list.append(self.destination_path)
 
@@ -124,7 +124,19 @@ class PDFCompressor:
 
     def compress_file_list(self) -> None:
         print(self.source_file_list, self.destination_file_list)
-        for file, destination in zip(self.source_file_list, self.destination_file_list):
+        if self.continue_position >= len(self.source_file_list):
+            ConsoleUtility.print(ConsoleUtility.get_error_string(
+                "Continue Position exceeds the amount of pdf-files in input folder."
+            ))
+            return
+        for file, destination in zip(self.source_file_list[self.continue_position:],
+                                     self.destination_file_list[self.continue_position:]):
+
+            temp_destination = os.path.join(".", OsUtility.get_filename(destination)+"_temp.pdf")
+            print("LALALALA", temp_destination, destination)
+            if os.path.exists(temp_destination):
+                os.remove(temp_destination)
+
             # save size for comparison
             orig_size = os.stat(file).st_size
 
@@ -132,24 +144,32 @@ class PDFCompressor:
             ConsoleUtility.print("compressing " + ConsoleUtility.get_file_string(file))
 
             # compress
-            self.crunch.compress(file, destination)
-            self.cpdf.compress(destination, destination)
+            self.crunch.compress(file, temp_destination)
+            self.cpdf.compress(temp_destination, temp_destination)
 
             # if not force_ocr check if compression was successful
-            size_after_compression = os.stat(destination).st_size
+            size_after_compression = os.stat(temp_destination).st_size
             if not self.force_ocr and orig_size < size_after_compression:
                 # try compressing only with cpdf
-                self.cpdf.compress(file, destination)
-                cpdf_compression_only_size = os.stat(destination).st_size
+                self.cpdf.compress(file, temp_destination)
+                cpdf_compression_only_size = os.stat(temp_destination).st_size
                 if orig_size < cpdf_compression_only_size:
                     ConsoleUtility.print(ConsoleUtility.get_error_string("File couldn't be compressed."))
-                    shutil.copy(file, destination)
+                    if not file == destination:
+                        shutil.copy(file, temp_destination)
                 else:
                     ConsoleUtility.print(ConsoleUtility.get_error_string(
                         "File couldn't be compressed using crunch cpdf combi. "
-                        "However Cpdf could compress it. -> No OCR was Created. (force with -s/--force-ocr)"
+                        "However cpdf could compress it. -> No OCR was Created. (force ocr with option -s/--force-ocr)"
                     ))
+            # write temp file to final destination
+            output_dir = os.path.dirname(destination)
+            if not os.path.isdir(output_dir):
+                os.makedirs(output_dir)
+            shutil.copy(temp_destination, destination)
+            os.remove(temp_destination)
 
+            # show final information
             ConsoleUtility.print_stats(orig_size, os.stat(destination).st_size)
             ConsoleUtility.print("created " + ConsoleUtility.get_file_string(destination))
 
