@@ -48,7 +48,6 @@ class ImagesToPdfConverter(Converter):
             try:
                 self.init_pytesseract()
             except ConvertException as e:
-                print(str(e))
                 self.force_ocr = False
 
     def init_pytesseract(self) -> None:
@@ -58,7 +57,6 @@ class ImagesToPdfConverter(Converter):
                 raise PytesseractNotFoundException()
             pytesseract.tesseract_cmd = self.pytesseract_path
         except Exception as ee:
-            print(ee)
             if self.force_ocr:
                 ConsoleUtility.print(ConsoleUtility.get_error_string("Tesseract Not Loaded, Can't create OCR."
                                                                      "(leave out option '--ocr-force' to compresss without ocr)"))
