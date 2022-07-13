@@ -27,7 +27,7 @@ def get_args():
         default="default"
     )
     all_args.add_argument(
-        "-s", "--force-ocr",
+        "-f", "--force-ocr",
         required=False,
         default=False,
         action='store_true',
@@ -63,6 +63,13 @@ def get_args():
              "https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html. Make "
              "sure it it installed."
     )
+    all_args.add_argument(
+        "-s", "--simple-and-lossless",
+        required=False,
+        action='store_true',
+        help="Simple and lossless compression is non-invasive and skips the image converting. Not as effective but simple and faster."
+    )
+
     return vars(all_args.parse_args())
 
 
@@ -76,6 +83,7 @@ if __name__ == '__main__':
         args["force_ocr"],
         args["no_ocr"],
         args["quiet_mode"],
-        args["tesseract_language"]
+        args["tesseract_language"],
+        args["simple_and_lossless"]
     )
     pdf_compressor.compress_file_list()

@@ -26,7 +26,8 @@ class PDFCompressor:
             force_ocr: bool = False,
             no_ocr: bool = False,
             quiet: bool = False,
-            tesseract_language: str = "deu"
+            tesseract_language: str = "deu",
+            simple_and_lossless: bool = False
     ):
         ConsoleUtility.QUIET_MODE = quiet
 
@@ -37,8 +38,6 @@ class PDFCompressor:
 
         pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
         os.chdir(pdf_dir)
-        print(pdf_dir)
-        print(self.source_path)
 
         if not os.path.exists(self.source_path):
             PDFCompressor.__raise_value_error(
@@ -58,7 +57,7 @@ class PDFCompressor:
             )
         if force_ocr and no_ocr:
             PDFCompressor.__raise_value_error(
-                "option -s/--force-ocr and -n/--no-ocr can't be used together"
+                "option -f/--force-ocr and -n/--no-ocr can't be used together"
             )
 
         self.source_file_list = []
@@ -70,12 +69,14 @@ class PDFCompressor:
         self.force_ocr = force_ocr
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
+        self.simple_and_lossless = simple_and_lossless
 
         pngquant_path, advpng_path, cpdfsqueeze_path, tesseract_path = self.get_config()
 
         # lossy compressor
-        self.crunch = CrunchCompressor(self.mode, pngquant_path, advpng_path)
-        self.crunch.enable_tesseract(tesseract_path, self.force_ocr, self.no_ocr, self.tesseract_language)
+        if not self.simple_and_lossless:
+            self.crunch = CrunchCompressor(self.mode, pngquant_path, advpng_path)
+            self.crunch.enable_tesseract(tesseract_path, self.force_ocr, self.no_ocr, self.tesseract_language)
         # lossless compressor
         self.cpdf = CPdfSqueezeCompressor(cpdfsqueeze_path, True)
 
@@ -93,7 +94,8 @@ class PDFCompressor:
         # fills file_list with all pdf files that are going to be compressed
         # source_path is a folder -> len(file_list) >= 0 depending on how many files are found
         if os.path.isdir(self.source_path):
-            if os.path.isfile(self.destination_path):
+            # if destination is a pdf file raise error
+            if os.path.isfile(self.destination_path) or self.destination_path.endswith(".pdf"):
                 raise ValueError(
                     "OptionError: If path is a directory the output_path must be one too!"
                 )  # TODO make a merge possible
@@ -123,7 +125,6 @@ class PDFCompressor:
         #     self.__raise_value_error(f"Found no Pdf at -p/--path {self.source_path}")
 
     def compress_file_list(self) -> None:
-        print(self.source_file_list, self.destination_file_list)
         if self.continue_position >= len(self.source_file_list):
             ConsoleUtility.print(ConsoleUtility.get_error_string(
                 "Continue Position exceeds the amount of pdf-files in input folder."
@@ -133,19 +134,21 @@ class PDFCompressor:
                                      self.destination_file_list[self.continue_position:]):
 
             temp_destination = os.path.join(".", OsUtility.get_filename(destination)+"_temp.pdf")
-            print("LALALALA", temp_destination, destination)
+
             if os.path.exists(temp_destination):
                 os.remove(temp_destination)
 
             # save size for comparison
             orig_size = os.stat(file).st_size
 
-            print(file, destination)
             ConsoleUtility.print("compressing " + ConsoleUtility.get_file_string(file))
 
             # compress
-            self.crunch.compress(file, temp_destination)
-            self.cpdf.compress(temp_destination, temp_destination)
+            if self.simple_and_lossless:
+                self.cpdf.compress(file, temp_destination)
+            else:
+                self.crunch.compress(file, temp_destination)
+                self.cpdf.compress(temp_destination, temp_destination)
 
             # if not force_ocr check if compression was successful
             size_after_compression = os.stat(temp_destination).st_size
@@ -160,7 +163,7 @@ class PDFCompressor:
                 else:
                     ConsoleUtility.print(ConsoleUtility.get_error_string(
                         "File couldn't be compressed using crunch cpdf combi. "
-                        "However cpdf could compress it. -> No OCR was Created. (force ocr with option -s/--force-ocr)"
+                        "However cpdf could compress it. -> No OCR was Created. (force ocr with option -f/--force-ocr)"
                     ))
             # write temp file to final destination
             output_dir = os.path.dirname(destination)
