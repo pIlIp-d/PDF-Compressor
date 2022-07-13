@@ -37,6 +37,10 @@ class TestConsolePDFCompressor(TestCase):
         with open(file_path, "w") as f:
             f.write("")
 
+    @staticmethod
+    def get_file_size(file_path: str):
+        return os.stat(file_path).st_size
+
     # input path
     def test_pdf_compressor_valid_path(self):
         console_buffer = self.get_console_buffer()
@@ -324,5 +328,175 @@ class TestConsolePDFCompressor(TestCase):
         self.assertEqual(0, return_code)
 
     def test_pdf_compressor_continue_is_zero(self):
-        self.fail("Not implemented, yet.")
+        result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
+            "-o", result_path,
+            "--continue", "0"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        output_files = OsUtility.get_file_list(result_path)
+        self.assertTrue(output_files.__contains__(
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "singlePagePdf.pdf"))))
+        self.assertTrue(output_files.__contains__(
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "multiPageTestData.pdf"))))
+        self.assertTrue(output_files.__contains__(
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "result.pdf"))))
+        shutil.rmtree(result_path)
+        self.assertEqual(0, return_code)
 
+    def test_pdf_compressor_continue_in_valid_range(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
+            "-o", result_path,
+            "--continue", "1"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        output_files = OsUtility.get_file_list(result_path)
+        # skipped first file
+        self.assertFalse(output_files.__contains__(
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "singlePagePdf.pdf"))))
+
+        self.assertTrue(output_files.__contains__(
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "multiPageTestData.pdf"))))
+        self.assertTrue(output_files.__contains__(
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "result.pdf"))))
+        shutil.rmtree(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compressor_continue_bigger_than_files_in_folder(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
+            "-o", result_path,
+            "--continue", "3"
+        ])
+        self.assertFalse(os.path.exists(result_path))
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compressor_continue_on_file_with_zero(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf")),
+            "-o", result_path,
+            "--continue", "0"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compressor_continue_on_file_with_bigger_than_zero(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf")),
+            "-o", result_path,
+            "--continue", "1"
+        ])
+        self.assertFalse(os.path.exists(result_path))
+        self.assertEqual(0, return_code)
+
+    # --force-ocr
+    def test_pdf_compress_force_ocr_active_and_compression_succeeded(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
+        input_file = os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_file,
+            "-o", result_path,
+            "--force-ocr"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        self.assertTrue(self.get_file_size(result_path) < self.get_file_size(input_file))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compress_force_ocr_active_and_compression_not_succeeded(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
+        input_file = os.path.abspath(os.path.join(".", "TestData", "pdfMaxCompressedForMode3.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_file,
+            "-o", result_path,
+            "--force-ocr"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        self.assertFalse(self.get_file_size(result_path) < self.get_file_size(input_file))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compress_force_ocr_active_and_no_ocr(self):
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf")),
+            "--force-ocr",
+            "--no-ocr"
+        ])
+        self.assertEqual(1, return_code)
+
+    def test_pdf_compress_no_force_ocr_active_and_compression_succeeded(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
+        input_file = os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-o", result_path,
+            "-p", input_file
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        self.assertTrue(self.get_file_size(result_path) < self.get_file_size(input_file))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compress_no_force_ocr_active_and_compression_not_succeeded(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "pdfMaxCompressedOutput.pdf"))
+        input_file = os.path.abspath(os.path.join(".", "TestData", "pdfMaxCompressedForMode3.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-o", result_path,
+            "-p", input_file,
+            "-m", "3"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        self.assertEqual(self.get_file_size(result_path), self.get_file_size(input_file))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compress_no_force_ocr_active_and_no_ocr(self):
+        result_path = os.path.abspath(os.path.join(".", "TestData", "pdfMaxCompressedOutput.pdf"))
+        input_file = os.path.abspath(os.path.join(".", "TestData", "pdfMaxCompressedForMode3.pdf"))
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_file,
+            "-o", result_path,
+            "--no-ocr"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        # remove all ..._temp folders in project root that are left over because of failure
+        project_root = os.path.join("..", "..")
+        for r, d, _ in os.walk(project_root):
+            for folder_name in d:
+                if not folder_name.endswith("_tmp"):
+                    continue
+
+                shutil.rmtree(os.path.join(r, folder_name))
+            break
