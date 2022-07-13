@@ -489,6 +489,22 @@ class TestConsolePDFCompressor(TestCase):
         os.remove(result_path)
         self.assertEqual(0, return_code)
 
+    def test_pdf_compress_simple_and_lossless(self):
+        result_path = os.path.join(".", "TestData", "singlePagePdf_compressed.pdf")
+        input_path = os.path.join(os.path.realpath("."), "TestData", "singlePagePdf.pdf")
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_path,
+            "--simple-and-lossless"
+        ])
+        first_file_size = os.stat(input_path).st_size
+        second_file_size = os.stat(result_path).st_size
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
+        self.assertTrue(first_file_size > second_file_size)
+        self.assertEqual(0, return_code)
+
     @classmethod
     def tearDownClass(cls) -> None:
         # remove all ..._temp folders in project root that are left over because of failure
