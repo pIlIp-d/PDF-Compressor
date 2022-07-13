@@ -2,6 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 setup(
+    version="2.0.0",
     name="pdfcompressor",
     description="Compresses PDFs extremely.",
     url="https://github.com/pIlIp-d/PDF-Compressor",
