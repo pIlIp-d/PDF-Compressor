@@ -33,7 +33,8 @@ class ImagesToPdfConverter(Converter):
             pytesseract_path: str = None,
             force_ocr: bool = False,
             no_ocr: bool = False,
-            tesseract_language: str = "deu"
+            tesseract_language: str = "deu",
+            tessdata_prefix: str = ""
     ):
         super().__init__(origin_path, dest_path)
         self.images = OsUtility.get_file_list(origin_path, ".png")
@@ -43,6 +44,7 @@ class ImagesToPdfConverter(Converter):
         self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
+        self.tessdata_prefix = tessdata_prefix
         if pytesseract_path is not None:
             self.pytesseract_path = pytesseract_path
             try:
@@ -75,9 +77,11 @@ class ImagesToPdfConverter(Converter):
             try:
                 if not self.force_ocr or self.no_ocr:
                     raise InterruptedError("skipping tesseract")
-                result = pytesseract.image_to_pdf_or_hocr(Image.open(img), lang=self.tesseract_language,
-                                                          extension="pdf",
-                                                          config=TESSDATA_PREFIX)
+                result = pytesseract.image_to_pdf_or_hocr(
+                    Image.open(img), lang=self.tesseract_language,
+                    extension="pdf",
+                    config=self.tessdata_prefix
+                )
                 with open(img + ".pdf", "wb") as f:
                     f.write(result)
             except InterruptedError as e:  # if ocr/tesseract fails

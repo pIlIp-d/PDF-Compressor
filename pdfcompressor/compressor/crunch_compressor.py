@@ -19,6 +19,7 @@ class CrunchCompressor(Compressor):
             advpng_path: str
     ):
         # set default values
+        self.tessdata_prefix = None
         self.source_path = None
         self.destination_path = None
         self.temp_folder = None
@@ -51,15 +52,20 @@ class CrunchCompressor(Compressor):
             tesseract_path: str,
             force_ocr: bool = False,
             no_ocr: bool = False,
-            tesseract_language: str = "deu"
+            tesseract_language: str = "deu",
+            tessdata_prefix: str = ""
     ) -> None:
 
         if not os.path.exists(tesseract_path):
-            raise Exception("TODO")  # TODO
+            if force_ocr:
+                raise ValueError("If force-ocr is active tesseract needs to be configured correctly.")
+            else:
+                tesseract_path = None
         self.tesseract_path = tesseract_path
         self.force_ocr = force_ocr
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
+        self.tessdata_prefix = tessdata_prefix
 
     def __preprocess(self) -> None:
         # create new empty folder for temporary files
@@ -80,7 +86,8 @@ class CrunchCompressor(Compressor):
             self.tesseract_path,
             self.force_ocr,
             self.no_ocr,
-            self.tesseract_language
+            self.tesseract_language,
+            self.tessdata_prefix
         ).convert()
         OsUtility.clean_up_folder(self.temp_folder)
 

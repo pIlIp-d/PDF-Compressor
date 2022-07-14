@@ -71,12 +71,22 @@ class PDFCompressor:
         self.tesseract_language = tesseract_language
         self.simple_and_lossless = simple_and_lossless
 
-        pngquant_path, advpng_path, cpdfsqueeze_path, tesseract_path = self.get_config()
+        pngquant_path, advpng_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix = self.get_config()
 
         # lossy compressor
         if not self.simple_and_lossless:
-            self.crunch = CrunchCompressor(self.mode, pngquant_path, advpng_path)
-            self.crunch.enable_tesseract(tesseract_path, self.force_ocr, self.no_ocr, self.tesseract_language)
+            self.crunch = CrunchCompressor(
+                self.mode,
+                pngquant_path,
+                advpng_path
+            )
+            self.crunch.enable_tesseract(
+                tesseract_path,
+                self.force_ocr,
+                self.no_ocr,
+                self.tesseract_language,
+                tessdata_prefix
+            )
         # lossless compressor
         self.cpdf = CPdfSqueezeCompressor(cpdfsqueeze_path, True)
 
@@ -88,7 +98,7 @@ class PDFCompressor:
         with open(config_path, "r") as config_file:
             json_config = jsons.loads(config_file.read())
             return json_config["pngquant_path"], json_config["advpng_path"], json_config["cpdfsqueeze_path"], \
-                   json_config["tesseract_path"]
+                   json_config["tesseract_path"], json_config["tessdata_prefix"]
 
     def __parse_paths(self) -> None:
         # fills file_list with all pdf files that are going to be compressed
@@ -133,7 +143,7 @@ class PDFCompressor:
         for file, destination in zip(self.source_file_list[self.continue_position:],
                                      self.destination_file_list[self.continue_position:]):
 
-            temp_destination = os.path.join(".", OsUtility.get_filename(destination)+"_temp.pdf")
+            temp_destination = os.path.join(".", OsUtility.get_filename(destination) + "_temp.pdf")
 
             if os.path.exists(temp_destination):
                 os.remove(temp_destination)
