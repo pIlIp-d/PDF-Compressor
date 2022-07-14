@@ -26,7 +26,7 @@ Tesseract is optional for OCR - Optical Character Recognition
 # Installation
 
 ### Overview
-1. [clone Repo](#1.-Clone-Repo)
+1. [clone Repo](#1.-clone-repo)
 2. Installing Tesseract if you want OCR  
 3. Install compression tools
 4. run `setup.py install --user`
