@@ -5,34 +5,36 @@ Solves the problem with small Upload size limit or just too big files from GoodN
 Pdf Compressor converts Pdfs to PNGs and uses lossy png compression. Afterwards it converts the PNGs back to pdfs and runs another round of lossless pdf compression.  
 
 
-Additionally the program can add OCR - Optical Character Recognition (creates searchable pdfs)  
+Additionally, the program can apply OCR - Optical Character Recognition (creates searchable pdfs)  
 
 
 # Dependency
 
 ## External Dependencies
 
-`Pngquant`, `AdvPNG`, `Tesseract`
-
-pngquant/advPNG could be diasabled manually inside crunch.py -> worse compression results  
+`Pngquant`, `AdvPNG`, `Tesseract`, `cpdfsqueeze`
+ 
+pngquant and advPNG can be ignored when using --simple-lossless option
 Tesseract is optional for OCR - Optical Character Recognition
 
 ## Python Packages
 
-`PyMuPdf`, `img2pdf`, `pytesseract`, `PIL`, and my version of [crunch](https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py)
+`PyMuPdf`, `img2pdf`, `pytesseract`, `pillow`, `jsons` and my version of [crunch](https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py)
 
 ----
 # Setup
+# Installation
 
-##  Windows
-
-1. clone Repo recusively
+### Overview
+1. [clone Repo](#1._Clone_Repo)
 2. Installing Tesseract if you want OCR  
-3. run `setup.py install --user`
+3. Install compression tools
+4. run `setup.py install --user`
+5. run `config.py`
 ----
-### 1. Inlcuding all binaries
+### 1. Clone Repo
 ```
-git clone --recursive https://github.com/pIlIp-d/PDF-Compressor
+git clone https://github.com/pIlIp-d/PDF-Compressor
 ```
 
 ----
@@ -130,7 +132,7 @@ if no special ocr mode is activated the pdf compression tries to compress throug
 
 Extremly small files get Larger when the mode is set to high(~low compression).  
 -> no OCR is saved and old document just gets compressed via cpdfsqeeze.
-Solution `-s` / `--force-ocd`
+Solution `-f` / `--force-ocd`
 
 ## Help
 ```
@@ -139,7 +141,7 @@ Solution `-s` / `--force-ocd`
 -m --mode MODE      compression mode 1-10. 1:high 10:low compression. Default=3
 -o --output-path    Compressed file Output Path. Default: 'filename_smaller.pdf' or
                     'compressed/...' for folders
--s --force-ocr      When turned on allows output file to be larger than input file, to force
+-f --force-ocr      When turned on allows output file to be larger than input file, to force
                     ocr. Default: off and only smaller output files are saved.'
 -n --no-ocr         Don't create OCR on pdf.
 -c --continue       Number. When compressing folder and Interrupted, skip files already
