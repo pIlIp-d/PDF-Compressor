@@ -35,8 +35,16 @@ class CrunchCompressor(Compressor):
             raise ValueError("TODO")  # TODO
 
         self.mode = mode
-        self.pngquant_path = pngquant_path
-        self.advpng_path = advpng_path
+
+        if os.path.exists(pngquant_path):
+            self.pngquant_path = pngquant_path
+        else:
+            self.pngquant_path = None
+
+        if os.path.exists(advpng_path):
+            self.advpng_path = advpng_path
+        else:
+            self.advpng_path = None
 
     def enable_tesseract(
             self,
