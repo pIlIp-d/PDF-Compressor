@@ -19,6 +19,7 @@ class OsUtility:
                 if not file_name.endswith(ending):
                     continue
                 files.append(os.path.join(r, file_name))
+        files.sort()
         return files
 
     @staticmethod
