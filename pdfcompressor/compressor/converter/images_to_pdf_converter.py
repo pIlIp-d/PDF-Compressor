@@ -48,7 +48,7 @@ class ImagesToPdfConverter(Converter):
         self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
-        self.tessdata_prefix = tessdata_prefix
+        self.tessdata_prefix = rf"{tessdata_prefix}"
         if pytesseract_path is not None:
             self.pytesseract_path = pytesseract_path
             try:
@@ -61,7 +61,12 @@ class ImagesToPdfConverter(Converter):
         try:
             if not os.path.isfile(self.pytesseract_path):
                 raise PytesseractNotFoundException()
-            pytesseract.tesseract_cmd = self.pytesseract_path
+            # set command (not sure why windows needs it differently)
+            if os.name == "nt":
+                pytesseract.pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
+            else:
+                pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
+
         except Exception as ee:
             if self.force_ocr:
                 ConsoleUtility.print(ConsoleUtility.get_error_string("Tesseract Not Loaded, Can't create OCR."
@@ -86,23 +91,22 @@ class ImagesToPdfConverter(Converter):
             for _ in as_completed(tasks):
                 pass
 
-            for img in self.images:
-                # merge pdfs
-                with fitz.open(f"{img}.pdf") as f:
-                    pdf.insert_pdf(f)
+        for img in self.images:
+            # merge pdfs
+            file = f"{img}.pdf"
+            with fitz.open(file) as f:
+                pdf.insert_pdf(f)
 
-        if not os.path.isdir(os.path.sep.join(self.dest_path.split(os.path.sep)[:-1])) and not os.path.sep.join(
-                self.dest_path.split(os.path.sep)[:-1]) == "":
-            ConsoleUtility.print(self.dest_path.split(os.path.sep))
-            os.mkdir(os.path.sep.join(self.dest_path.split(os.path.sep)[:-1]))
         ConsoleUtility.print("** - 100.00%")
         # raises exception if no matching permissions in output folder
         pdf.save(self.dest_path)
 
     def convert_image_to_pdf(self, img_path, page_id):
         try:
+
             if not self.force_ocr or self.no_ocr:
                 raise InterruptedError("skipping tesseract")
+
             result = pytesseract.image_to_pdf_or_hocr(
                 Image.open(img_path), lang=self.tesseract_language,
                 extension="pdf",
