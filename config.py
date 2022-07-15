@@ -51,7 +51,7 @@ else:
     tessdata_prefix = ""
 
 print("advpng, pngquant, cpdfsqueeze and tesseract were found and their paths were saved to config.json")
-with open("config.json", "w") as config_file:
+with open("./config.json", "w") as config_file:
     config_string =  "{" + f'''
     "advpng_path" : "{advpng_path}",
     "pngquant_path" : "{pngquant_path}",
@@ -59,4 +59,5 @@ with open("config.json", "w") as config_file:
     "tesseract_path" : "{tesseract_path}",
     "tessdata_prefix" : "{tessdata_prefix}"
 ''' + "}"
+    print(config_string)
     config_file.write(config_string)
