@@ -83,7 +83,7 @@ class ImagesToPdfConverter(Converter):
                 tasks.append(executor.submit(self.convert_image_to_pdf, **method_parameter))
 
             # waits for all jobs to be completed
-            for img in as_completed(tasks):
+            for _ in as_completed(tasks):
                 pass
 
             for img in self.images:
