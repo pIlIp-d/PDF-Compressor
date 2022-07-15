@@ -160,6 +160,9 @@ class TestOsUtility(TestCase):
 
         file_list = OsUtility.get_file_list(folder_dir, ".")
 
+        if os.name == "nt":
+            self.fail("Not Supported for windows")
+
         self.assertEqual(1, len(file_list))
         shutil.rmtree(folder_dir)
 

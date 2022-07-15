@@ -78,7 +78,7 @@ python3 setup.py install --user
 should be preconfigured and working alright.
 
 If you want to change a path you can configure it inside `config.py` by changing the paths for each dependency for your OS.
-On Windows change `tessdata_prefix` to 
+
 
 Try to run `python3 <project-path>/config.py` and if there are no error messages you're good to go.  
 

@@ -1,6 +1,6 @@
-import multiprocessing
 import os
 import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .compressor import Compressor
 from .compressor_lib import crunch
@@ -108,38 +108,31 @@ class CrunchCompressor(Compressor):
         image_list = OsUtility.get_file_list(self.temp_folder, ".png")
 
         ConsoleUtility.print("--Compressing via Crunch--")
-        pool = multiprocessing.Pool()
         try:
-            # multithreaded compression of single images
-            # parameter is function and splitted imgs list with some length counts to display progress
-            pool.starmap(
-                self.crunch,  # method
-                zip(image_list,  # parameters - as list of pairs of 3 (zipped)
-                    [len(image_list) for y in range(len(image_list))],
-                    [z for z in range(len(image_list))]
-                    )
-            )
+            # parallel compression of single images
+            with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+                tasks = []
+                for image_id in range(len(image_list)):
+                    method_parameter = {"progress": image_id, "image": image_list[image_id], "length": len(image_list)}
+                    # each image gets a single thread that which is executed via ThreadPoolExecutor
+                    tasks.append(executor.submit(self.crunch, **method_parameter))
 
-        except KeyboardInterrupt:
-            # shutil.rmtree(folder)#clean up
-            pool.terminate()
-            pool.join()
-            quit()
+                # waits for all jobs to be completed
+                for _ in as_completed(tasks):
+                    pass
+
         except Exception as e:
-            # shutil.rmtree(folder)#clean up after failure
             raise e
         finally:  # To make sure processes are closed in the end, even if errors happen
-            pool.close()
-            pool.join()
             ConsoleUtility.print("** - 100.00%")  # final progress step
 
         self.__postprocess()
 
-    def crunch(self, image_list: str, length: int, progress: int) -> None:
-        crunched_file = image_list[:-4] + "-crunch.png"
-        crunch.crunch(image_list, pngquant_path=self.pngquant_path, advpng_path=self.advpng_path, quiet_=True)
+    def crunch(self, image: str, length: int, progress: int) -> None:
+        crunched_file = image[:-4] + "-crunch.png"
+        crunch.crunch(image, pngquant_path=self.pngquant_path, advpng_path=self.advpng_path, quiet_=True)
         try:
-            os.remove(image_list)
+            os.remove(image)
         finally:
-            os.rename(crunched_file, image_list)
-        ConsoleUtility.print("** - {:.2f}%".format(100 * progress / length))
+            os.rename(crunched_file, image)
+        ConsoleUtility.print(f"** - Finished Page {progress + 1}/{length}")

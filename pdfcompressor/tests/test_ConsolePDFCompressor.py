@@ -358,14 +358,15 @@ class TestConsolePDFCompressor(TestCase):
         ])
         self.assertTrue(os.path.exists(result_path))
         output_files = OsUtility.get_file_list(result_path)
-        # skipped first file
-        self.assertFalse(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "singlePagePdf.pdf"))))
 
+        # skipped first file
         self.assertTrue(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "multiPageTestData.pdf"))))
+            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "singlePagePdf.pdf"))))
         self.assertTrue(output_files.__contains__(
             os.path.abspath(os.path.join(".", "TestData", "OutFolder", "result.pdf"))))
+        self.assertFalse(output_files.__contains__(
+        os.path.abspath(os.path.join(".", "TestData", "OutFolder", "multiPageTestData.pdf"))))
+
         shutil.rmtree(result_path)
         self.assertEqual(0, return_code)
 

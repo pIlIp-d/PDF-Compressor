@@ -74,16 +74,27 @@ def get_args():
 
 
 if __name__ == '__main__':
-    args = get_args()
-    pdf_compressor = PDFCompressor(
-        args["path"],
-        args["output_path"],
-        args["mode"],
-        args["continue"],
-        args["force_ocr"],
-        args["no_ocr"],
-        args["quiet_mode"],
-        args["tesseract_language"],
-        args["simple_and_lossless"]
-    )
-    pdf_compressor.compress_file_list()
+    try:
+        args = get_args()
+        pdf_compressor = PDFCompressor(
+            args["path"],
+            args["output_path"],
+            args["mode"],
+            args["continue"],
+            args["force_ocr"],
+            args["no_ocr"],
+            args["quiet_mode"],
+            args["tesseract_language"],
+            args["simple_and_lossless"]
+        )
+        pdf_compressor.compress_file_list()
+
+    except KeyboardInterrupt:
+        while True:
+            i = input("Do you want to cleanup the temporary Files created in the process? (Y/N)")
+            if i.lower() == "y":
+                # TODO cleanup
+                print("Not implemented yet")
+                break
+            elif i.lower() == "n":
+                break
