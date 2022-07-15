@@ -9,9 +9,10 @@ def check_existence(path, error_message) -> str:
             ConsoleUtility.get_error_string(error_message)
             + " If you're running it with sudo try it without."
         )
-        return path
-    else:
         return ""  # Not Found
+    else:
+
+        return path
 
 
 compressor_lib_path = os.path.abspath(os.path.join(
@@ -51,12 +52,11 @@ else:
 
 print("advpng, pngquant, cpdfsqueeze and tesseract were found and their paths were saved to config.json")
 with open("config.json", "w") as config_file:
-    config_file.write(
-        "{" + f'''
+    config_string =  "{" + f'''
     "advpng_path" : "{advpng_path}",
     "pngquant_path" : "{pngquant_path}",
     "cpdfsqueeze_path" : "{cpdfsqueeze_path}",
     "tesseract_path" : "{tesseract_path}",
     "tessdata_prefix" : "{tessdata_prefix}"
 ''' + "}"
-    )
+    config_file.write(config_string)
