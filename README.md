@@ -75,13 +75,9 @@ python3 setup.py install --user
 ```
 ---
 ### 5. Configure Dependency Paths
-should be preconfigured and working alright.
-
-If you want to change a path you can configure it inside `config.py` by changing the paths for each dependency for your OS.
-
-
 Try to run `python3 <project-path>/config.py` and if there are no error messages you're good to go.  
 
+If you want to change a path you can configure it inside `config.py` by changing the paths for each dependency for your OS.
 
 
 # Usage
