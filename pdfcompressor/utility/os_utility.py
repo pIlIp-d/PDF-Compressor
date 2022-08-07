@@ -34,6 +34,6 @@ class OsUtility:
             shutil.rmtree(folder)
 
     @staticmethod
-    def get_filename(full_path_to_file: str, file_ending_format: str = r"\..*") -> str:
+    def get_filename(full_path_to_file: str, file_ending_format: str = r"\.[^.]*$") -> str:
         filename_with_ending = os.path.basename(full_path_to_file)
         return re.split(file_ending_format, filename_with_ending)[0]
