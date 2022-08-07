@@ -1,5 +1,4 @@
-import re
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from PIL.Image import DecompressionBombError
 
 from pdfcompressor.compressor.converter.converter import Converter
 from pdfcompressor.compressor.converter.convert_exception import ConvertException
@@ -80,21 +79,12 @@ class ImagesToPdfConverter(Converter):
         pdf = fitz.open()
 
         # convert single images in parallel
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            tasks = []
-            for img, image_id in zip(self.images, range(len(self.images))):
-                method_parameter = {"img_path": img, "page_id": image_id}
-                # each image gets a single thread that which is executed via ThreadPoolExecutor
-                tasks.append(executor.submit(self.convert_image_to_pdf, **method_parameter))
-
-            # waits for all jobs to be completed
-            for _ in as_completed(tasks):
-                pass
+        args_list = [{"img_path": img, "page_id": image_id} for img, image_id in zip(self.images, range(len(self.images)))]
+        OsUtility.custom_map_execute(self.convert_image_to_pdf, args_list)
 
         for img in self.images:
-            # merge pdfs
-            file = f"{img}.pdf"
-            with fitz.open(file) as f:
+            # merge images to pdfs
+            with fitz.open(img + ".pdf") as f:
                 pdf.insert_pdf(f)
 
         ConsoleUtility.print("** - 100.00%")
@@ -103,9 +93,8 @@ class ImagesToPdfConverter(Converter):
 
     def convert_image_to_pdf(self, img_path, page_id):
         try:
-
             if not self.force_ocr or self.no_ocr:
-                raise InterruptedError("skipping tesseract")
+                raise ValueError("skipping tesseract")
 
             result = pytesseract.image_to_pdf_or_hocr(
                 Image.open(img_path), lang=self.tesseract_language,
@@ -114,7 +103,9 @@ class ImagesToPdfConverter(Converter):
             )
             with open(img_path + ".pdf", "wb") as f:
                 f.write(result)
-        except InterruptedError as e:  # if ocr/tesseract fails
+        except DecompressionBombError as e:
+            raise e
+        except ValueError:  # if ocr/tesseract fails
             with open(img_path + ".pdf", "wb") as f:
                 f.write(convert(img_path))
             ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR applied."))
