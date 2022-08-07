@@ -18,7 +18,6 @@ class PdfToImageConverter(Converter):
         self.mode = mode
 
     def convert(self) -> None:
-        ConsoleUtility.print(self.dest_path)
         os.makedirs(self.dest_path, exist_ok=True)
         ConsoleUtility.print("--splitting pdf into images--")
         # open pdf and split it into rgb-pixelmaps -> png
