@@ -17,13 +17,14 @@ class ConsoleUtility:
         return ConsoleUtility.YELLOW + str(file) + ConsoleUtility.END
 
     @staticmethod
-    def print_stats(orig: int, result: int) -> None:
+    def print_stats(orig: int, result: int, is_file: bool = True) -> None:
         if orig <= 0:
             raise ValueError("orig must be greater than 0")
         if result < 0:
             raise ValueError("result can't be less than 0")
 
-        ConsoleUtility.print(ConsoleUtility.GREEN + "Compressed File from " + str(round(orig / 1000000, 2)) + "mb to " +str(
+        prefix = "Compressed File from " if is_file else "Compressed All from "
+        ConsoleUtility.print(ConsoleUtility.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " +str(
             round(result / 1000000, 2)) + "mb (-" + str(
             round(100 - (result / orig * 100), 2)) + "%)" + ConsoleUtility.END)
 
