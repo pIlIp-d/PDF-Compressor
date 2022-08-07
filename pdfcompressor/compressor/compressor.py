@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
+from pdfcompressor.compressor.processor import Processor
 
-from ..processor import Processor
 
+class Compressor(Processor, ABC):
+    def __init__(self, processor: Processor):
+        super().__init__(processor)
 
-class Compressor(ABC, Processor):
     @abstractmethod
     def compress(self, source_path: str, destination_path: str) -> None: pass
