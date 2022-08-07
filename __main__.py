@@ -87,7 +87,7 @@ if __name__ == '__main__':
             args["tesseract_language"],
             args["simple_and_lossless"]
         )
-        pdf_compressor.compress_file_list()
+        pdf_compressor.compress()
 
     except KeyboardInterrupt:
         while True:
