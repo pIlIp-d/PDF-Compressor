@@ -1,13 +1,13 @@
 import os
 import subprocess
 
-from .abstract_pdf_compressor import AbstractPdfCompressor
-from .compress_exception import CompressException
-from .processor import Processor
+from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from pdfcompressor.compressor.compress_exception import CompressException
+from pdfcompressor.processor.processor import Processor
 
 
 class CPdfSqueezeCompressor(AbstractPdfCompressor):
-    def __init__(self, cpdfsqueeze_path: str, use_wine_on_linux: bool = False, processor: Processor = None):
+    def __init__(self, cpdfsqueeze_path: str, use_wine_on_linux: bool = False):
         """
         :param cpdfsqueeze_path: absolute path to executable
         :param use_wine_on_linux:
@@ -16,21 +16,26 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
                 If it is active on Windows, it will be automatically disabled.
             False means it directly runs the executable file at the path.
         """
-        super().__init__(processor)
+        super().__init__()
         self.__cpdfsqueeze_path = cpdfsqueeze_path
         self.__use_wine_on_linux = use_wine_on_linux and not "nt" == os.name
         if not os.path.exists(self.__cpdfsqueeze_path):
             raise ValueError(rf"cpdfsqueeze_path couldn't be found. '{self.__cpdfsqueeze_path}'")
 
-    def compress_file(self, file: str, destination_file: str) -> None:
-        if not os.path.exists(file) or not destination_file.endswith(".pdf"):
+    def compress_file_list(self, source_files: list, destination_files: list) -> None:
+        self.compress_file_list_multi_threaded(source_files, destination_files)
+
+    def compress_file(self, source_file: str, destination_file: str) -> None:
+        self.preprocess(source_file ,destination_file)
+        if not os.path.exists(source_file) or not destination_file.endswith(".pdf"):
             raise ValueError("Only pdf files are accepted")
 
         command = "wine " if self.__use_wine_on_linux else ""
         command += self.__cpdfsqueeze_path
         # path arguments "from" "to"
-        command += rf' "{file}" "{destination_file}"'
+        command += rf' "{source_file}" "{destination_file}"'
         try:
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         except Exception:  # TODO maybe disable custom exception
             raise CompressException("CPdfSqueezeCompressor")
+        self.postprocess(source_file, destination_file)
