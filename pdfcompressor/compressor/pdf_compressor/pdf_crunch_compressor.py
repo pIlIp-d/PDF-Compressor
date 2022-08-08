@@ -1,14 +1,16 @@
 import os
 import shutil
 
-from .abstract_pdf_compressor import AbstractPdfCompressor
-from .converter.images_to_pdf_converter import ImagesToPdfConverter
-from .converter.pdf_to_image_converter import PdfToImageConverter
-from .cpdf_sqeeze_compressor import CPdfSqueezeCompressor
-from .crunch_utility import CrunchUtility
-from .processor import Processor
-from ..utility.console_utility import ConsoleUtility
-from ..utility.os_utility import OsUtility
+from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from pdfcompressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
+from pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
+from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
+from pdfcompressor.processor.postprocessor import Postprocessor
+from pdfcompressor.processor.preprocessor import Preprocessor
+from pdfcompressor.processor.processor import Processor
+from pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
+from pdfcompressor.utility.console_utility import ConsoleUtility
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 class PDFCrunchCompressor(AbstractPdfCompressor):
@@ -18,10 +20,9 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             advpng_path: str,
             c_pdf_squeeze_compressor: CPdfSqueezeCompressor,
             compressing_mode: int,
-            processor: Processor = None
     ):
-        super().__init__(processor)
-        self.__crunch_utility = CrunchUtility(pngquant_path, advpng_path)
+        super().__init__()
+        self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path)
         self.__tessdata_prefix = None
         self.__tesseract_path = None
         self.__tesseract_language = None
@@ -59,8 +60,8 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         return os.path.abspath(OsUtility.get_filename(file).replace(" ", "_") + "_tmp")
 
     def preprocess(self, source_file: str, destination_file: str) -> None:
-        temp_folder = self.__get_temp_path(source_file)
         super().preprocess(source_file, destination_file)
+        temp_folder = self.__get_temp_path(source_file)
 
         # create new empty folder for temporary files
         shutil.rmtree(temp_folder, ignore_errors=True)
@@ -87,9 +88,10 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             self.__tesseract_language,
             self.__tessdata_prefix
         ).convert()
+
         OsUtility.clean_up_folder(temp_folder)
 
-        self.__c_pdf_squeeze_compressor.supress_stats()
+        ConsoleUtility.quiet_mode = True
         self.__c_pdf_squeeze_compressor.compress(destination_file, destination_file)
 
         if not self.__force_ocr and OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
@@ -104,11 +106,18 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
                     "File couldn't be compressed using crunch cpdf combi. "
                     "However cpdf could compress it. -> No OCR was Created. (force ocr with option -f/--force-ocr)"
                 ))
-        self.__c_pdf_squeeze_compressor.activate_stats()
-
+        ConsoleUtility.quiet_mode = False
         super().postprocess(source_file, destination_file)
 
-    def compress_file(self, file: str, _: str):
-        # list of pdf pages in png format
-        image_list = OsUtility.get_file_list(self.__get_temp_path(file), ".png")
-        self.__crunch_utility.crunch_list_of_files(image_list)
+    def compress_file_list(self, source_files: list, destination_files: list) -> None:
+        # todo compare results with parallel
+        # don't use parallel pdf compression
+        # instead it uses parallel image compression per
+        for source, destination in zip(source_files, destination_files):
+            self.compress_file(source, destination)
+
+    @Processor.pre_and_post_processed
+    def compress_file(self, source_file: str, destination_file: str) -> None:
+        # compress all images in temp_folder
+        temp_image_list = OsUtility.get_file_list(self.__get_temp_path(source_file))
+        self.__png_crunch_compressor.compress_file_list(temp_image_list, temp_image_list)
