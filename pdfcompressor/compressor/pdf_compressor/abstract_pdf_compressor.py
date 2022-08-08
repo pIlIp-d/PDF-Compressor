@@ -4,7 +4,6 @@ from abc import ABC
 import fitz
 
 from pdfcompressor.compressor.compressor import Compressor
-from pdfcompressor.processor.postprocessor import Postprocessor
 from pdfcompressor.io_path_parser import IOPathParser
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
@@ -56,10 +55,7 @@ class AbstractPdfCompressor(Compressor, ABC):
         if is_merging:
             # move merge result to destination
             OsUtility.move_file(self._final_merge_file, temporary_destination_file_list[0])
-            ConsoleUtility.print(
-                f"{ConsoleUtility.GREEN}Merged pdfs into{ConsoleUtility.END} " \
-                + ConsoleUtility.get_file_string(destination_file_list[0])
-            )
+            ConsoleUtility.print_green(f"Merged pdfs into {ConsoleUtility.get_file_string(destination_file_list[0])}")
 
         if is_merging:
             end_size = OsUtility.get_file_size(temporary_destination_file_list[0])

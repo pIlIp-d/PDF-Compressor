@@ -34,7 +34,12 @@ class AbstractImageCompressor(Compressor):
         self.compress_file_list_multi_threaded(source_files, destination_files)
 
     def compress(self, source_path: str, destination_path: str) -> None:
-        io_path_parser = IOPathParser(source_path, destination_path, self._file_type_from, self._file_type_to, "_compressed")
+        io_path_parser = IOPathParser(
+            source_path,
+            destination_path,
+            self._file_type_from,
+            self._file_type_to, "_compressed"
+        )
         source_file_list = io_path_parser.get_input_file_paths()
         destination_file_list = io_path_parser.get_output_file_paths()
 
@@ -45,5 +50,5 @@ class AbstractImageCompressor(Compressor):
 
         self.compress_file_list(source_file_list, destination_file_list)
 
-        end_size = sum(OsUtility.get_filesize_list((destination_file_list)))
+        end_size = sum(OsUtility.get_filesize_list(destination_file_list))
         ConsoleUtility.print_stats(sum(orig_sizes), end_size, False)

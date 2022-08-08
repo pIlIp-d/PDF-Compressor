@@ -2,13 +2,11 @@ from PIL.Image import DecompressionBombError
 
 from pdfcompressor.compressor.converter.converter import Converter
 from pdfcompressor.compressor.converter.convert_exception import ConvertException
-from pdfcompressor.compressor.converter.py_tesseract_not_found_exception import PytesseractNotFoundException
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
 # package name PyMuPdf
 import fitz  # also imports convert() method
-from PyPDF4 import PdfFileMerger, PdfFileReader
 
 import os
 # package name pillow
@@ -51,24 +49,27 @@ class ImagesToPdfConverter(Converter):
             self.pytesseract_path = pytesseract_path
             try:
                 self.init_pytesseract()
-            except ConvertException as e:
+            except ConvertException:
                 self.force_ocr = False
 
     def init_pytesseract(self) -> None:
         # either initiates pytesseract or deactivate ocr if not possible
         try:
             if not os.path.isfile(self.pytesseract_path):
-                raise PytesseractNotFoundException()
+                ConsoleUtility.print_error(r"[ ! ] - tesseract Path not found. Install "
+                                           "https://github.com/UB-Mannheim/tesseract/wiki or edit "
+                                           "'TESSERACT_PATH' to your "
+                                           "specific tesseract executable")
             # set command (not sure why windows needs it differently)
-            if os.name == "nt":
+            elif os.name == "nt":
                 pytesseract.pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
             else:
                 pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
 
-        except Exception as ee:
+        except Exception:
             if self.force_ocr:
-                ConsoleUtility.print(ConsoleUtility.get_error_string("Tesseract Not Loaded, Can't create OCR."
-                                                                     "(leave out option '--ocr-force' to compresss without ocr)"))
+                ConsoleUtility.print_error("Tesseract Not Loaded, Can't create OCR."
+                                           "(leave out option '--ocr-force' to compress without ocr)")
                 self.force_ocr = False
             raise ConvertException("Tesseract (-> no OCR on pdfs)")
 
@@ -76,7 +77,8 @@ class ImagesToPdfConverter(Converter):
         # merging pngs to pdf and create OCR
         ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
         # convert single images in parallel
-        args_list = [{"img_path": img, "page_id": image_id} for img, image_id in zip(self.images, range(len(self.images)))]
+        args_list = [{"img_path": img, "page_id": image_id} for img, image_id in
+                     zip(self.images, range(len(self.images)))]
         self._custom_map_execute(self.convert_image_to_pdf, args_list)
 
         # merge page files into final destination
@@ -106,4 +108,4 @@ class ImagesToPdfConverter(Converter):
         # free storage by deleting png
         os.remove(img_path)
         # print statistics
-        ConsoleUtility.print(f"** - Finished Page {page_id+1}/{len(self.images)}")
+        ConsoleUtility.print(f"** - Finished Page {page_id + 1}/{len(self.images)}")

@@ -3,10 +3,10 @@ import subprocess
 from subprocess import CalledProcessError
 
 from pdfcompressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
-from pdfcompressor.processor.postprocessor import Postprocessor
 from pdfcompressor.processor.processor import Processor
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
+
 
 # todo play with the options of the compression tools to achieve the best results
 

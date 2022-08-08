@@ -3,7 +3,6 @@ import subprocess
 from subprocess import CalledProcessError
 
 from .abstract_image_compressor import AbstractImageCompressor
-from ...processor.postprocessor import Postprocessor
 from ...processor.processor import Processor
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
@@ -20,7 +19,7 @@ class AdvanceCompressor(AbstractImageCompressor):
             raise FileNotFoundError(rf"advpng not found at '{self.__advpng_path}'")
         self.__system_extra = "powershell.exe" if os.name == 'nt' else ""
         # compress, shrink-normal, 3 rounds of compression
-        self.__advpng_options = ("--recompress", "--shrink-normal", "-i 3")  # todo mode changeable
+        self.__advpng_options = " ".join(("--recompress", "--shrink-normal", "-i 3"))  # todo mode changeable
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         if not self._is_valid_image(destination_file) or OsUtility.get_file_size(source_file) < OsUtility.get_file_size(
@@ -33,7 +32,7 @@ class AdvanceCompressor(AbstractImageCompressor):
         if not self._is_valid_image(source_file):
             raise ValueError(rf"'{source_file}' does not appear to be a valid path to a PNG file")
 
-        advpng_command = (rf"{self.__system_extra}  {self.__advpng_path} {' '.join(self.__advpng_options)} '{source}'")
+        advpng_command = rf"{self.__system_extra}  {self.__advpng_path} {self.__advpng_options} '{source_file}'"
         try:
             subprocess.check_output(advpng_command, stderr=subprocess.STDOUT, shell=True)
         except CalledProcessError as cpe:

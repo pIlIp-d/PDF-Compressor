@@ -2,8 +2,7 @@ import os
 import subprocess
 
 from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
-from pdfcompressor.compressor.compress_exception import CompressException
-from pdfcompressor.processor.processor import Processor
+from pdfcompressor.utility.console_utility import ConsoleUtility
 
 
 class CPdfSqueezeCompressor(AbstractPdfCompressor):
@@ -26,7 +25,7 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         self.compress_file_list_multi_threaded(source_files, destination_files)
 
     def compress_file(self, source_file: str, destination_file: str) -> None:
-        self.preprocess(source_file ,destination_file)
+        self.preprocess(source_file, destination_file)
         if not os.path.exists(source_file) or not destination_file.endswith(".pdf"):
             raise ValueError("Only pdf files are accepted")
 
@@ -36,6 +35,6 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         command += rf' "{source_file}" "{destination_file}"'
         try:
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-        except Exception:  # TODO maybe disable custom exception
-            raise CompressException("CPdfSqueezeCompressor")
+        except Exception:
+            ConsoleUtility.print_error("[!] Compression Failed during CPdfSqueezeCompressor stage.")
         self.postprocess(source_file, destination_file)

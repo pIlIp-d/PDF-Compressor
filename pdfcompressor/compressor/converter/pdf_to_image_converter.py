@@ -20,10 +20,9 @@ class PdfToImageConverter(Converter):
     def convert(self) -> None:
         os.makedirs(self.dest_path, exist_ok=True)
         ConsoleUtility.print("--splitting pdf into images--")
-        # open pdf and split it into rgb-pixelmaps -> png
+        # open pdf and split it into rgb-pixel maps -> png
         doc = fitz.open(self.origin_path)
         for page in doc:
             ConsoleUtility.print(f"** - Finished Page {page.number + 1}/{len(doc)}")
             pix = page.get_pixmap(matrix=fitz.Matrix(self.mode, self.mode))
             pix.save(os.path.join(self.dest_path, 'page_%i.png' % page.number))
-        ConsoleUtility.print("** - 100.00%")
