@@ -1,3 +1,6 @@
+from typing import Callable
+
+
 class ConsoleUtility:
     RED: str = "\033[0;31m"
     YELLOW: str = "\033[0;33;33m"
@@ -6,34 +9,41 @@ class ConsoleUtility:
 
     quiet_mode: bool = False
 
-    @staticmethod
-    def get_error_string(string: str) -> str:
+    @classmethod
+    def get_error_string(cls, string: str) -> str:
         # returns string but in red for ANSI compatible shells
-        return ConsoleUtility.RED + string + ConsoleUtility.END
+        return cls.RED + string + cls.END
 
-    @staticmethod
-    def get_file_string(file: str) -> str:
+    @classmethod
+    def get_file_string(cls, file: str) -> str:
         # returns string but in yellow for ANSI compatible shells
-        return ConsoleUtility.YELLOW + str(file) + ConsoleUtility.END
+        return cls.YELLOW + str(file) + cls.END
 
-    @staticmethod
-    def print_stats(orig: int, result: int, is_file: bool = True) -> None:
+    @classmethod
+    def print_stats(cls, orig: int, result: int, is_file: bool = True) -> None:
         if orig <= 0:
             raise ValueError("orig must be greater than 0")
         if result < 0:
             raise ValueError("result can't be less than 0")
 
         prefix = "Compressed File from " if is_file else "Compressed All from "
-        ConsoleUtility.print(ConsoleUtility.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " +str(
+        cls.print(cls.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " +str(
             round(result / 1000000, 2)) + "mb (-" + str(
-            round(100 - (result / orig * 100), 2)) + "%)" + ConsoleUtility.END)
+            round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
 
-    @staticmethod
-    def print_error(string: str) -> None:
-        if not ConsoleUtility.quiet_mode:
-            print(ConsoleUtility.get_error_string(string))
+    @classmethod
+    def print_error(cls, string: str) -> None:
+        cls.print(cls.get_error_string(string))
 
-    @staticmethod
-    def print(string: str) -> None:
-        if not ConsoleUtility.quiet_mode:
+    @classmethod
+    def print_ansi_colored_string(cls, color: str, string: str) -> None:
+        cls.print(color + string + cls.END)
+
+    @classmethod
+    def print_green(cls, string: str) -> None:
+        cls.print_ansi_colored_string(cls.GREEN, string)
+
+    @classmethod
+    def print(cls, string: str) -> None:
+        if not cls.quiet_mode:
             print(string)
