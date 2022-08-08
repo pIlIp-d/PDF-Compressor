@@ -6,19 +6,16 @@
 #   MIT Licence
 #
 # ===================================================================
-import math
 from types import SimpleNamespace
 
 import jsons
 import os
 import shutil
 
-from .console_ui_processor import ConsoleUIProcessor
-from .io_path_parser import IOPathParser
-from .compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
-from .compressor.pdf_crunch_compressor import PDFCrunchCompressor
+from pdfcompressor.processor.console_ui_processor import ConsoleUIProcessor
+from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
+from pdfcompressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from .utility.console_utility import ConsoleUtility
-from .utility.os_utility import OsUtility
 
 
 # TODO rename private variables starting with __ and protected starting with _
@@ -38,7 +35,7 @@ class PDFCompressor:
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False
     ):
-        ConsoleUtility.QUIET_MODE = quiet
+        ConsoleUtility.quiet_mode = quiet
         self.__continue_position = continue_position  # todo reimplementation
         self.__force_ocr = force_ocr
         self.__simple_and_lossless = simple_and_lossless
@@ -119,18 +116,13 @@ class PDFCompressor:
         os.remove(temp_path)
 
     def compress(self) -> None:
-        """
-        if math.fabs(self.__continue_position) >= len(self.__source_file_list):
-            ConsoleUtility.print(ConsoleUtility.get_error_string(
-                "Continue Position exceeds the amount of pdf-files in input folder."
-            ))
-            return
-        """
-        self.__pdf_crunch.add_processor(ConsoleUIProcessor())
-
         if self.__simple_and_lossless:
+            self.__cpdf.add_postprocessor(ConsoleUIProcessor())
+            self.__cpdf.add_preprocessor(ConsoleUIProcessor())
             self.__cpdf.compress(self.__source_path, self.__destination_path)
         else:
+            self.__pdf_crunch.add_postprocessor(ConsoleUIProcessor())
+            self.__pdf_crunch.add_preprocessor(ConsoleUIProcessor())
             self.__pdf_crunch.compress(self.__source_path, self.__destination_path)
 
     @staticmethod
