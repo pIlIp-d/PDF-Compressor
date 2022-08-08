@@ -8,8 +8,10 @@ from pdfcompressor.utility.os_utility import OsUtility
 
 # package name PyMuPdf
 import fitz  # also imports convert() method
+from PyPDF4 import PdfFileMerger, PdfFileReader
 
 import os
+# package name pillow
 from PIL import Image
 from img2pdf import convert
 
@@ -20,9 +22,6 @@ try:
     PY_TESS_AVAILABLE = True
 except:
     PY_TESS_AVAILABLE = False
-
-# optionally add --tessdata 'path_to_tessdata_folder'
-TESSDATA_PREFIX = ""
 
 
 class ImagesToPdfConverter(Converter):
@@ -76,20 +75,15 @@ class ImagesToPdfConverter(Converter):
     def convert(self) -> None:
         # merging pngs to pdf and create OCR
         ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
-        pdf = fitz.open()
-
         # convert single images in parallel
         args_list = [{"img_path": img, "page_id": image_id} for img, image_id in zip(self.images, range(len(self.images)))]
-        OsUtility.custom_map_execute(self.convert_image_to_pdf, args_list)
+        self._custom_map_execute(self.convert_image_to_pdf, args_list)
 
-        for img in self.images:
-            # merge images to pdfs
-            with fitz.open(img + ".pdf") as f:
-                pdf.insert_pdf(f)
-
-        ConsoleUtility.print("** - 100.00%")
-        # raises exception if no matching permissions in output folder
-        pdf.save(self.dest_path)
+        # merge page files into final destination
+        with fitz.open() as pdf:
+            for file in self.images:
+                pdf.insert_pdf(fitz.open(file + ".pdf"))
+            pdf.save(self.dest_path)
 
     def convert_image_to_pdf(self, img_path, page_id):
         try:
