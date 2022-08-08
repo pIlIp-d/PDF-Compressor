@@ -4,7 +4,7 @@ class ConsoleUtility:
     GREEN: str = "\n\033[0;32m"
     END: str = "\033[0m"
 
-    QUIET_MODE: bool = False
+    quiet_mode: bool = False
 
     @staticmethod
     def get_error_string(string: str) -> str:
@@ -29,6 +29,11 @@ class ConsoleUtility:
             round(100 - (result / orig * 100), 2)) + "%)" + ConsoleUtility.END)
 
     @staticmethod
+    def print_error(string: str) -> None:
+        if not ConsoleUtility.quiet_mode:
+            print(ConsoleUtility.get_error_string(string))
+
+    @staticmethod
     def print(string: str) -> None:
-        if not ConsoleUtility.QUIET_MODE:
+        if not ConsoleUtility.quiet_mode:
             print(string)
