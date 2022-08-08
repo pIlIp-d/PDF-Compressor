@@ -56,18 +56,12 @@ class OsUtility:
         filename_with_ending = os.path.basename(full_path_to_file)
         return re.split(file_ending_format, filename_with_ending)[0]
 
+    @staticmethod
+    def get_filesize_list(file_list: list) -> list:
+        return [OsUtility.get_file_size(file) for file in file_list]
+
     @classmethod  # todo unitTest
     def get_file_size(cls, file_path: str) -> int:
         if not os.path.exists(file_path):
             return 0
         return os.stat(file_path).st_size
-
-    @classmethod  # TODO unitTesting
-    def custom_map_execute(cls, method, args_list: list):
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            tasks = []
-            for method_parameter in args_list:
-                tasks.append(executor.submit(method, **method_parameter))
-            # waits for all jobs to be completed
-            for _ in as_completed(tasks):
-                pass
