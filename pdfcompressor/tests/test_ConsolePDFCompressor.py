@@ -37,10 +37,6 @@ class TestConsolePDFCompressor(TestCase):
         with open(file_path, "w") as f:
             f.write("")
 
-    @staticmethod
-    def get_file_size(file_path: str):
-        return os.stat(file_path).st_size
-
     # input path
     def test_pdf_compressor_valid_path(self):
         console_buffer = self.get_console_buffer()
@@ -310,7 +306,9 @@ class TestConsolePDFCompressor(TestCase):
             "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
             "-o", result_path
         ])
-        self.assertEqual(1, return_code)
+        self.assertTrue(os.path.exists(result_path))
+        self.remove_if_not_exists(result_path)
+        self.assertEqual(0, return_code)
 
     def test_pdf_compressor_invalid_output_path_start_char(self):
         console_buffer = self.get_console_buffer()
@@ -327,6 +325,8 @@ class TestConsolePDFCompressor(TestCase):
         self.assertFalse(console_buffer.getvalue().__contains__(ConsoleUtility.RED))
         self.assertEqual(0, return_code)
 
+    """ temporarily or permanent deactivated
+    # continue
     def test_pdf_compressor_continue_is_zero(self):
         result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
         self.remove_if_not_exists(result_path)
@@ -406,7 +406,7 @@ class TestConsolePDFCompressor(TestCase):
         ])
         self.assertFalse(os.path.exists(result_path))
         self.assertEqual(0, return_code)
-
+    """
     # --force-ocr
     def test_pdf_compress_force_ocr_active_and_compression_succeeded(self):
         result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
@@ -419,7 +419,7 @@ class TestConsolePDFCompressor(TestCase):
             "--force-ocr"
         ])
         self.assertTrue(os.path.exists(result_path))
-        self.assertTrue(self.get_file_size(result_path) < self.get_file_size(input_file))
+        self.assertTrue(OsUtility.get_file_size(result_path) < OsUtility.get_file_size(input_file))
         os.remove(result_path)
         self.assertEqual(0, return_code)
 
@@ -434,7 +434,7 @@ class TestConsolePDFCompressor(TestCase):
             "--force-ocr"
         ])
         self.assertTrue(os.path.exists(result_path))
-        self.assertFalse(self.get_file_size(result_path) < self.get_file_size(input_file))
+        self.assertFalse(OsUtility.get_file_size(result_path) < OsUtility.get_file_size(input_file))
         os.remove(result_path)
         self.assertEqual(0, return_code)
 
@@ -457,7 +457,7 @@ class TestConsolePDFCompressor(TestCase):
             "-p", input_file
         ])
         self.assertTrue(os.path.exists(result_path))
-        self.assertTrue(self.get_file_size(result_path) < self.get_file_size(input_file))
+        self.assertTrue(OsUtility.get_file_size(result_path) < OsUtility.get_file_size(input_file))
         os.remove(result_path)
         self.assertEqual(0, return_code)
 
@@ -472,7 +472,7 @@ class TestConsolePDFCompressor(TestCase):
             "-m", "3"
         ])
         self.assertTrue(os.path.exists(result_path))
-        self.assertEqual(self.get_file_size(result_path), self.get_file_size(input_file))
+        self.assertEqual(OsUtility.get_file_size(result_path), OsUtility.get_file_size(input_file))
         os.remove(result_path)
         self.assertEqual(0, return_code)
 

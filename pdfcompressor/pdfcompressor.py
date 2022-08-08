@@ -28,7 +28,6 @@ class PDFCompressor:
             source_path: str,
             destination_path: str = "default",
             compression_mode: int = 3,  # TODO rename everywhere mode -> compression_mode
-            continue_position: int = 0,
             force_ocr: bool = False,
             no_ocr: bool = False,
             quiet: bool = False,
@@ -36,7 +35,6 @@ class PDFCompressor:
             simple_and_lossless: bool = False
     ):
         ConsoleUtility.quiet_mode = quiet
-        self.__continue_position = continue_position  # todo reimplementation
         self.__force_ocr = force_ocr
         self.__simple_and_lossless = simple_and_lossless
         self.__final_merge_path = None

@@ -41,6 +41,7 @@ def get_args():
         action='store_true',
         help="Don't create OCR on pdf."
     )
+    """ temporarily or permanent deactivated
     all_args.add_argument(
         "-c", "--continue",
         required=False,
@@ -49,6 +50,7 @@ def get_args():
              " (=amount of files already converted)",
         default=0
     )
+    """
     all_args.add_argument(
         "-q", "--quiet-mode",
         required=False,
@@ -80,7 +82,6 @@ if __name__ == '__main__':
             args["path"],
             args["output_path"],
             args["mode"],
-            args["continue"],
             args["force_ocr"],
             args["no_ocr"],
             args["quiet_mode"],
