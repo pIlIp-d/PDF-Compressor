@@ -20,11 +20,13 @@ class PNGCrunchCompressor(AbstractImageCompressor):
         except FileNotFoundError:
             self.__pngquant = None
 
-    @Processor.pre_and_post_processed
     def compress_file(self, source_file: str, destination_file: str) -> None:
+        self.preprocess(source_file, destination_file)
+
         # run single file compress
         self.__pngquant.compress_file(source_file, destination_file)
         self.__advcomp.compress_file(destination_file, destination_file)
+        self.postprocess(source_file, destination_file)
 
     def compress(self, source_path: str, destination_path: str) -> None:
         # run optimized compress

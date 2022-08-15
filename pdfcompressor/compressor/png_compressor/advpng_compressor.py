@@ -27,8 +27,9 @@ class AdvanceCompressor(AbstractImageCompressor):
             OsUtility.copy_file(source_file, destination_file)
         super().postprocess(source_file, destination_file)
 
-    @Processor.pre_and_post_processed
     def compress_file(self, source_file: str, destination_file: str) -> None:
+        self.preprocess(source_file, destination_file)
+
         if not self._is_valid_image(source_file):
             raise ValueError(rf"'{source_file}' does not appear to be a valid path to a PNG file")
 
@@ -41,3 +42,4 @@ class AdvanceCompressor(AbstractImageCompressor):
             pass
         except Exception as e:
             ConsoleUtility.print_error(repr(e))  # dont raise e
+        self.postprocess(source_file, destination_file)

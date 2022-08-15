@@ -3,10 +3,8 @@ import subprocess
 from subprocess import CalledProcessError
 
 from pdfcompressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
-from pdfcompressor.processor.processor import Processor
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
-
 
 # todo play with the options of the compression tools to achieve the best results
 
@@ -28,19 +26,29 @@ class PngQuantCompressor(AbstractImageCompressor):
             "--force",
             "--speed 1",
             "--strip",
-            "--ext '-crunch.png'"
+            "--ext '-comp.png'"
         ))
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
-        crunch_destination = source_file[:-4] + '-crunch.png'
+        crunch_destination = source_file[:-4] + '-comp.png'
         original_size = OsUtility.get_file_size(source_file)
         result_size = OsUtility.get_file_size(crunch_destination)
-        if not self._is_valid_image(crunch_destination) or original_size < result_size:
+
+        # compression worked -> copy file to final destination
+        if self._is_valid_image(crunch_destination) and original_size > result_size:
             OsUtility.copy_file(crunch_destination, destination_file)
+        # error in output file -> copy source file to destination
+        else:
+            OsUtility.copy_file(source_file, destination_file)
+
+        if os.path.exists(crunch_destination):
+            os.remove(crunch_destination)
+
         super().postprocess(source_file, destination_file)
 
-    @Processor.pre_and_post_processed
     def compress_file(self, source_file: str, destination_file: str) -> None:
+        self.preprocess(source_file, destination_file)
+
         if not self._is_valid_image(source_file):
             raise ValueError(rf"'{source_file}' does not appear to be a valid path to a PNG file")
 
@@ -55,3 +63,4 @@ class PngQuantCompressor(AbstractImageCompressor):
                 pass
         except Exception as e:
             ConsoleUtility.print_error(repr(e))  # dont raise e
+        self.postprocess(source_file, destination_file)
