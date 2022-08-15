@@ -41,6 +41,7 @@ def get_args():
         action='store_true',
         help="Don't create OCR on pdf."
     )
+    """ temporarily or permanent deactivated
     all_args.add_argument(
         "-c", "--continue",
         required=False,
@@ -49,6 +50,7 @@ def get_args():
              " (=amount of files already converted)",
         default=0
     )
+    """
     all_args.add_argument(
         "-q", "--quiet-mode",
         required=False,
@@ -67,7 +69,8 @@ def get_args():
         "-s", "--simple-and-lossless",
         required=False,
         action='store_true',
-        help="Simple and lossless compression is non-invasive and skips the image converting. Not as effective but simple and faster."
+        help="Simple and lossless compression is non-invasive and skips the image converting."
+             "Not as effective but simple and faster."
     )
 
     return vars(all_args.parse_args())
@@ -80,14 +83,13 @@ if __name__ == '__main__':
             args["path"],
             args["output_path"],
             args["mode"],
-            args["continue"],
             args["force_ocr"],
             args["no_ocr"],
             args["quiet_mode"],
             args["tesseract_language"],
             args["simple_and_lossless"]
         )
-        pdf_compressor.compress_file_list()
+        pdf_compressor.compress()
 
     except KeyboardInterrupt:
         while True:

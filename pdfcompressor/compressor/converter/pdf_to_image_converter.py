@@ -5,7 +5,7 @@ import os
 
 # package name PyMuPdf
 import fitz
-
+from pdf2image import convert_from_path
 
 class PdfToImageConverter(Converter):
     def __init__(
@@ -18,13 +18,13 @@ class PdfToImageConverter(Converter):
         self.mode = mode
 
     def convert(self) -> None:
-        ConsoleUtility.print(self.dest_path)
         os.makedirs(self.dest_path, exist_ok=True)
         ConsoleUtility.print("--splitting pdf into images--")
-        # open pdf and split it into rgb-pixelmaps -> png
+
+        # open pdf and split it into rgb-pixel maps -> png
         doc = fitz.open(self.origin_path)
         for page in doc:
             ConsoleUtility.print(f"** - Finished Page {page.number + 1}/{len(doc)}")
             pix = page.get_pixmap(matrix=fitz.Matrix(self.mode, self.mode))
-            pix.save(os.path.join(self.dest_path, 'page_%i.png' % page.number))
-        ConsoleUtility.print("** - 100.00%")
+            page_number = str(page.number) if page.number >= 10 else "0" + str(page.number)
+            pix.save(os.path.join(self.dest_path, 'page_%s.png' % page_number))

@@ -110,15 +110,12 @@ Solution `-f` / `--force-ocd`
 -f --force-ocr             When turned on allows output file to be larger than input file, to force
                            ocr. Default: off and only smaller output files are saved.'
 -n --no-ocr                Don't create OCR on pdf.
--c --continue              Number. When compressing folder and Interrupted, skip files already
-                           converted. (=amount of files already converted)```
 -q, --quiet-mode           Don't print to console. Doesn't apply to Exceptions.
 -l  --tesseract-language   Language to create OCR with. Find the string for your language 
                            https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html.
                            Make sure it it installed.
 -s, --simple-and-lossless  Simple and lossless compression is non-invasive and skips the image converting.
                            Not as effective but simple and faster.
-
 ```
 
 ## Examples
@@ -137,9 +134,6 @@ python3 pdf_converter.py -p 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 * console output at compression stage isn't chronological (because of multiprocessing)
 
 * sometimes KeyboardInterrupt only works if currently not in Crunch compression process
-
-
-* Linux and MacOs aren't tested enough and it's not very easy to install it with all the packages
 
 # Software License Agreements
 **PDF-Compressor** https://github.com/pIlIp-d/PDF-Compressor <br>

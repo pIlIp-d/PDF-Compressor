@@ -1,9 +1,7 @@
-import re
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from PIL.Image import DecompressionBombError
 
 from pdfcompressor.compressor.converter.converter import Converter
 from pdfcompressor.compressor.converter.convert_exception import ConvertException
-from pdfcompressor.compressor.converter.py_tesseract_not_found_exception import PytesseractNotFoundException
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -11,6 +9,7 @@ from pdfcompressor.utility.os_utility import OsUtility
 import fitz  # also imports convert() method
 
 import os
+# package name pillow
 from PIL import Image
 from img2pdf import convert
 
@@ -21,9 +20,6 @@ try:
     PY_TESS_AVAILABLE = True
 except:
     PY_TESS_AVAILABLE = False
-
-# optionally add --tessdata 'path_to_tessdata_folder'
-TESSDATA_PREFIX = ""
 
 
 class ImagesToPdfConverter(Converter):
@@ -53,59 +49,48 @@ class ImagesToPdfConverter(Converter):
             self.pytesseract_path = pytesseract_path
             try:
                 self.init_pytesseract()
-            except ConvertException as e:
+            except ConvertException:
                 self.force_ocr = False
 
     def init_pytesseract(self) -> None:
         # either initiates pytesseract or deactivate ocr if not possible
         try:
             if not os.path.isfile(self.pytesseract_path):
-                raise PytesseractNotFoundException()
+                ConsoleUtility.print_error(r"[ ! ] - tesseract Path not found. Install "
+                                           "https://github.com/UB-Mannheim/tesseract/wiki or edit "
+                                           "'TESSERACT_PATH' to your specific tesseract executable")
             # set command (not sure why windows needs it differently)
-            if os.name == "nt":
+            elif os.name == "nt":
                 pytesseract.pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
             else:
                 pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
 
-        except Exception as ee:
+        except Exception:
             if self.force_ocr:
-                ConsoleUtility.print(ConsoleUtility.get_error_string("Tesseract Not Loaded, Can't create OCR."
-                                                                     "(leave out option '--ocr-force' to compresss without ocr)"))
+                ConsoleUtility.print_error("Tesseract Not Loaded, Can't create OCR."
+                                           "(leave out option '--ocr-force' to compress without ocr)")
                 self.force_ocr = False
             raise ConvertException("Tesseract (-> no OCR on pdfs)")
 
     def convert(self) -> None:
         # merging pngs to pdf and create OCR
         ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
-        pdf = fitz.open()
 
-        # convert single images in parallel
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            tasks = []
-            for img, image_id in zip(self.images, range(len(self.images))):
-                method_parameter = {"img_path": img, "page_id": image_id}
-                # each image gets a single thread that which is executed via ThreadPoolExecutor
-                tasks.append(executor.submit(self.convert_image_to_pdf, **method_parameter))
+        # convert images sequential (is significantly faster than parallel)
+        for img, image_id in zip(self.images, range(len(self.images))):
+            self.convert_image_to_pdf(img, image_id)
 
-            # waits for all jobs to be completed
-            for _ in as_completed(tasks):
-                pass
-
-        for img in self.images:
-            # merge pdfs
-            file = f"{img}.pdf"
-            with fitz.open(file) as f:
-                pdf.insert_pdf(f)
-
-        ConsoleUtility.print("** - 100.00%")
-        # raises exception if no matching permissions in output folder
-        pdf.save(self.dest_path)
+        # merge page files into final destination
+        with fitz.open() as pdf:
+            for file in self.images:
+                pdf.insert_pdf(fitz.open(file + ".pdf"))
+            pdf.save(self.dest_path)
+        print("finished merge")
 
     def convert_image_to_pdf(self, img_path, page_id):
         try:
-
             if not self.force_ocr or self.no_ocr:
-                raise InterruptedError("skipping tesseract")
+                raise ValueError("skipping tesseract")
 
             result = pytesseract.image_to_pdf_or_hocr(
                 Image.open(img_path), lang=self.tesseract_language,
@@ -114,11 +99,13 @@ class ImagesToPdfConverter(Converter):
             )
             with open(img_path + ".pdf", "wb") as f:
                 f.write(result)
-        except InterruptedError as e:  # if ocr/tesseract fails
+        except DecompressionBombError as e:
+            raise e
+        except ValueError:  # if ocr/tesseract fails
             with open(img_path + ".pdf", "wb") as f:
                 f.write(convert(img_path))
             ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR applied."))
         # free storage by deleting png
         os.remove(img_path)
         # print statistics
-        ConsoleUtility.print(f"** - Finished Page {page_id+1}/{len(self.images)}")
+        ConsoleUtility.print(f"** - Finished Page {page_id + 1}/{len(self.images)}")
