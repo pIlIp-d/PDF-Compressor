@@ -115,7 +115,6 @@ Solution `-f` / `--force-ocd`
                            Make sure it it installed.
 -s, --simple-and-lossless  Simple and lossless compression is non-invasive and skips the image converting.
                            Not as effective but simple and faster.
-
 ```
 
 ## Examples
@@ -134,9 +133,6 @@ python3 pdf_converter.py -p 'mypdf.pdf' -m 5 -o compressed_and_crisp.pdf
 * console output at compression stage isn't chronological (because of multiprocessing)
 
 * sometimes KeyboardInterrupt only works if currently not in Crunch compression process
-
-
-* Linux and macOS aren't tested enough, and it's not very easy to install it with all the packages
 
 # Software License Agreements
 **PDF-Compressor** https://github.com/pIlIp-d/PDF-Compressor <br>
