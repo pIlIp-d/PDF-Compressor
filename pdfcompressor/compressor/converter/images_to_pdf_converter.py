@@ -58,8 +58,7 @@ class ImagesToPdfConverter(Converter):
             if not os.path.isfile(self.pytesseract_path):
                 ConsoleUtility.print_error(r"[ ! ] - tesseract Path not found. Install "
                                            "https://github.com/UB-Mannheim/tesseract/wiki or edit "
-                                           "'TESSERACT_PATH' to your "
-                                           "specific tesseract executable")
+                                           "'TESSERACT_PATH' to your specific tesseract executable")
             # set command (not sure why windows needs it differently)
             elif os.name == "nt":
                 pytesseract.pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
@@ -76,16 +75,17 @@ class ImagesToPdfConverter(Converter):
     def convert(self) -> None:
         # merging pngs to pdf and create OCR
         ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
-        # convert single images in parallel
-        args_list = [{"img_path": img, "page_id": image_id} for img, image_id in
-                     zip(self.images, range(len(self.images)))]
-        self._custom_map_execute(self.convert_image_to_pdf, args_list)
+
+        # convert images sequential (is significantly faster than parallel)
+        for img, image_id in zip(self.images, range(len(self.images))):
+            self.convert_image_to_pdf(img, image_id)
 
         # merge page files into final destination
         with fitz.open() as pdf:
             for file in self.images:
                 pdf.insert_pdf(fitz.open(file + ".pdf"))
             pdf.save(self.dest_path)
+        print("finished merge")
 
     def convert_image_to_pdf(self, img_path, page_id):
         try:
