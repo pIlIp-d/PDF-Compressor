@@ -1,5 +1,3 @@
-Currently there is a known bug, which puts the pages in the wrong order after compression. I'am going to fix that soon.
-
 # Pdf Compressor
 Solves the problem with small Upload size limit or just too big files from GoodNotes export.  
 
