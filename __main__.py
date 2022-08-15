@@ -69,7 +69,8 @@ def get_args():
         "-s", "--simple-and-lossless",
         required=False,
         action='store_true',
-        help="Simple and lossless compression is non-invasive and skips the image converting. Not as effective but simple and faster."
+        help="Simple and lossless compression is non-invasive and skips the image converting."
+             "Not as effective but simple and faster."
     )
 
     return vars(all_args.parse_args())
