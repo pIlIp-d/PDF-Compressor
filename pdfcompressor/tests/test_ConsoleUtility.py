@@ -22,11 +22,11 @@ class ConsoleUtilityTest(TestCase):
 
     def test_print_quiet_mode_is_active (self):
         console_buffer = ConsoleUtilityTest.get_console_buffer()
-        ConsoleUtility.QUIET_MODE = True
+        ConsoleUtility.quiet_mode = True
         ConsoleUtility.print("test")
 
         # reset to default
-        ConsoleUtility.QUIET_MODE = False
+        ConsoleUtility.quiet_mode = False
 
         self.assertEqual("", console_buffer.getvalue())
 
@@ -56,7 +56,6 @@ class ConsoleUtilityTest(TestCase):
     def test_get_file_string_with_empty_string(self):
         self.fail("not implemented yet")
 
-    # ConsoleUtility.print_stats()
     def test_print_stats_with_zero_as_orig(self):
         ConsoleUtility.QUIET_MODE = False
         self.assertRaises(
