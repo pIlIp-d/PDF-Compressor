@@ -1,4 +1,6 @@
 import os
+from abc import ABC
+from pprint import pprint
 
 from PIL import Image
 
@@ -8,13 +10,14 @@ from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
 
-class AbstractImageCompressor(Compressor):
+class AbstractImageCompressor(Compressor, ABC):
     def __init__(self, file_type_from: str = ".png", file_type_to: str = ".png"):
         super().__init__()
         self._file_type_from = file_type_from
         self._file_type_to = file_type_to
 
-    def _is_valid_image(self, path: str) -> bool:
+    @staticmethod
+    def _is_valid_image(path: str) -> bool:
         try:
             with Image.open(path) as img:
                 img.verify()
