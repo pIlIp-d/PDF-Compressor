@@ -2,11 +2,9 @@
 # Pdf Compressor
 Solves the problem with small Upload size limit or just too big files from GoodNotes export.  
 
-Pdf Compressor converts Pdfs to PNGs and uses lossy png compression. Afterwards it converts the PNGs back to pdfs and runs another round of lossless pdf compression.  
+Pdf Compressor converts Pdfs to PNGs and uses lossy png compression. Afterwards it converts the PNGs back to pdfs and runs another round of lossless pdf compression.
 
-
-Additionally, the program can apply OCR - Optical Character Recognition (creates searchable pdfs)  
-
+Additionally, the program can apply OCR - Optical Character Recognition (creates searchable pdfs)
 
 # Dependency
 
@@ -17,12 +15,7 @@ Additionally, the program can apply OCR - Optical Character Recognition (creates
 pngquant and advPNG can be ignored when using --simple-lossless option
 Tesseract is optional for OCR - Optical Character Recognition
 
-## Python Packages
-
-`PyMuPdf`, `img2pdf`, `pytesseract`, `pillow`, `jsons` and my version of [crunch](https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py)
-
 ----
-# Setup
 # Installation
 
 ### Overview
@@ -77,8 +70,7 @@ python3 setup.py install --user
 ### 5. Configure Dependency Paths
 Try to run `python3 <project-path>/config.py` and if there are no error messages you're good to go.  
 
-If you want to change a path you can configure it inside `config.py` by changing the paths for each dependency for your OS.
-
+If there are errors or if you want to change a path you can configure it inside `config.py` by changing the paths for each dependency for your OS.
 
 # Usage
 
@@ -149,7 +141,7 @@ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/> LGPL
 
 **crunch** – https://github.com/chrissimpkins/Crunch <br>
 Copyright 2019 Christopher Simpkins - MIT License  
-*Edited by pIlIp-d* https://github.com/pIlIp-d/compressor_lib/blob/bf42fbf4e72fa215cad6fa64396ab091188687f4/crunch.py
+Only the **original Design** is used.
 
 # Downloads
 * [Pngquant](https://pngquant.org)
