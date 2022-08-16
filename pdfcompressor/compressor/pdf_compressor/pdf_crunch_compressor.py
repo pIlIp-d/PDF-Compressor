@@ -71,11 +71,6 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
     def postprocess(self, source_file: str, destination_file: str) -> None:
         temp_folder = self.__get_temp_path(source_file)
 
-        if destination_file.endswith(".pdf"):
-            os.makedirs(os.path.dirname(destination_file), exist_ok=True)
-        else:
-            os.makedirs(destination_file, exist_ok=True)
-
         # merge images/pages into new pdf and optionally apply OCR
         ImagesToPdfConverter(
             temp_folder,
@@ -116,6 +111,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
 
     @Processor.pre_and_post_processed
     def compress_file(self, source_file: str, destination_file: str) -> None:
+        print("compressing: "+source_file)
         # compress all images in temp_folder
-        temp_image_list = OsUtility.get_file_list(self.__get_temp_path(source_file))
-        self.__png_crunch_compressor.compress_file_list(temp_image_list, temp_image_list)
+        temp_folder = self.__get_temp_path(source_file)
+        self.__png_crunch_compressor.compress(temp_folder, temp_folder)

@@ -80,6 +80,16 @@ class ImagesToPdfConverter(Converter):
         for img, image_id in zip(self.images, range(len(self.images))):
             self.convert_image_to_pdf(img, image_id)
 
+        # create folder for destination file if necessary
+        if self.dest_path.endswith(".pdf"):
+            os.makedirs(os.path.dirname(self.dest_path), exist_ok=True)
+        else:
+            os.makedirs(self.dest_path, exist_ok=True)
+
+        # free storage by deleting png
+        for image in self.images:
+            os.remove(image)
+
         # merge page files into final destination
         with fitz.open() as pdf:
             for file in self.images:
@@ -105,7 +115,5 @@ class ImagesToPdfConverter(Converter):
             with open(img_path + ".pdf", "wb") as f:
                 f.write(convert(img_path))
             ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR applied."))
-        # free storage by deleting png
-        os.remove(img_path)
         # print statistics
         ConsoleUtility.print(f"** - Finished Page {page_id + 1}/{len(self.images)}")
