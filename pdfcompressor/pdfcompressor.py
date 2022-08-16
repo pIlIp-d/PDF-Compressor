@@ -114,13 +114,14 @@ class PDFCompressor:
         os.remove(temp_path)
 
     def compress(self) -> None:
+        console_ui_processor = ConsoleUIProcessor()
         if self.__simple_and_lossless:
-            self.__cpdf.add_postprocessor(ConsoleUIProcessor())
-            self.__cpdf.add_preprocessor(ConsoleUIProcessor())
+            self.__cpdf.add_postprocessor(console_ui_processor)
+            self.__cpdf.add_preprocessor(console_ui_processor)
             self.__cpdf.compress(self.__source_path, self.__destination_path)
         else:
-            self.__pdf_crunch.add_postprocessor(ConsoleUIProcessor())
-            self.__pdf_crunch.add_preprocessor(ConsoleUIProcessor())
+            self.__pdf_crunch.add_postprocessor(console_ui_processor)
+            self.__pdf_crunch.add_preprocessor(console_ui_processor)
             self.__pdf_crunch.compress(self.__source_path, self.__destination_path)
 
     @staticmethod
