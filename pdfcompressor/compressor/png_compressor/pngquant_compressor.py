@@ -13,18 +13,38 @@ class PngQuantCompressor(AbstractImageCompressor):
     __FILE_SIZE_INCREASED_ERROR: int = 98
     __IMAGE_QUALITY_BELOW_LIMIT_ERROR: int = 99
 
-    def __init__(self, pngquant_path: str):
+    def __init__(
+            self,
+            pngquant_path: str,
+            speed: int = 1,
+            min_quality: int = 80,
+            max_quality: int = 100,
+    ):
+        """
+        :param speed 0:slowest and best quality, 10:fastest
+        :param min_quality, max_quality 1-99
+            Instructs pngquant to use the least amount of colors required to meet or exceed the max quality.
+            If conversion results in quality below the min quality the image won't be saved
+        """
         super().__init__(".png", ".png")
         self.__pngquant_path = pngquant_path
 
         if not os.path.isfile(self.__pngquant_path):
             raise FileNotFoundError(rf"pngquant not found at '{self.__pngquant_path}'")
+
+        if speed < 0 or speed > 10:
+            raise ValueError("speed needs to be a value in range 0-10")
+        if min_quality < 0 or min_quality >= 100:
+            raise ValueError("min_quality needs to be between 0 and 100")
+        if max_quality < 0 or max_quality < min_quality:
+            raise ValueError("max_quality need to be greater than 0 and min_quality")
+
         self.__system_extra = "powershell.exe" if os.name == 'nt' else ""
         self.__pngquant_options = " ".join((
-            "--quality=80-98",
+            f"--quality={min_quality}-{max_quality}",
             "--skip-if-larger",
             "--force",
-            "--speed 1",
+            f"--speed {speed}",
             "--strip",
             "--ext '-comp.png'"
         ))
