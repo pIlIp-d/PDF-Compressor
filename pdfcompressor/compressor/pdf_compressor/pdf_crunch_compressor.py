@@ -32,7 +32,6 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             raise ValueError("default dpi needs to be greater than 0")
         self.__default_pdf_dpi = default_pdf_dpi
 
-
     def enable_tesseract(
             self,
             tesseract_path: str,
@@ -105,9 +104,8 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         super().postprocess(source_file, destination_file)
 
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        # todo compare results with parallel
         # don't use parallel pdf compression
-        # instead it uses parallel image compression per
+        # instead it uses parallel image compression per pdf
         for source, destination in zip(source_files, destination_files):
             self.compress_file(source, destination)
 
