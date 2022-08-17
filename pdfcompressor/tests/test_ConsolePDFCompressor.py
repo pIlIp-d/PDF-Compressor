@@ -332,88 +332,6 @@ class TestConsolePDFCompressor(TestCase):
         self.assertFalse(console_buffer.getvalue().__contains__(ConsoleUtility.RED))
         self.assertEqual(0, return_code)
 
-    """ temporarily or permanent deactivated
-    # continue
-    def test_pdf_compressor_continue_is_zero(self):
-        result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
-        self.remove_if_not_exists(result_path)
-        return_code = subprocess.call([
-            "python3", self.program_path,
-            "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
-            "-o", result_path,
-            "--continue", "0"
-        ])
-        self.assertTrue(os.path.exists(result_path))
-        output_files = OsUtility.get_file_list(result_path)
-        self.assertTrue(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "singlePagePdf.pdf"))))
-        self.assertTrue(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "multiPageTestData.pdf"))))
-        self.assertTrue(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "result.pdf"))))
-        shutil.rmtree(result_path)
-        self.assertEqual(0, return_code)
-
-    def test_pdf_compressor_continue_in_valid_range(self):
-        result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
-        self.remove_if_not_exists(result_path)
-        return_code = subprocess.call([
-            "python3", self.program_path,
-            "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
-            "-o", result_path,
-            "--continue", "1"
-        ])
-        self.assertTrue(os.path.exists(result_path))
-        output_files = OsUtility.get_file_list(result_path)
-
-        # skipped first file
-        self.assertTrue(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "singlePagePdf.pdf"))))
-        self.assertTrue(output_files.__contains__(
-            os.path.abspath(os.path.join(".", "TestData", "OutFolder", "result.pdf"))))
-        self.assertFalse(output_files.__contains__(
-        os.path.abspath(os.path.join(".", "TestData", "OutFolder", "multiPageTestData.pdf"))))
-
-        shutil.rmtree(result_path)
-        self.assertEqual(0, return_code)
-
-    def test_pdf_compressor_continue_bigger_than_files_in_folder(self):
-        result_path = os.path.abspath(os.path.join(".", "TestData", "OutFolder"))
-        self.remove_if_not_exists(result_path)
-        return_code = subprocess.call([
-            "python3", self.program_path,
-            "-p", os.path.abspath(os.path.join(".", "TestData", "TestFolder")),
-            "-o", result_path,
-            "--continue", "3"
-        ])
-        self.assertFalse(os.path.exists(result_path))
-        self.assertEqual(0, return_code)
-
-    def test_pdf_compressor_continue_on_file_with_zero(self):
-        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
-        self.remove_if_not_exists(result_path)
-        return_code = subprocess.call([
-            "python3", self.program_path,
-            "-p", os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf")),
-            "-o", result_path,
-            "--continue", "0"
-        ])
-        self.assertTrue(os.path.exists(result_path))
-        os.remove(result_path)
-        self.assertEqual(0, return_code)
-
-    def test_pdf_compressor_continue_on_file_with_bigger_than_zero(self):
-        result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
-        self.remove_if_not_exists(result_path)
-        return_code = subprocess.call([
-            "python3", self.program_path,
-            "-p", os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf")),
-            "-o", result_path,
-            "--continue", "1"
-        ])
-        self.assertFalse(os.path.exists(result_path))
-        self.assertEqual(0, return_code)
-    """
     # --force-ocr
     def test_pdf_compress_force_ocr_active_and_compression_succeeded(self):
         result_path = os.path.abspath(os.path.join(".", "TestData", "result.pdf"))
@@ -512,6 +430,54 @@ class TestConsolePDFCompressor(TestCase):
         self.assertTrue(os.path.exists(result_path))
         os.remove(result_path)
         self.assertTrue(first_file_size > second_file_size)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compress_no_special_dpi(self):
+        result_path = os.path.join(".", "TestData", "singlePagePdf_compressed.pdf")
+        input_path = os.path.join(os.path.realpath("."), "TestData", "singlePagePdf.pdf")
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_path,
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
+    def test_pdf_compress_dpi_small_smaller_than_big(self):
+        result_path = os.path.join(".", "TestData", "singlePagePdf_compressed.pdf")
+        input_path = os.path.join(os.path.realpath("."), "TestData", "singlePagePdf.pdf")
+        self.remove_if_not_exists(result_path)
+        return_code1 = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_path,
+            "--dpi", "100"
+        ])
+        first_file_size = os.stat(result_path).st_size
+        return_code2 = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_path,
+            "--dpi", "500"
+        ])
+        second_file_size = os.stat(result_path).st_size
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
+        self.assertTrue(first_file_size < second_file_size)
+        self.assertEqual(0, return_code1)
+        self.assertEqual(0, return_code2)
+
+    def test_pdf_compress_with_dpi_and_simple_and_lossless(self):
+        result_path = os.path.join(".", "TestData", "singlePagePdf_compressed.pdf")
+        input_path = os.path.join(os.path.realpath("."), "TestData", "singlePagePdf.pdf")
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", input_path,
+            "--dpi", "100",
+            "--simple-and-lossless"
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
         self.assertEqual(0, return_code)
 
     @classmethod
