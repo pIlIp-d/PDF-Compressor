@@ -78,17 +78,18 @@ If there are errors or if you want to change a path you can configure it inside 
 
     -p FileOrFolder
 
-## compression rate
+## compression mode
 
 ----
 Varies on Input of File and gets better with larger Files.  
 
 change `-m` parameter to get higher compression or higher quality. Combine with `--force-ocr` or `--no-ocr` to ensure the result to be with ocr/without  
 
-if no special ocr mode is activated the pdf compression tries to compress through png split... and if the result is larger than the original the result gets replaced with a pdf that only is compressed via lossless pdf cpdfsqeeze.
-
-Tiny files get Larger when the mode is set to high(~low compression).  
--> no OCR is saved and old document just gets compressed via cpdfsqeeze.
+if no special ocr mode is activated the pdf gets compressed through png split... and if the result is larger than the original the result gets replaced with a pdf that only is compressed via lossless pdf cpdfsqeeze.  
+smaller or larger according to your pdf file.  
+But be aware tiny files get Larger when the `--dpi` is set too high(~low compression).  
+Small DPI means lower overall resolution.  
+-> no OCR is saved and old document just gets compressed via cpdfsqeeze.  
 Solution `-f` / `--force-ocd`
 
 ## Help
@@ -107,6 +108,7 @@ Solution `-f` / `--force-ocd`
                            Make sure it it installed.
 -s, --simple-and-lossless  Simple and lossless compression is non-invasive and skips the image converting.
                            Not as effective but simple and faster.
+-d DPI, --dpi DPI          DPI to use in conversion from pdf to images. Default=400.
 ```
 
 ## Examples
