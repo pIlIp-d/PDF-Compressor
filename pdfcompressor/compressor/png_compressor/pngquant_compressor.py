@@ -6,8 +6,6 @@ from pdfcompressor.compressor.png_compressor.abstract_image_compressor import Ab
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
-# todo play with the options of the compression tools to achieve the best results
-
 
 class PngQuantCompressor(AbstractImageCompressor):
     __FILE_SIZE_INCREASED_ERROR: int = 98

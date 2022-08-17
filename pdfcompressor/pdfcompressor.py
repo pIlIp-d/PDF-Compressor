@@ -16,8 +16,7 @@ from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfS
 from pdfcompressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from .utility.console_utility import ConsoleUtility
 
-
-# TODO rename private variables starting with __ and protected starting with _
+from .utility.os_utility import OsUtility
 
 
 class PDFCompressor:
@@ -26,7 +25,7 @@ class PDFCompressor:
             self,
             source_path: str,
             destination_path: str = "default",
-            compression_mode: int = 3,  # TODO rename everywhere mode -> compression_mode,
+            compression_mode: int = 3,
             force_ocr: bool = False,
             no_ocr: bool = False,
             quiet: bool = False,
@@ -65,7 +64,7 @@ class PDFCompressor:
             )
 
         # configure compressors
-        config_paths = self.__get_config()
+        config_paths = OsUtility.get_config()
 
         # lossless compressor
         self.__cpdf = CPdfSqueezeCompressor(config_paths.cpdfsqueeze_path, True)
@@ -91,24 +90,6 @@ class PDFCompressor:
                 config_paths.tessdata_prefix
             )
         return pdf_crunch
-
-    @staticmethod
-    def __get_config():
-        config_path = os.path.abspath("./config.json")  # todo test if path works when not executed via __main__.py
-        if not os.path.isfile(config_path):
-            raise FileNotFoundError("config.json not found, set the proper paths and run config.py")
-
-        class Config:
-            def __init__(self, advpng_path, pngquant_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
-                self.advpng_path = advpng_path
-                self.pngquant_path = pngquant_path
-                self.cpdfsqueeze_path = cpdfsqueeze_path
-                self.tesseract_path = tesseract_path
-                self.tessdata_prefix = tessdata_prefix
-
-        with open(config_path, "r") as config_file:
-            obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
-        return Config(**obj)
 
     def compress(self) -> None:
         console_ui_processor = ConsoleUIProcessor()

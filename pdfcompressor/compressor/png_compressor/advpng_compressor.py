@@ -7,9 +7,6 @@ from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
 
-# todo play with the options of the compression tools to achieve the best results
-
-
 class AdvanceCompressor(AbstractImageCompressor):
     def __init__(
             self,

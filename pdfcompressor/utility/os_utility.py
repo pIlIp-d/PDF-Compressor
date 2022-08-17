@@ -2,6 +2,9 @@ import os
 import re
 import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from types import SimpleNamespace
+
+import jsons
 
 from pdfcompressor.utility.console_utility import ConsoleUtility
 
@@ -65,3 +68,21 @@ class OsUtility:
         if not os.path.exists(file_path):
             return 0
         return os.stat(file_path).st_size
+
+    @classmethod
+    def get_config(cls):
+        config_path = os.path.abspath("./config.json")
+        if not os.path.isfile(config_path):
+            raise FileNotFoundError("config.json not found, set the proper paths and run config.py")
+
+        class Config:
+            def __init__(self, advpng_path, pngquant_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
+                self.advpng_path = advpng_path
+                self.pngquant_path = pngquant_path
+                self.cpdfsqueeze_path = cpdfsqueeze_path
+                self.tesseract_path = tesseract_path
+                self.tessdata_prefix = tessdata_prefix
+
+        with open(config_path, "r") as config_file:
+            obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
+        return Config(**obj)
