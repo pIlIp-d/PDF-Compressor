@@ -2,6 +2,7 @@ import os.path
 import shutil
 import subprocess
 import sys
+import time
 from io import StringIO
 from unittest import TestCase
 
@@ -225,29 +226,35 @@ class TestConsolePDFCompressor(TestCase):
         return_code = subprocess.call([
             "python3", self.program_path,
             "-p", os.path.join(os.path.realpath("."), "TestData", "singlePagePdf.pdf"),
-            "--mode", "11"
+            "--mode", "6"
         ])
         self.assertEqual(1, return_code)
 
     def test_pdf_compressor_compare_smallest_and_biggest_mode(self):
+        # todo time measurement
         console_buffer = self.get_console_buffer()
         result_path = os.path.join(".", "TestData", "singlePagePdf_compressed.pdf")
         input_file = os.path.join(os.path.realpath("."), "TestData", "singlePagePdf.pdf")
         self.remove_if_not_exists(result_path)
+        time1 = time.time()
         return_code = subprocess.call([
             "python3", self.program_path,
             "-p", input_file,
             "--mode", "1"
         ])
+        time1 = time.time() - time1
         first_file_size = os.stat(result_path).st_size
+
+        time2 = time.time()
         return_code = subprocess.call([
             "python3", self.program_path,
             "-p", input_file,
-            "--mode", "10"
+            "--mode", "5"
         ])
+        time2 = time.time() - time2
         second_file_size = os.stat(result_path).st_size
         os.remove(result_path)
-        self.assertTrue(first_file_size < second_file_size)
+        self.assertTrue(first_file_size <= second_file_size and time1 >= time2)
         self.assertFalse(console_buffer.getvalue().__contains__(ConsoleUtility.RED))
         self.assertEqual(0, return_code)
 
@@ -416,7 +423,8 @@ class TestConsolePDFCompressor(TestCase):
             "python3", self.program_path,
             "-p", input_file,
             "-o", result_path,
-            "--force-ocr"
+            "--force-ocr",
+            "--dpi", "300"
         ])
         self.assertTrue(os.path.exists(result_path))
         self.assertTrue(OsUtility.get_file_size(result_path) < OsUtility.get_file_size(input_file))
