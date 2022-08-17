@@ -9,6 +9,7 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             self,
             pngquant_path: str,
             advpng_path: str,
+            compression_mode: int = 3
     ):
         super().__init__(".png", ".png")
         try:
@@ -19,6 +20,10 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             self.__pngquant = PngQuantCompressor(pngquant_path)
         except FileNotFoundError:
             self.__pngquant = None
+
+        if compression_mode <= 0 or compression_mode >= 11:
+            raise ValueError("Compression mode must be between 1 and 10")
+        self.__compressing_mode = compression_mode
 
     def compress_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)

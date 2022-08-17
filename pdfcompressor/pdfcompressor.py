@@ -10,7 +10,6 @@ from types import SimpleNamespace
 
 import jsons
 import os
-import shutil
 
 from pdfcompressor.processor.console_ui_processor import ConsoleUIProcessor
 from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
@@ -27,12 +26,13 @@ class PDFCompressor:
             self,
             source_path: str,
             destination_path: str = "default",
-            compression_mode: int = 3,  # TODO rename everywhere mode -> compression_mode
+            compression_mode: int = 3,  # TODO rename everywhere mode -> compression_mode,
             force_ocr: bool = False,
             no_ocr: bool = False,
             quiet: bool = False,
             tesseract_language: str = "deu",
-            simple_and_lossless: bool = False
+            simple_and_lossless: bool = False,
+            default_pdf_dpi: int = 400
     ):
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
@@ -41,6 +41,7 @@ class PDFCompressor:
         self.__no_ocr = no_ocr
         self.__tesseract_language = tesseract_language
         self.__compression_mode = compression_mode
+        self.__default_pdf_dpi = default_pdf_dpi
 
         self.__uses_default_destination = destination_path == "default"
 
@@ -73,7 +74,13 @@ class PDFCompressor:
             self.__pdf_crunch = self.__get_and_configure_pdf_crunch(config_paths, self.__cpdf)
 
     def __get_and_configure_pdf_crunch(self, config_paths, cpdf: CPdfSqueezeCompressor) -> PDFCrunchCompressor:
-        pdf_crunch = PDFCrunchCompressor(config_paths.pngquant_path, config_paths.advpng_path, cpdf, self.__compression_mode)
+        pdf_crunch = PDFCrunchCompressor(
+            config_paths.pngquant_path,
+            config_paths.advpng_path,
+            cpdf,
+            self.__compression_mode,
+            self.__default_pdf_dpi
+        )
 
         if not self.__no_ocr:  # TODO dependency unitTests
             pdf_crunch.enable_tesseract(
@@ -102,16 +109,6 @@ class PDFCompressor:
         with open(config_path, "r") as config_file:
             obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
         return Config(**obj)
-
-    def __write_file_to_final_location(self, temp_path: str, final_destination: str) -> None:
-        if temp_path == final_destination:
-            return  # skip copy
-        output_dir = os.path.dirname(final_destination)
-        if not os.path.isdir(output_dir):
-            os.makedirs(output_dir)
-
-        shutil.copy(temp_path, final_destination)
-        os.remove(temp_path)
 
     def compress(self) -> None:
         console_ui_processor = ConsoleUIProcessor()

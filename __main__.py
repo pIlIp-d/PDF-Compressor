@@ -72,6 +72,13 @@ def get_args():
         help="Simple and lossless compression is non-invasive and skips the image converting."
              "Not as effective but simple and faster."
     )
+    all_args.add_argument(
+        "-d", "--dpi",
+        required=False,
+        type=int,
+        help="DPI to use in conversion from pdf to images. Default=400.",
+        default=400
+    )
 
     return vars(all_args.parse_args())
 
@@ -87,7 +94,8 @@ if __name__ == '__main__':
             args["no_ocr"],
             args["quiet_mode"],
             args["tesseract_language"],
-            args["simple_and_lossless"]
+            args["simple_and_lossless"],
+            args["dpi"]
         )
         pdf_compressor.compress()
 

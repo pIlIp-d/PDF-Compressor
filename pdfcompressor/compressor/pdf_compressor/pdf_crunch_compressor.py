@@ -17,19 +17,21 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             pngquant_path: str,
             advpng_path: str,
             c_pdf_squeeze_compressor: CPdfSqueezeCompressor,
-            compressing_mode: int,
+            compression_mode: int,
+            default_pdf_dpi: int = 400
     ):
         super().__init__()
-        self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path)
+        self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path, compression_mode)
         self.__tessdata_prefix = None
         self.__tesseract_path = None
         self.__tesseract_language = None
         self.__force_ocr = False
         self.__no_ocr = True
         self.__c_pdf_squeeze_compressor = c_pdf_squeeze_compressor
-        self.__compressing_mode = compressing_mode
-        if self.__compressing_mode <= 0 or self.__compressing_mode >= 11:
-            raise ValueError("Mode must be between 1 and 10")
+        if default_pdf_dpi < 0:
+            raise ValueError("default dpi needs to be greater than 0")
+        self.__default_pdf_dpi = default_pdf_dpi
+
 
     def enable_tesseract(
             self,
@@ -66,7 +68,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         os.makedirs(temp_folder)
 
         # split pdf into images that can be compressed using crunch
-        PdfToImageConverter(source_file, temp_folder, self.__compressing_mode).convert()
+        PdfToImageConverter(source_file, temp_folder, self.__default_pdf_dpi).convert()
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         temp_folder = self.__get_temp_path(source_file)
