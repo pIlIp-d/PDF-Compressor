@@ -17,7 +17,7 @@ def get_args():
         "-m", "--mode",
         required=False,
         type=int,
-        help="compression mode 1-10. 1:high 10:low compression. Default=3",
+        help="compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=3",
         default=3
     )
     all_args.add_argument(
@@ -76,8 +76,8 @@ def get_args():
         "-d", "--dpi",
         required=False,
         type=int,
-        help="DPI to use in conversion from pdf to images. Default=400.",
-        default=400
+        help="DPI to use in conversion from pdf to images. Default=350.",
+        default=350
     )
 
     return vars(all_args.parse_args())
