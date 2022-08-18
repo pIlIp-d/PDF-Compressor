@@ -1,6 +1,3 @@
-from typing import Callable
-
-
 class ConsoleUtility:
     RED: str = "\033[0;31m"
     YELLOW: str = "\033[0;33;33m"

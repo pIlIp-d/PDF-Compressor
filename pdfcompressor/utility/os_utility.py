@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from types import SimpleNamespace
 
 import jsons
@@ -51,7 +50,6 @@ class OsUtility:
         output_dir = os.path.dirname(to_file)
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
-
         shutil.copy(from_file, to_file)
 
     @classmethod
@@ -59,21 +57,26 @@ class OsUtility:
         filename_with_ending = os.path.basename(full_path_to_file)
         return re.split(file_ending_format, filename_with_ending)[0]
 
-    @staticmethod
-    def get_filesize_list(file_list: list) -> list:
-        return [OsUtility.get_file_size(file) for file in file_list]
+    @classmethod
+    def get_filesize_list(cls, file_list: list) -> list:
+        return [cls.get_file_size(file) for file in file_list]
 
-    @classmethod  # todo unitTest
+    @classmethod
     def get_file_size(cls, file_path: str) -> int:
-        if not os.path.exists(file_path):
+        """
+            :returns
+                0 if not an existing file
+                else it returns the size of a file in bytes
+        """
+        if not os.path.isfile(file_path):
             return 0
         return os.stat(file_path).st_size
 
     @classmethod
-    def get_config(cls):
-        config_path = os.path.abspath("./config.json")
+    def get_config(cls, config_file: str = "./config.json"):
+        config_path = os.path.abspath(config_file)
         if not os.path.isfile(config_path):
-            raise FileNotFoundError("config.json not found, set the proper paths and run config.py")
+            raise FileNotFoundError("config file not found")
 
         class Config:
             def __init__(self, advpng_path, pngquant_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
