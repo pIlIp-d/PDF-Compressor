@@ -1,0 +1,3 @@
+import png_compressor
+import pdf_compressor
+import converter
