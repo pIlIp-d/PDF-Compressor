@@ -60,7 +60,7 @@ class AbstractPdfCompressor(Compressor, ABC):
         if is_merging:
             end_size = OsUtility.get_file_size(temporary_destination_file_list[0])
         else:
-            end_size = sum(OsUtility.get_filesize_list((temporary_destination_file_list)))
+            end_size = sum(OsUtility.get_filesize_list(temporary_destination_file_list))
 
         if len(source_file_list) > 0:
             ConsoleUtility.print_stats(sum(orig_sizes), end_size, False)

@@ -25,7 +25,7 @@ class ConsoleUtility:
                 raise ValueError("result can't be less than 0")
 
             prefix = "Compressed File from " if is_file else "Compressed All from "
-            cls.print(cls.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " +str(
+            cls.print(cls.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " + str(
                 round(result / 1000000, 2)) + "mb (-" + str(
                 round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
 

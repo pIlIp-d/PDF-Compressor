@@ -1,4 +1,3 @@
-import os.path
 import sys
 from io import StringIO
 from unittest import TestCase
@@ -20,7 +19,7 @@ class ConsoleUtilityTest(TestCase):
         ConsoleUtility.print("test")
         self.assertEqual("test\n", console_buffer.getvalue())
 
-    def test_print_quiet_mode_is_active (self):
+    def test_print_quiet_mode_is_active(self):
         console_buffer = ConsoleUtilityTest.get_console_buffer()
         ConsoleUtility.quiet_mode = True
         ConsoleUtility.print("test")

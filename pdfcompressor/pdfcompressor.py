@@ -6,9 +6,7 @@
 #   MIT Licence
 #
 # ===================================================================
-from types import SimpleNamespace
 
-import jsons
 import os
 
 from pdfcompressor.processor.console_ui_processor import ConsoleUIProcessor
@@ -45,7 +43,8 @@ class PDFCompressor:
         self.__uses_default_destination = destination_path == "default"
 
         self.__source_path = rf"{os.path.abspath(source_path)}"
-        self.__destination_path = destination_path if self.__uses_default_destination else rf"{os.path.abspath(destination_path)}"
+        self.__destination_path = \
+            destination_path if self.__uses_default_destination else rf"{os.path.abspath(destination_path)}"
 
         pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
         os.chdir(pdf_dir)

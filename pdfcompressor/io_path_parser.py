@@ -37,7 +37,8 @@ class IOPathParser:
     def __is_dir(self, path: str) -> bool:
         return os.path.isdir(path) or not path.endswith(self.__file_ending_source)
 
-    def __is_file(self, path: str, ending: str) -> bool:
+    @classmethod
+    def __is_file(cls, path: str, ending: str) -> bool:
         return path.endswith(ending)
 
     def __parse_from_input_folder(self):
@@ -74,4 +75,4 @@ class IOPathParser:
         return self.__output_file_list
 
     def is_merging(self) -> bool:
-        return len(self.__input_file_list) > len(self.__output_file_list) and len(self.__output_file_list) == 1
+        return len(self.__input_file_list) > len(self.__output_file_list) == 1
