@@ -212,7 +212,7 @@ class TestConsolePDFCompressor(TestCase):
         self.defaultTestForMode(1)
 
     def test_pdf_compressor_with_maximum_mode(self):
-        self.defaultTestForMode(10)
+        self.defaultTestForMode(5)
 
     def test_pdf_compressor_too_low_mode(self):
         return_code = subprocess.call([
@@ -342,7 +342,7 @@ class TestConsolePDFCompressor(TestCase):
             "-p", input_file,
             "-o", result_path,
             "--force-ocr",
-            "--dpi", "300"
+            "--dpi", "200"
         ])
         self.assertTrue(os.path.exists(result_path))
         self.assertTrue(OsUtility.get_file_size(result_path) < OsUtility.get_file_size(input_file))
