@@ -107,7 +107,7 @@ Solution `-f` / `--force-ocd`
 ```
 -h --help                  show this help message and exit
 -p --path                  Path to pdf file or to folder containing pdf files
--m --mode                  compression mode 1-10. 1:high 10:low compression. Default=5
+-m --mode                  compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=5
 -o --output-path           Compressed file Output Path. Default: 'filename_smaller.pdf' or
                            'compressed/...' for folders
 -f --force-ocr             When turned on allows output file to be larger than input file, to force
