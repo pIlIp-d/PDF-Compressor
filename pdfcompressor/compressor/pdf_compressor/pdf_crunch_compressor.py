@@ -6,7 +6,6 @@ from pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImage
 from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
 from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
-from pdfcompressor.processor.processor import Processor
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -58,8 +57,8 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         temp_path = cls.__get_temp_path(file)
         if os.path.exists(temp_path):
             temp_path_prefix_and_number = temp_path.split("_tmp")
-            temp_path_number = int(temp_path_prefix_and_number[-1]) + 1
-            return "".join(temp_path_prefix_and_number[:-1]) + str(temp_path_number)
+            temp_path_number = temp_path_prefix_and_number[-1] if temp_path_prefix_and_number[-1].isnumeric() else 0
+            return "".join(temp_path_prefix_and_number[:-1]) + "_tmp" + str(int(temp_path_number) + 1)
         return temp_path
 
     @classmethod
@@ -67,9 +66,8 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         # spaces are replaced because crunch can't handle spaces consistently
         return os.path.abspath(OsUtility.get_filename(file).replace(" ", "_") + "_tmp")
 
-    def preprocess(self, source_file: str, destination_file: str) -> None:
+    def __custom_preprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         super().preprocess(source_file, destination_file)
-        temp_folder = self.__get_temp_path(source_file)
 
         # create new empty folder for temporary files
         shutil.rmtree(temp_folder, ignore_errors=True)
@@ -78,9 +76,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         # split pdf into images that can be compressed using crunch
         PdfToImageConverter(source_file, temp_folder, self.__default_pdf_dpi).convert()
 
-    def postprocess(self, source_file: str, destination_file: str) -> None:
-        temp_folder = self.__get_temp_path(source_file)
-
+    def __custom_postprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         # merge images/pages into new pdf and optionally apply OCR
         ImagesToPdfConverter(
             temp_folder,
@@ -118,9 +114,11 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         for source, destination in zip(source_files, destination_files):
             self.compress_file(source, destination)
 
-    @Processor.pre_and_post_processed
     def compress_file(self, source_file: str, destination_file: str) -> None:
+        temp_folder = self.__get_new_temp_path(source_file)
+        self.__custom_preprocess(source_file, destination_file, temp_folder)
+
         print("compressing: "+source_file)
         # compress all images in temp_folder
-        temp_folder = self.__get_temp_path(source_file)
         self.__png_crunch_compressor.compress(temp_folder, temp_folder)
+        self.__custom_postprocess(source_file, destination_file, temp_folder)
