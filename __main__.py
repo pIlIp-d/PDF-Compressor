@@ -17,8 +17,8 @@ def get_args():
         "-m", "--mode",
         required=False,
         type=int,
-        help="compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=3",
-        default=3
+        help="compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=5",
+        default=5
     )
     all_args.add_argument(
         "-o", "--output-path",
