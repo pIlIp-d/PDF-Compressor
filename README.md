@@ -113,13 +113,13 @@ Solution `-f` / `--force-ocd`
 -f --force-ocr             When turned on allows output file to be larger than input file, to force
                            ocr. Default: off and only smaller output files are saved.'
 -n --no-ocr                Don't create OCR on pdf.
--q, --quiet-mode           Don't print to console. Doesn't apply to Exceptions.
--l  --tesseract-language   Language to create OCR with. Find the string for your language 
+-q --quiet-mode            Don't print to console. Doesn't apply to Exceptions.
+-l --tesseract-language    Language to create OCR with. Find the string for your language 
                            https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html.
                            Make sure it it installed.
--s, --simple-and-lossless  Simple and lossless compression is non-invasive and skips the image converting.
+-s --simple-and-lossless   Simple and lossless compression is non-invasive and skips the image converting.
                            Not as effective but simple and faster.
--d DPI, --dpi DPI          DPI to use in conversion from pdf to images. Default=400.
+-d DPI --dpi DPI           DPI to use in conversion from pdf to images. Default=400.
 ```
 
 ## Examples
