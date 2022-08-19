@@ -53,8 +53,17 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         self.__tesseract_language = tesseract_language
         self.__tessdata_prefix = tessdata_prefix
 
-    @staticmethod
-    def __get_temp_path(file: str):
+    @classmethod
+    def __get_new_temp_path(cls, file: str) -> str:
+        temp_path = cls.__get_temp_path(file)
+        if os.path.exists(temp_path):
+            temp_path_prefix_and_number = temp_path.split("_tmp")
+            temp_path_number = int(temp_path_prefix_and_number[-1]) + 1
+            return "".join(temp_path_prefix_and_number[:-1]) + str(temp_path_number)
+        return temp_path
+
+    @classmethod
+    def __get_temp_path(cls, file: str) -> str:
         # spaces are replaced because crunch can't handle spaces consistently
         return os.path.abspath(OsUtility.get_filename(file).replace(" ", "_") + "_tmp")
 
