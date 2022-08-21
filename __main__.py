@@ -1,5 +1,9 @@
 import argparse
+import os.path
+import shutil
+
 from pdfcompressor.pdfcompressor import PDFCompressor
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 def get_args():
@@ -93,8 +97,14 @@ if __name__ == '__main__':
         while True:
             i = input("Do you want to cleanup the temporary Files created in the process? (Y/N)")
             if i.lower() == "y":
-                # TODO cleanup
-                print("Not implemented yet")
+                file_list = OsUtility.get_file_list(".")
+                for file in file_list:
+                    folder = os.path.dirname(file)
+                    # folder is in common format and in the right place
+                    if os.path.exists(folder) and "_tmp" in file and os.path.dirname(folder) == ".":
+                        if os.path.exists(folder):
+                            shutil.rmtree(folder)
+                            print(f"removed '{folder}'")
                 break
             elif i.lower() == "n":
                 break
