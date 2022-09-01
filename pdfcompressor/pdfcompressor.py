@@ -23,7 +23,7 @@ class PDFCompressor:
             self,
             source_path: str,
             destination_path: str = "default",
-            compression_mode: int = 3,
+            compression_mode: int = 5,
             force_ocr: bool = False,
             no_ocr: bool = False,
             quiet: bool = False,
