@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-<form name="submit" method="POST" action="TODO">
+<form name="submit" method=post enctype="multipart/form-data" action="TODO">
 
     <label for="source_file">
         source File:
@@ -10,17 +10,17 @@
     <br>
     <label for="destination_file">
         destination File:
-        <input type="file" id="destination_file" name="destination_file" value="default">
+        <input type="text" id="destination_file" name="destination_file" value="default">
     </label>
     <br>
     <label for="compression_mode">
         Compression Mode:
         <select name="compression_mode" id="compression_mode">
-            <option value="1">Minimize (1)</option>
-            <option value="2">Extreme (2)</option>
-            <option value="3">Strong (3)</option>
-            <option value="4">Fast (4)</option>
-            <option selected="selected" value="5">Fastest (5)</option>
+            <option value="1">1: Minimum</option>
+            <option value="2">2: Extreme</option>
+            <option value="3">3: Strong</option>
+            <option value="4">4: Fast</option>
+            <option selected="selected" value="5">5: Fastest</option>
         </select>
     </label>
     <br>
