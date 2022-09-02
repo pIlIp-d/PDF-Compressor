@@ -1,6 +1,5 @@
 import os
 from abc import ABC
-from pprint import pprint
 
 from PIL import Image
 

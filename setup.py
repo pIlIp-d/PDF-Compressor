@@ -2,7 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 setup(
-    version="2.2.0snap",
+    version="2.3.0",
     name="pdfcompressor",
     description="Compresses PDFs extremely.",
     url="https://github.com/pIlIp-d/PDF-Compressor",

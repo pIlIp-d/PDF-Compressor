@@ -6,19 +6,15 @@
 #   MIT Licence
 #
 # ===================================================================
-from types import SimpleNamespace
 
-import jsons
 import os
-import shutil
 
 from pdfcompressor.processor.console_ui_processor import ConsoleUIProcessor
 from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from pdfcompressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from .utility.console_utility import ConsoleUtility
 
-
-# TODO rename private variables starting with __ and protected starting with _
+from .utility.os_utility import OsUtility
 
 
 class PDFCompressor:
@@ -27,12 +23,13 @@ class PDFCompressor:
             self,
             source_path: str,
             destination_path: str = "default",
-            compression_mode: int = 3,  # TODO rename everywhere mode -> compression_mode
+            compression_mode: int = 5,
             force_ocr: bool = False,
             no_ocr: bool = False,
             quiet: bool = False,
             tesseract_language: str = "deu",
-            simple_and_lossless: bool = False
+            simple_and_lossless: bool = False,
+            default_pdf_dpi: int = 400
     ):
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
@@ -41,11 +38,13 @@ class PDFCompressor:
         self.__no_ocr = no_ocr
         self.__tesseract_language = tesseract_language
         self.__compression_mode = compression_mode
+        self.__default_pdf_dpi = default_pdf_dpi
 
         self.__uses_default_destination = destination_path == "default"
 
         self.__source_path = rf"{os.path.abspath(source_path)}"
-        self.__destination_path = destination_path if self.__uses_default_destination else rf"{os.path.abspath(destination_path)}"
+        self.__destination_path = \
+            destination_path if self.__uses_default_destination else rf"{os.path.abspath(destination_path)}"
 
         pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
         os.chdir(pdf_dir)
@@ -64,7 +63,7 @@ class PDFCompressor:
             )
 
         # configure compressors
-        config_paths = self.__get_config()
+        config_paths = OsUtility.get_config()
 
         # lossless compressor
         self.__cpdf = CPdfSqueezeCompressor(config_paths.cpdfsqueeze_path, True)
@@ -73,7 +72,13 @@ class PDFCompressor:
             self.__pdf_crunch = self.__get_and_configure_pdf_crunch(config_paths, self.__cpdf)
 
     def __get_and_configure_pdf_crunch(self, config_paths, cpdf: CPdfSqueezeCompressor) -> PDFCrunchCompressor:
-        pdf_crunch = PDFCrunchCompressor(config_paths.pngquant_path, config_paths.advpng_path, cpdf, self.__compression_mode)
+        pdf_crunch = PDFCrunchCompressor(
+            config_paths.pngquant_path,
+            config_paths.advpng_path,
+            cpdf,
+            self.__compression_mode,
+            self.__default_pdf_dpi
+        )
 
         if not self.__no_ocr:  # TODO dependency unitTests
             pdf_crunch.enable_tesseract(
@@ -84,34 +89,6 @@ class PDFCompressor:
                 config_paths.tessdata_prefix
             )
         return pdf_crunch
-
-    @staticmethod
-    def __get_config():
-        config_path = os.path.abspath("./config.json")  # todo test if path works when not executed via __main__.py
-        if not os.path.isfile(config_path):
-            raise FileNotFoundError("config.json not found, set the proper paths and run config.py")
-
-        class Config:
-            def __init__(self, advpng_path, pngquant_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
-                self.advpng_path = advpng_path
-                self.pngquant_path = pngquant_path
-                self.cpdfsqueeze_path = cpdfsqueeze_path
-                self.tesseract_path = tesseract_path
-                self.tessdata_prefix = tessdata_prefix
-
-        with open(config_path, "r") as config_file:
-            obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
-        return Config(**obj)
-
-    def __write_file_to_final_location(self, temp_path: str, final_destination: str) -> None:
-        if temp_path == final_destination:
-            return  # skip copy
-        output_dir = os.path.dirname(final_destination)
-        if not os.path.isdir(output_dir):
-            os.makedirs(output_dir)
-
-        shutil.copy(temp_path, final_destination)
-        os.remove(temp_path)
 
     def compress(self) -> None:
         console_ui_processor = ConsoleUIProcessor()

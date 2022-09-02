@@ -1,6 +1,3 @@
-from typing import Callable
-
-
 class ConsoleUtility:
     RED: str = "\033[0;31m"
     YELLOW: str = "\033[0;33;33m"
@@ -21,15 +18,16 @@ class ConsoleUtility:
 
     @classmethod
     def print_stats(cls, orig: int, result: int, is_file: bool = True) -> None:
-        if orig <= 0:
-            raise ValueError("orig must be greater than 0")
-        if result < 0:
-            raise ValueError("result can't be less than 0")
+        if not cls.quiet_mode:
+            if orig <= 0:
+                raise ValueError("orig must be greater than 0")
+            if result < 0:
+                raise ValueError("result can't be less than 0")
 
-        prefix = "Compressed File from " if is_file else "Compressed All from "
-        cls.print(cls.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " +str(
-            round(result / 1000000, 2)) + "mb (-" + str(
-            round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
+            prefix = "Compressed File from " if is_file else "Compressed All from "
+            cls.print(cls.GREEN + prefix + str(round(orig / 1000000, 2)) + "mb to " + str(
+                round(result / 1000000, 2)) + "mb (-" + str(
+                round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
 
     @classmethod
     def print_error(cls, string: str) -> None:

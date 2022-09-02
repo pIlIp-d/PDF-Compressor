@@ -77,35 +77,48 @@ If there are errors or if you want to change a path you can configure it inside 
 
     -p FileOrFolder
 
-## compression rate
+## Compression mode
 
 ----
 Varies on Input of File and gets better with larger Files.  
 
 change `-m` parameter to get higher compression or higher quality. Combine with `--force-ocr` or `--no-ocr` to ensure the result to be with ocr/without  
 
-if no special ocr mode is activated the pdf compression tries to compress through png split... and if the result is larger than the original the result gets replaced with a pdf that only is compressed via lossless pdf cpdfsqeeze.
+| parameter \ mode     | 1   | 2   | 3   | 4   | 5   |
+|:---------------------|-----|-----|-----|-----|-----|
+|                      |     |     |     |     |     |
+| pngquant speed       | 1   | 2   | 2   | 8   | 9   |
+| pngquant min-quality | 0   | 25  | 25  | 25  | 25  |
+| pngquant max-quality | 80  | 85  | 85  | 90  | 99  |
+|                      |     |     |     |     |     |
+| advcomp shrink-rate  | 4   | 3   | 2   | 2   | 1   |
+| advcomp iterations   | 3   | 2   | 1   | 1   | 1   |
 
-Tiny files get Larger when the mode is set to high(~low compression).  
--> no OCR is saved and old document just gets compressed via cpdfsqeeze.
+if no special ocr mode is activated the pdf gets compressed through png split... and if the result is larger than the original the result gets replaced with a pdf that only is compressed via lossless pdf cpdfsqeeze.  
+smaller or larger according to your pdf file.  
+But be aware tiny files get Larger when the `--dpi` is set too high(~low compression).  
+Small DPI means lower overall resolution.  
+-> no OCR is saved and old document just gets compressed via cpdfsqeeze.  
 Solution `-f` / `--force-ocd`
+
 
 ## Help
 ```
 -h --help                  show this help message and exit
 -p --path                  Path to pdf file or to folder containing pdf files
--m --mode                  compression mode 1-10. 1:high 10:low compression. Default=3
+-m --mode                  compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=5
 -o --output-path           Compressed file Output Path. Default: 'filename_smaller.pdf' or
                            'compressed/...' for folders
 -f --force-ocr             When turned on allows output file to be larger than input file, to force
                            ocr. Default: off and only smaller output files are saved.'
 -n --no-ocr                Don't create OCR on pdf.
--q, --quiet-mode           Don't print to console. Doesn't apply to Exceptions.
--l  --tesseract-language   Language to create OCR with. Find the string for your language 
+-q --quiet-mode            Don't print to console. Doesn't apply to Exceptions.
+-l --tesseract-language    Language to create OCR with. Find the string for your language 
                            https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html.
                            Make sure it it installed.
--s, --simple-and-lossless  Simple and lossless compression is non-invasive and skips the image converting.
+-s --simple-and-lossless   Simple and lossless compression is non-invasive and skips the image converting.
                            Not as effective but simple and faster.
+-d DPI --dpi DPI           DPI to use in conversion from pdf to images. Default=400.
 ```
 
 ## Examples

@@ -1,5 +1,9 @@
 import argparse
+import os.path
+import shutil
+
 from pdfcompressor.pdfcompressor import PDFCompressor
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 def get_args():
@@ -17,8 +21,8 @@ def get_args():
         "-m", "--mode",
         required=False,
         type=int,
-        help="compression mode 1-10. 1:high 10:low compression. Default=3",
-        default=3
+        help="compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=5",
+        default=5
     )
     all_args.add_argument(
         "-o", "--output-path",
@@ -41,16 +45,6 @@ def get_args():
         action='store_true',
         help="Don't create OCR on pdf."
     )
-    """ temporarily or permanent deactivated
-    all_args.add_argument(
-        "-c", "--continue",
-        required=False,
-        type=int,
-        help="Number. When compressing folder and Interrupted, skip files already converted."
-             " (=amount of files already converted)",
-        default=0
-    )
-    """
     all_args.add_argument(
         "-q", "--quiet-mode",
         required=False,
@@ -72,6 +66,13 @@ def get_args():
         help="Simple and lossless compression is non-invasive and skips the image converting."
              "Not as effective but simple and faster."
     )
+    all_args.add_argument(
+        "-d", "--dpi",
+        required=False,
+        type=int,
+        help="DPI to use in conversion from pdf to images. Default=350.",
+        default=350
+    )
 
     return vars(all_args.parse_args())
 
@@ -87,7 +88,8 @@ if __name__ == '__main__':
             args["no_ocr"],
             args["quiet_mode"],
             args["tesseract_language"],
-            args["simple_and_lossless"]
+            args["simple_and_lossless"],
+            args["dpi"]
         )
         pdf_compressor.compress()
 
@@ -95,8 +97,14 @@ if __name__ == '__main__':
         while True:
             i = input("Do you want to cleanup the temporary Files created in the process? (Y/N)")
             if i.lower() == "y":
-                # TODO cleanup
-                print("Not implemented yet")
+                file_list = OsUtility.get_file_list(".")
+                for file in file_list:
+                    folder = os.path.dirname(file)
+                    # folder is in common format and in the right place
+                    if os.path.exists(folder) and "_tmp" in file and os.path.dirname(folder) == ".":
+                        if os.path.exists(folder):
+                            shutil.rmtree(folder)
+                            print(f"removed '{folder}'")
                 break
             elif i.lower() == "n":
                 break
