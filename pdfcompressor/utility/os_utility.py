@@ -79,9 +79,10 @@ class OsUtility:
             raise FileNotFoundError("config file not found")
 
         class Config:
-            def __init__(self, advpng_path, pngquant_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
+            def __init__(self, advpng_path, pngquant_path, pngcrush_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
                 self.advpng_path = advpng_path
                 self.pngquant_path = pngquant_path
+                self.pngcrush_path = pngcrush_path
                 self.cpdfsqueeze_path = cpdfsqueeze_path
                 self.tesseract_path = tesseract_path
                 self.tessdata_prefix = tessdata_prefix

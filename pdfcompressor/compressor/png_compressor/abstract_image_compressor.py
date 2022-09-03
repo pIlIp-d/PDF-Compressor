@@ -35,6 +35,9 @@ class AbstractImageCompressor(Compressor, ABC):
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
         self.compress_file_list_multi_threaded(source_files, destination_files)
 
+    def postprocess(self, source_file: str, destination_file: str) -> None:
+        super().postprocess(source_file, destination_file)
+
     def compress(self, source_path: str, destination_path: str) -> None:
         io_path_parser = IOPathParser(
             source_path,
@@ -53,4 +56,4 @@ class AbstractImageCompressor(Compressor, ABC):
         self.compress_file_list(source_file_list, destination_file_list)
 
         end_size = sum(OsUtility.get_filesize_list(destination_file_list))
-        ConsoleUtility.print_stats(sum(orig_sizes), end_size, False)
+        ConsoleUtility.print_stats(sum(orig_sizes), end_size, "Pages")

@@ -9,9 +9,9 @@ Additionally, the program can apply OCR - Optical Character Recognition (creates
 
 ## External Dependencies
 
-`Pngquant`, `AdvPNG`, `Tesseract`, `cpdfsqueeze`, on Linux you also need `wine` 
+`Pngquant`, `AdvPNG`, `Pngcrush`, `Tesseract`, `cpdfsqueeze`, on Linux you also need `wine` 
  
-pngquant and advPNG can be ignored when using --simple-lossless option
+pngquant, advPNG and pngcrush can be ignored when using --simple-lossless option
 Tesseract is optional for OCR - Optical Character Recognition
 
 ----
@@ -52,7 +52,9 @@ pre-installed in compressor_lib directory (paths are already configured)
 
 #### Linux(ubuntu)
 ```bash
-apt install pngquant -y && apt install advancecomp -y
+apt install pngquant -y && apt install advancecomp -y && apt install pngcrush -y
+# or
+sudo apt install pngquant -y && sudo apt install advancecomp -y && sudo apt install pngcrush -y
 ```
 cpdfsqueeze is used via wine.
 ```bash
@@ -146,6 +148,9 @@ Special Licence see [https://github.com/pIlIp-d/compressor-lib/blob/bf42fbf4e72f
 
 **advpng** – http://www.advancemame.it/download <br>
 Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/> GPL v3
+
+**pngcrush** – https://pmt.sourceforge.io/pngcrush <br>
+Special Licence see [https://github.com/pIlIp-d/PDF-Compressor/blob/868aa5c42b28135150e5780e3cc7e967d2fb6586/pdfcompressor/compressor/compressor_lib/pngcrush/LICENCE.txt]("https://github.com/pIlIp-d/PDF-Compressor/blob/868aa5c42b28135150e5780e3cc7e967d2fb6586/pdfcompressor/compressor/compressor_lib/pngcrush/LICENCE.txt")
 
 **cpdfsqeeze** – https://github.com/coherentgraphics/cpdfsqueeze-binaries <br>
 Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/> LGPL

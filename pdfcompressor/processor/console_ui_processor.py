@@ -10,5 +10,5 @@ class ConsoleUIProcessor(Preprocessor, Postprocessor):
         ConsoleUtility.print("Compressing " + ConsoleUtility.get_file_string(source))
 
     def postprocess(self, source: str, destination: str) -> None:
-        ConsoleUtility.print_stats(OsUtility.get_file_size(source), OsUtility.get_file_size(destination))
+        ConsoleUtility.print_stats(OsUtility.get_file_size(source), OsUtility.get_file_size(destination), "File")
         ConsoleUtility.print("")

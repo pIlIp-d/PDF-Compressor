@@ -1,6 +1,8 @@
 from .abstract_image_compressor import AbstractImageCompressor
 from .advpng_compressor import AdvanceCompressor
+from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
+from ...processor.CompressionPostprocessor import CompressionPostprocessor
 
 
 class PNGCrunchCompressor(AbstractImageCompressor):
@@ -8,6 +10,7 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             self,
             pngquant_path: str,
             advpng_path: str,
+            pngcrush_path: str,
             compression_mode: int = 3
     ):
         super().__init__(".png", ".png")
@@ -31,8 +34,10 @@ class PNGCrunchCompressor(AbstractImageCompressor):
                 shrink_rate=advcomp_shrink_rate,
                 iterations=advcomp_iterations
             )
+            self.__advcomp.add_postprocessor(CompressionPostprocessor("advcomp"))
         except FileNotFoundError:
             self.__advcomp = None
+
         try:
             self.__pngquant = PngQuantCompressor(
                 pngquant_path,
@@ -40,8 +45,17 @@ class PNGCrunchCompressor(AbstractImageCompressor):
                 min_quality=pngquant_min_quality,
                 max_quality=pngquant_max_quality
             )
+            self.__pngquant.add_postprocessor(CompressionPostprocessor("pngquant"))
         except FileNotFoundError:
             self.__pngquant = None
+
+        try:
+            self.__pngcrush = PngcrushCompressor(
+                pngcrush_path
+            )
+            self.__pngcrush.add_postprocessor(CompressionPostprocessor("pngcrush"))
+        except FileNotFoundError:
+            self.__pngcrush = None
 
     def compress_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
@@ -49,9 +63,11 @@ class PNGCrunchCompressor(AbstractImageCompressor):
         # run single file compress
         self.__pngquant.compress_file(source_file, destination_file)
         self.__advcomp.compress_file(destination_file, destination_file)
+        self.__pngcrush.compress_file(source_file, destination_file)
         self.postprocess(source_file, destination_file)
 
     def compress(self, source_path: str, destination_path: str) -> None:
         # run optimized compress
         self.__pngquant.compress(source_path, destination_path)
         self.__advcomp.compress(destination_path, destination_path)
+        self.__pngcrush.compress(source_path, destination_path)
