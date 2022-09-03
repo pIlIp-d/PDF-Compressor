@@ -75,6 +75,7 @@ class PDFCompressor:
         pdf_crunch = PDFCrunchCompressor(
             config_paths.pngquant_path,
             config_paths.advpng_path,
+            config_paths.pngcrush_path,
             cpdf,
             self.__compression_mode,
             self.__default_pdf_dpi

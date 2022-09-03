@@ -74,7 +74,7 @@ class ImagesToPdfConverter(Converter):
 
     def convert(self) -> None:
         # merging pngs to pdf and create OCR
-        ConsoleUtility.print("--merging compressed images into new pdf and creating OCR--")
+        ConsoleUtility.print("\n--merging compressed images into new pdf and creating OCR--")
 
         # convert images sequential (is significantly faster than parallel)
         for img, image_id in zip(self.images, range(len(self.images))):

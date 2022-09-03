@@ -15,12 +15,13 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             self,
             pngquant_path: str,
             advpng_path: str,
+            pngcrush_path: str,
             c_pdf_squeeze_compressor: CPdfSqueezeCompressor,
             compression_mode: int,
             default_pdf_dpi: int = 400
     ):
         super().__init__()
-        self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path, compression_mode)
+        self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path, pngcrush_path, compression_mode)
         self.__tessdata_prefix = None
         self.__tesseract_path = None
         self.__tesseract_language = None
