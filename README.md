@@ -162,6 +162,7 @@ Only the **original Design** is used.
 # Downloads
 * [Pngquant](https://pngquant.org)
 * [advpng](http://www.advancemame.it/download)
+* [pngcrush](https://sourceforge.net/projects/pmt/files/pngcrush-executables/1.8.11/)
 * [cpdfsqueeze](https://github.com/coherentgraphics/cpdfsqueeze-binaries)
 * [crunch](https://github.com/pIlIp-d/compressor-lib/blob/f08adc46f6e865b5740671e7c15145b32541c237/crunch.py)
 
