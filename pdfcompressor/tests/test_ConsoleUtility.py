@@ -93,6 +93,8 @@ class ConsoleUtilityTest(TestCase):
         ConsoleUtility.print_stats(150, 0)
         self.assertTrue(console_buffer.getvalue().__contains__("-100.0%"))
 
+    # TODO tests for ConsoleUtility.print_stats() 'compressed_value' parameter
+
     def test_print_stats_with_negative_result(self):
         ConsoleUtility.QUIET_MODE = False
         self.assertRaises(
