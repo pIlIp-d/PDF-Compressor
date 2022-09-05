@@ -45,12 +45,15 @@ class ImagesToPdfConverter(Converter):
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
         self.tessdata_prefix = rf"{tessdata_prefix}"
-        if pytesseract_path is not None:
-            self.pytesseract_path = pytesseract_path
-            try:
-                self.init_pytesseract()
-            except ConvertException:
-                self.force_ocr = False
+
+        try:
+            if pytesseract_path is not None:
+                self.pytesseract_path = pytesseract_path
+            else:
+                raise ValueError()
+            self.init_pytesseract()
+        except ValueError:
+            self.force_ocr = False
 
     def init_pytesseract(self) -> None:
         # either initiates pytesseract or deactivate ocr if not possible
@@ -59,6 +62,7 @@ class ImagesToPdfConverter(Converter):
                 ConsoleUtility.print_error(r"[ ! ] - tesseract Path not found. Install "
                                            "https://github.com/UB-Mannheim/tesseract/wiki or edit "
                                            "'TESSERACT_PATH' to your specific tesseract executable")
+                raise Exception()
             # set command (not sure why windows needs it differently)
             elif os.name == "nt":
                 pytesseract.pytesseract.tesseract_cmd = f"{self.pytesseract_path}"
@@ -70,7 +74,7 @@ class ImagesToPdfConverter(Converter):
                 ConsoleUtility.print_error("Tesseract Not Loaded, Can't create OCR."
                                            "(leave out option '--ocr-force' to compress without ocr)")
                 self.force_ocr = False
-            raise ConvertException("Tesseract (-> no OCR on pdfs)")
+            raise ValueError("Tesseract (-> no OCR on pdfs)")
 
     def convert(self) -> None:
         # merging pngs to pdf and create OCR
@@ -114,6 +118,6 @@ class ImagesToPdfConverter(Converter):
         except ValueError:  # if ocr/tesseract fails
             with open(img_path + ".pdf", "wb") as f:
                 f.write(convert(img_path))
-            ConsoleUtility.print(ConsoleUtility.get_error_string("No OCR applied."))
+            ConsoleUtility.print_error("No OCR applied.")
         # print statistics
         ConsoleUtility.print(f"** - Finished Page {page_id + 1}/{len(self.images)}")
