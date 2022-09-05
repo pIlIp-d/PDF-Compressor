@@ -3,6 +3,7 @@ from .advpng_compressor import AdvanceCompressor
 from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
 from ...processor.CompressionPostprocessor import CompressionPostprocessor
+from ...utility.console_utility import ConsoleUtility
 
 
 class PNGCrunchCompressor(AbstractImageCompressor):
@@ -36,6 +37,7 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             )
             self.__advcomp.add_postprocessor(CompressionPostprocessor("advcomp"))
         except FileNotFoundError:
+            ConsoleUtility.print_error("Error: Program advcomp not found, skipped compression with advcomp.")
             self.__advcomp = None
 
         try:
@@ -47,6 +49,7 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             )
             self.__pngquant.add_postprocessor(CompressionPostprocessor("pngquant"))
         except FileNotFoundError:
+            ConsoleUtility.print_error("Error: Program pngquant not found, skipped compression with pngquant.")
             self.__pngquant = None
 
         try:
@@ -55,19 +58,26 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             )
             self.__pngcrush.add_postprocessor(CompressionPostprocessor("pngcrush"))
         except FileNotFoundError:
+            ConsoleUtility.print_error("Error: Program pngcrush not found, skipped compression with pngcrush.")
             self.__pngcrush = None
 
     def compress_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
 
         # run single file compress
-        self.__pngquant.compress_file(source_file, destination_file)
-        self.__advcomp.compress_file(destination_file, destination_file)
-        self.__pngcrush.compress_file(source_file, destination_file)
+        if self.__pngquant is not None:
+            self.__pngquant.compress_file(source_file, destination_file)
+        if self.__advcomp is not None:
+            self.__advcomp.compress_file(destination_file, destination_file)
+        if self.__pngcrush is not None:
+            self.__pngcrush.compress_file(source_file, destination_file)
         self.postprocess(source_file, destination_file)
 
     def compress(self, source_path: str, destination_path: str) -> None:
         # run optimized compress
-        self.__pngquant.compress(source_path, destination_path)
-        self.__advcomp.compress(destination_path, destination_path)
-        self.__pngcrush.compress(source_path, destination_path)
+        if self.__pngquant is not None:
+            self.__pngquant.compress(source_path, destination_path)
+        if self.__advcomp is not None:
+            self.__advcomp.compress(destination_path, destination_path)
+        if self.__pngcrush is not None:
+            self.__pngcrush.compress(source_path, destination_path)
