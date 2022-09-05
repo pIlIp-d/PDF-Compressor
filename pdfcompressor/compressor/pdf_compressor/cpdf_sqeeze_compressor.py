@@ -6,7 +6,13 @@ from pdfcompressor.utility.console_utility import ConsoleUtility
 
 
 class CPdfSqueezeCompressor(AbstractPdfCompressor):
-    def __init__(self, cpdfsqueeze_path: str, use_wine_on_linux: bool = False):
+    def __init__(
+            self,
+            cpdfsqueeze_path: str,
+            use_wine_on_linux: bool = False,
+            user_password: str = None,
+            owner_password: str = None
+    ):
         """
         :param cpdfsqueeze_path: absolute path to executable
         :param use_wine_on_linux:
@@ -21,6 +27,12 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         if not os.path.exists(self.__cpdfsqueeze_path):
             raise ValueError(rf"cpdfsqueeze_path couldn't be found. '{self.__cpdfsqueeze_path}'")
 
+        self.extra_args = ""
+        if user_password is not None:
+            self.extra_args += " -upw " + user_password
+        if owner_password is not None:
+            self.extra_args += " -opw " + owner_password
+
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
         self.compress_file_list_multi_threaded(source_files, destination_files)
 
@@ -32,7 +44,7 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         command = "wine " if self.__use_wine else ""
         command += self.__cpdfsqueeze_path
         # path arguments "from" "to"
-        command += rf' "{source_file}" "{destination_file}"'
+        command += rf' "{source_file}" "{destination_file}"{self.extra_args}'
         try:
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         except Exception:
