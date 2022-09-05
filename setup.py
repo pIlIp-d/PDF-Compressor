@@ -16,7 +16,8 @@ setup(
         "PyMuPdf",
         "img2pdf",
         "pytesseract",
-        "jsons"
+        "jsons",
+        "django"
     ],
     include_package_data=True,
     classifiers=[
