@@ -27,7 +27,7 @@ class PDFCompressor:
             destination_path: str = "default",
             compression_mode: int = 5,
             force_ocr: bool = False,
-            no_ocr: bool = False,  # TODO remove
+            no_ocr: bool = False,
             quiet: bool = False,
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
@@ -83,7 +83,7 @@ class PDFCompressor:
             self.__default_pdf_dpi
         )
 
-        if not self.__no_ocr:  # TODO dependency unitTests
+        if not self.__no_ocr:
             pdf_crunch.enable_tesseract(
                 config_paths.tesseract_path,
                 self.__force_ocr,
@@ -109,5 +109,4 @@ class PDFCompressor:
         ConsoleUtility.print(ConsoleUtility.get_error_string(error_string))
         raise ValueError(error_string)
 
-# TODO console output Compressed All Files... only if multiple files were compressed
 # TODO consider adding conversion from png to jpeg before the merge if no alpha is needed
