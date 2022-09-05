@@ -97,14 +97,14 @@ if __name__ == '__main__':
         while True:
             i = input("Do you want to cleanup the temporary Files created in the process? (Y/N)")
             if i.lower() == "y":
-                file_list = OsUtility.get_file_list(".")
-                for file in file_list:
-                    folder = os.path.dirname(file)
-                    # folder is in common format and in the right place
-                    if os.path.exists(folder) and "_tmp" in file and os.path.dirname(folder) == ".":
-                        if os.path.exists(folder):
-                            shutil.rmtree(folder)
-                            print(f"removed '{folder}'")
+                # remove all directories ending with _tmp
+                directories = [f.path for f in os.scandir(".") if f.is_dir() and "_tmp" in f.path]
+                directories.append("./temporary_files")
+                for d in directories:
+                    if os.path.exists(d):
+                        shutil.rmtree(d)
+                        print(f"removed '{d}'")
+
                 break
             elif i.lower() == "n":
                 break
