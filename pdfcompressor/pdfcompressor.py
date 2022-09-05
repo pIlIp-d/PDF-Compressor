@@ -106,3 +106,6 @@ class PDFCompressor:
     def __raise_value_error(error_string: str) -> None:
         ConsoleUtility.print(ConsoleUtility.get_error_string(error_string))
         raise ValueError(error_string)
+
+# TODO console output Compressed All Files... only if multiple files were compressed
+# TODO consider adding conversion from png to jpeg before the merge if no alpha is needed
