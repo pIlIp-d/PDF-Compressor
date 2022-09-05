@@ -15,14 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
-
-class MainView:
-    def get(self, request):
-        pass
+from App.app.views import MainView
+from django.conf.urls.static import static
+from django.conf import settings
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('/', MainView().get, name="PDFCompressor"),
+    path('', MainView.as_view(), name='main-view'),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_URL)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

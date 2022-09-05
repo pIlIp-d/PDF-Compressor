@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- dropzone js & css -->
+    <title>PDF-Compressor | {% block title %} {% endblock title%}</title>
+
+    <!-- dropzone.js / dropzone.css -->
+    <script src="https://rawgit.com/enyo/dropzone/master/dist/dropzone.js"></script>
+    <link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
+    <span style="font-size: x-large; ">
+    <h1 style="text-align:center; color:red">PDF-Compressor</h1>
+</span>
+    Drag and drop your file into the box to get started with the compression.
+
+    <form action="file-upload" class="dropzone">
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+        </div>
+    </form>
+
+</head>
+
+<body>
+
+
+<form name="submit" method=post id="pdf_form" enctype="multipart/form-data" action="TODO">
+    <span style="font-size:large; color:black">
+        <!--
+    <label for="source_file">
+        Source-File:
+        <input type="file" id="source_file" name="source_file" required>
+    </label>
+    -->
+    <br>
+
+    <label for="destination_file">
+        Destination-File:
+        <input type="text" id="destination_file" name="destination_file" value="default">
+    </label>
+    <br>
+    <label for="compression_mode">
+        Compression mode:
+        <select name="compression_mode" id="compression_mode">
+            <option value="1">1: Extreme</option>
+            <option value="2">2: Strong</option>
+            <option value="3">3: Medium</option>
+            <option value="4">4: Fast</option>
+            <option selected="selected" value="5">5: Fastest</option>
+        </select>
+    </label>
+    <br>
+    <label for="default_pdf_dpi">
+        Default DPI:
+        <input type="number" name="default_pdf_dpi" id="default_pdf_dpi" value="400" step="10">
+    </label>
+    <br>
+    <label for="force_ocr">
+        Text recognition (OCR):
+        <input type="checkbox" name="force_ocr" id="force_ocr">
+    </label>
+        <!--
+        Needed? Checkbox for OCR already usable
+        <br>  <label for="no_ocr">
+            no_ocr:
+            <input type="checkbox" name="no_ocr" id="no_ocr">
+        </label>
+        -->
+    <br>
+
+    <label for="simple_and_lossless">
+        Simple and lossless:
+        <input type="checkbox" name="simple_and_lossless" id="simple_and_lossless">
+    </label>
+    <br>
+    <label for="tesseract_language"><!--TODO dynamically generate-->
+        Tesseract language:
+        <select name="tesseract_language" id="tesseract_language">
+            <option value="deu">Deutsch</option>
+            <option value="eng">English</option>
+        </select>
+    </label>
+    <br>
+    <input type="submit" id="submit" name="submit" value="Compress">
+    </span>
+
+    <br>
+
+<!----------------------------------------------Linking_Git------------------------------------------------------------>
+    <form action="file-upload" class="dropzone">
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+        </div>
+    </form>
+    <!----------------------------------------------Linking_Git-------------------------------------------------------->
+    <span style="font-size: medium; ">
+<p style="text-align: center">Would you like to install the PDF-Compressor on your PC. Go to <a href="https://github.com/pIlIp-d/PDF-Compressor.git">https://github.com/pIlIp-d/PDF-Compressor.git</a>
+    and follow the instructions. </p>
+</span>
+</form>
+</body>
+
+</html>
