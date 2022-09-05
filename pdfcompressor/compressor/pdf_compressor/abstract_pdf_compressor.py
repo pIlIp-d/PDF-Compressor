@@ -62,7 +62,7 @@ class AbstractPdfCompressor(Compressor, ABC):
         else:
             end_size = sum(OsUtility.get_filesize_list(temporary_destination_file_list))
 
-        if len(source_file_list) > 0:
+        if len(source_file_list) > 1:
             ConsoleUtility.print_stats(sum(orig_sizes), end_size, "All Files")
             ConsoleUtility.print("\n")
 
