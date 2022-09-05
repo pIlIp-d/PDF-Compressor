@@ -16,6 +16,8 @@ from .utility.console_utility import ConsoleUtility
 
 from .utility.os_utility import OsUtility
 
+# TODO schreibgeschütze, passwordschutz pdf testen
+
 
 class PDFCompressor:
 
@@ -25,7 +27,7 @@ class PDFCompressor:
             destination_path: str = "default",
             compression_mode: int = 5,
             force_ocr: bool = False,
-            no_ocr: bool = False,
+            no_ocr: bool = False,  # TODO remove
             quiet: bool = False,
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
@@ -53,9 +55,9 @@ class PDFCompressor:
             PDFCompressor.__raise_value_error(
                 "option -p/--path must be a valid path to a file or folder."
             )
-        if compression_mode < 1 or compression_mode > 10:
+        if compression_mode < 1 or compression_mode > 5:
             PDFCompressor.__raise_value_error(
-                "option -m/--mode must be in range 1 to 10."
+                "option -m/--mode must be in range 1 to 5."
             )
         if self.__force_ocr and no_ocr:
             PDFCompressor.__raise_value_error(
