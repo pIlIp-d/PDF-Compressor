@@ -9,7 +9,7 @@ Additionally, the program can apply OCR - Optical Character Recognition (creates
 
 ## External Dependencies
 
-`Pngquant`, `AdvPNG`, `Pngcrush`, `Tesseract`, `cpdfsqueeze`, on Linux you also need `wine` 
+`Pngquant`, `AdvPNG`, `Pngcrush`, `Tesseract`, `cpdfsqueeze`, on Linux you also need `wine` for cpdfsqueeze
  
 pngquant, advPNG and pngcrush can be ignored when using --simple-lossless option
 Tesseract is optional for OCR - Optical Character Recognition
