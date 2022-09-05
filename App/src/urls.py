@@ -16,6 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+
+class MainView:
+    def get(self, request):
+        pass
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('/', MainView().get, name="PDFCompressor"),
 ]
