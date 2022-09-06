@@ -1,11 +1,7 @@
 import os.path
 
-from django.shortcuts import render, redirect
-
-from django.views.generic import TemplateView
+from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-
-from pdfcompressor.pdfcompressor import PDFCompressor
 from .models import UploadedFile
 
 
@@ -54,7 +50,7 @@ def render_form_submit_view(request):
 
         file_path = os.path.join(".", "media", "uploaded_files", f"user_{user_id}", uploaded_file.name)
 
-        UploadedFile.create(uploaded_file=uploaded_file, user_id=user_id)
+        UploadedFile.objects.create(uploaded_file=uploaded_file, user_id=str(user_id))
 
         print("file_path:", file_path)
 
