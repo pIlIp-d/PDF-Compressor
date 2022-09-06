@@ -16,7 +16,8 @@ def render_main_view(request):
 def render_upload_view(request):
     if request.method == 'POST':
         current_file = request.FILES.get('file')
-        UploadedFile.objects.create(uploaded_file=current_file)
+        user_id = request.session['user_id']
+        UploadedFile.create(uploaded_file=current_file, user_id=user_id)
         return HttpResponse('upload')
     return JsonResponse({'post': 'false'})
 
