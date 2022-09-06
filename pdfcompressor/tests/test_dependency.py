@@ -8,7 +8,7 @@ import jsons
 from pdfcompressor.utility.os_utility import OsUtility
 
 
-class TestOsUtility(TestCase):
+class TestDependency(TestCase):
     config_file = "../../config.json"
 
     program_path: str = os.path.abspath('../..')
