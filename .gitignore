@@ -13,4 +13,3 @@ __pycache__/
 /config.json
 /venv/
 /django_app/media/
-/django_app/application/migrations/
