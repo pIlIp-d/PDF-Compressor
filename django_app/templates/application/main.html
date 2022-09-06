@@ -38,19 +38,11 @@
     <h2 id="subheading"> Want to get rid of redundant data? </h2>
 </div>
 
-<!-----------------------------------action for file-upload via dropzone----------------------------------------------->
-<form action="upload/" method="post" class="dropzone dz dz-clickable" onsubmit="update_source_file_list()">
-    {% csrf_token %}
-    <div class="fallback">
-        <input name="file" type="file" multiple/>
-    </div>
-</form>
-<br><br><br>
-
 <!-----------------------------------multiple options for compression-------------------------------------------------->
-<form action="form_submit/" method="get"><!-- temporary used get until django forms is created-->
-    <span id="compression_options">
+<form action="form_submit/" method="post" class="dropzone" id="my-dropzone">
 
+    {% csrf_token %}
+    <div id="compression_options">
         <label for="destination_file">
             destination file:
             <input type="text" id="destination_file" name="destination_file" value="default">
@@ -96,13 +88,11 @@
                 {% endfor %}
             </select>
         </label>
-        <br><br>
+        <br>
+    </div>
 
-        <input type="submit" id="submit" name="submit" value="Compress">
-
-    </span>
 </form>
-
+<button id="submit-all">Submit all files</button>
 
 <!---------------------------image of the "Croco-File"----------------------------------------------------------------->
 
@@ -117,6 +107,31 @@
     Do you want to review the project? Visit <a href="https://github.com/pIlIp-d/PDF-Compressor/tree/dev">github.com/Croco-File-Crusher</a>
     to have a look at the Croco-File-Crusher.
 </footer>
+
+<script>
+
+Dropzone.options.myDropzone = {
+
+  // Prevents Dropzone from uploading dropped files immediately
+  autoProcessQueue: false,
+
+  init: function() {
+    var submitButton = document.querySelector("#submit-all");
+        myDropzone = this; // closure
+
+    submitButton.addEventListener("click", function() {
+      myDropzone.processQueue(); // Tell Dropzone to process all queued files.
+    });
+
+    // You might want to show the submit button only when
+    // files are dropped here:
+    this.on("addedfile", function() {
+      // Show submit button here and/or inform user to click it.
+    });
+
+  }
+};
+</script>
 
 </body>
 
