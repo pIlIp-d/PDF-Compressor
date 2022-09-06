@@ -9,6 +9,7 @@ urlpatterns = [
     path('pdf-compressor/', views.render_main_view, name='main-view'),
     path('upload/', views.render_upload_view, name='upload-view'),
     path('form_submit/', views.render_form_submit_view, name='form-submit-view'),
+    path('download_files/', views.render_download_files_view, name='download-files-view'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
