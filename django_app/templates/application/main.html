@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- ------------------------------imports(style.css, dropzone.js/css--------------------------------------------->
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://rawgit.com/enyo/dropzone/master/dist/dropzone.js"></script>
+    <link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
+
+    <title>Croco-File-Crusher</title>
+</head>
+
+<!------------------------------------------------Headline------------------------------------------------------------->
+<link>
+<div id="header">
+    <h1 id="heading" > Croco-File-Crusher </h1>
+    <h2 id="subheading"> Want to get rid of redundant data? </h2>
+</div>
+
+<!-----------------------------------action for file-upload via dropzone----------------------------------------------->
+<form action="upload/" method="post" class="dropzone dz dz-clickable">
+    {% csrf_token %}
+    <div class="fallback">
+        <input name="file" type="file" multiple />
+    </div>
+</form>
+<br><br><br>
+
+<!-----------------------------------multiple options for compression-------------------------------------------------->
+<span id="compression_options">
+
+    <label for="destination_file">
+        destination file:
+        <input type="text" id="destination_file" name="destination_file" value="default">
+    </label>
+    <br>
+
+    <label for="compression_mode">
+        compression mode:
+        <select name="compression_mode" id="compression_mode">
+            <option value="1">1: Extreme</option>
+            <option value="2">2: Strong</option>
+            <option value="3">3: Medium</option>
+            <option value="4">4: Fast</option>
+            <option selected="selected" value="5">5: Fastest</option>
+        </select>
+    </label>
+    <br>
+
+    <label for="default_pdf_dpi">
+        default DPI:
+        <input type="number" name="default_pdf_dpi" id="default_pdf_dpi" value="400" step="10">
+    </label>
+    <br>
+
+    <label for="force_ocr">
+        text recognition (OCR):
+        <input type="checkbox" name="force_ocr" id="force_ocr">
+    </label>
+    <br>
+
+    <label for="simple_and_lossless">
+        simple and lossless:
+        <input type="checkbox" name="simple_and_lossless" id="simple_and_lossless">
+    </label>
+    <br>
+
+    <label for="tesseract_language">                                                    <!--TODO dynamically generate-->
+        tesseract language:
+        <select name="tesseract_language" id="tesseract_language">
+            <option value="eng">English</option>
+            <option value="deu">Deutsch</option>
+        </select>
+    </label>
+    <br><br>
+
+    <!---------------------------button to start compression----------------------------------------------------------->
+    <button>
+    <input type="submit" id="submit" name="submit" value="Compress">
+    </button>
+    <br>
+
+</span>
+
+<!---------------------------image of the "Croco-File"----------------------------------------------------------------->
+
+<img id="picture_of_croco_file" src="https://media.istockphoto.com/vectors/illustration-of-a-smiling-crocodile-vector-id1182596568?k=20&m=1182596568&s=170667a&w=0&h=KfqG2ZxPQONZplvl501LTh_b97yfhoOqRzDJeiXGgOY="
+     alt="Croco-File"/>
+<br>
+
+<!----------------------------------------------Linking_Git------------------------------------------------------------>
+
+<div id="github_project_link">
+Do you want to review the project? Visit <a href="https://github.com/pIlIp-d/PDF-Compressor/tree/dev">github.com/Croco-File-Crusher</a> to have a look at the Croco-File-Crusher.
+</div>
+
+</html>
