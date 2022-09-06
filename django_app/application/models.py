@@ -6,10 +6,10 @@ def get_directory_to_save_file_in(instance, filename: str) -> str:
     """
         :return example i.e: 'images/user_af2098.../filename.xxx'
     """
-    path = f"images/user_{instance.user_id}/{filename}"
+    path = os.path.join("uploaded_files", f"user_{instance.user_id}", filename)
 
     # already a file with the same name
-    if os.path.isfile(f"./media/{path}"):
+    if os.path.isfile(os.path.join(".", "media", path)):
         pass  # maybe reformat the filename of duplicates
 
     return path
