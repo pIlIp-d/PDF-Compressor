@@ -1,5 +1,9 @@
 body {
-    font-family: 'Courier New', serif; font-size: large}
+    font-family: 'Courier New', serif;
+    font-size: large;
+    margin: 0;
+    padding:0;
+}
 
 #header {
     width: 100%;
@@ -30,8 +34,16 @@ button {
     background: rebeccapurple;
 }
 
+footer {
+    position: fixed;
+    bottom: 0;
+    padding-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+    background: white;
+}
 
-
-
-
-
+.hidden_input{
+    display: None;
+    pointer-events: none;
+}
