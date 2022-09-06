@@ -1,0 +1,37 @@
+body {
+    font-family: 'Courier New', serif; font-size: large}
+
+#header {
+    width: 100%;
+    text-align: center;
+}
+#heading {
+    color:darkolivegreen;
+    font-size:xxx-large;
+}
+#subheading {
+    font-size: x-large;
+}
+
+#picture_of_croco_file {
+    width: 20%;
+    height: 20%;
+}
+
+#github_project_link {
+    align-content:center;
+    align-self: center;
+    align-items: center;
+    alignment: center;
+    alignment-baseline: center;
+}
+
+button {
+    background: rebeccapurple;
+}
+
+
+
+
+
+
