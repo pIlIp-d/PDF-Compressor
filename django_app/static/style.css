@@ -3,16 +3,16 @@
     font-size: x-large;
     margin: 0;
     padding:0;
-
 }
 
 #header {
     width: 100%;
-
 }
+
 #heading {
     color:darkolivegreen;
     font-size:xxx-large;
+    font-style: initial;
     text-align: center;
 }
 
@@ -22,39 +22,52 @@
 }
 
 #picture_of_croco_file {
-    width: 17%;
-    height: 17%;
+    width: 40vh;
+    margin: auto;
+    display: block;
 }
 
 #compression_options {
+    text-align: left;
     font-size: x-large;
-    text-align: center;
+    color: black;
 }
 
 #my-dropzone {
-      height: 300px;
-    width:700px;
+    width: auto;
+    height: auto;
+    margin: auto;
     border-color: grey;
     border-width: 5px;
-     font-size: larger;
+    font-size: large;
+    padding-bottom: 0;
+    background: lightskyblue;
 }
 
-.footer {
-    text-align: center;
-    position: fixed;
-    bottom: 0;
-    padding-bottom: 1rem;
-    width: 100%;
-    background: white;
-}
-
-.hidden_input{
-    display: None;
-    pointer-events: none;
+.dropzone.dz-clickable * {
+    cursor: default;
 }
 
 #submit-all {
     font-size: x-large;
     background: darkolivegreen;
     text-align: center;
+    margin: auto;
+    display: block;
 }
+
+#github_project_link {
+    font-size: x-large;
+    text-align: center;
+    position: fixed;
+    bottom:0;
+    padding-bottom: 1rem;
+    width: 100vw;
+    background: white;
+}
+
+.hidden_input {
+    display: None;
+    pointer-events: none;
+}
+
