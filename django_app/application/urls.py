@@ -6,8 +6,8 @@ from . import views
 app_name = 'application'
 
 rest_api_urlspatterns = [
-    path('processing_of_queue_is_finished/', views.processing_of_queue_is_finished, name='processing-of-queue-is'
-                                                                                         '-finished'),
+    path('processing_of_queue_is_finished/', views.processing_of_queue_is_finished, name='processing-of-queue-is-finished'),
+    path('download_processed_files/', views.download_processed_file, name='download-processed-file'),
 ]
 
 urlpatterns = [

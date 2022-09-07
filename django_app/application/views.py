@@ -20,6 +20,20 @@ def render_main_view(request):
     return render(request, 'application/main.html', context)
 
 
+def download_processed_file(request):
+    queue_csrf_token = request.GET.get("queue_csrf_token")
+    if request.method == 'GET' and queue_csrf_token is not None:
+        # TODO model to get path of finished file from user_id and csrf_token combination
+        #  maybe replace all input files with the result and return that as download_file_path
+        download_file_path = "path"
+        return JsonResponse({
+            "status": 200,
+            "download_file_path": download_file_path,
+            "queue_csrf_token": queue_csrf_token
+        }, status=200)
+    return JsonResponse({"status": 405}, status=405)
+
+
 def processing_of_queue_is_finished(request):
     """
         :param request.GET.queue_csrf_token - csrf_token that was used for the file upload
