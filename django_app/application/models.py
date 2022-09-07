@@ -3,13 +3,8 @@ from django.db import models
 
 
 def get_directory_to_save_file_in(instance, filename: str) -> str:
-    """
-        :return example i.e: 'images/user_af2098.../filename.xxx'
-    """
     path = os.path.join("uploaded_files", f"user_{instance.user_id}", filename)
-
-    # already a file with the same name
-    if os.path.isfile(os.path.join(".", "media", path)):
+    if os.path.isfile(os.path.join(".", "media", path)):  # already a file with the same name
         pass  # maybe reformat the filename of duplicates
 
     return path
