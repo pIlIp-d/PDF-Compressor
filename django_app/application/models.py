@@ -12,7 +12,6 @@ def get_directory_to_save_file_in(instance, filename: str) -> str:
 
 
 class UploadedFile(models.Model):
-    objects = None
     filename = models.TextField()
     user_id = models.CharField(max_length=64)
     finished = models.BooleanField(default=False)
@@ -20,6 +19,7 @@ class UploadedFile(models.Model):
                                       validators=[validate_file_extension])
     # allowed extensions['pdf','png','jpg','jpeg']
     date_of_upload = models.DateTimeField(auto_now_add=True)
+    csrf_token = models.CharField(max_length=32)
 
     def __str__(self):
         return str(self.pk)  # returns the primary key
