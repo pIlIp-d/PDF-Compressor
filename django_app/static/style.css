@@ -1,21 +1,24 @@
-body {
+.body {
     font-family: 'Courier New', serif;
     font-size: x-large;
     margin: 0;
     padding:0;
+
 }
 
 #header {
     width: 100%;
-    text-align: center;
+
 }
 #heading {
     color:darkolivegreen;
     font-size:xxx-large;
+    text-align: center;
 }
 
 #subheading {
     font-size: x-large;
+    text-align: center;
 }
 
 #picture_of_croco_file {
@@ -25,7 +28,7 @@ body {
 
 #compression_options {
     font-size: x-large;
-
+    text-align: center;
 }
 
 #my-dropzone {
@@ -36,12 +39,12 @@ body {
      font-size: larger;
 }
 
-footer {
+.footer {
+    text-align: center;
     position: fixed;
     bottom: 0;
     padding-bottom: 1rem;
     width: 100%;
-    text-align: center;
     background: white;
 }
 
@@ -52,6 +55,6 @@ footer {
 
 #submit-all {
     font-size: x-large;
-    color: white;
     background: darkolivegreen;
+    text-align: center;
 }
