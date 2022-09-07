@@ -68,7 +68,6 @@ def render_form_submit_view(request):
 
         uploaded_file = request.FILES.get('file')
 
-        file_path = os.path.join(".", "media", "uploaded_files", f"user_{user_id}", uploaded_file.name)
 
         UploadedFile.objects.create(
             uploaded_file=uploaded_file,
