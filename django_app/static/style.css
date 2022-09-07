@@ -31,17 +31,19 @@
     text-align: left;
     font-size: x-large;
     color: black;
+
+
 }
 
 #my-dropzone {
-    width: auto;
+    border-style: none;
+    width: 75vw;
     height: auto;
     margin: auto;
     border-color: grey;
     border-width: 5px;
     font-size: large;
     padding-bottom: 0;
-    background: lightskyblue;
 }
 
 .dropzone.dz-clickable * {
@@ -69,5 +71,16 @@
 .hidden_input {
     display: None;
     pointer-events: none;
+}
+
+.dz-default  {
+    border-style: solid;
+    width: 60vw;
+    min-height: 10em;
+    position: relative;
+}
+
+.dz-button  {
+     margin: auto;
 }
 
