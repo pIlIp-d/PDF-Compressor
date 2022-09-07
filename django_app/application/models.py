@@ -17,8 +17,6 @@ class UploadedFile(models.Model):
     finished = models.BooleanField(default=False)
     uploaded_file = models.ImageField(upload_to=get_directory_to_save_file_in,
                                       validators=[FileExtensionValidator(allowed_extensions=['.pdf'])])
-
-    # allowed extensions['pdf','png','jpg','jpeg']
     date_of_upload = models.DateTimeField(auto_now_add=True)
     csrf_token = models.CharField(max_length=32)
 
