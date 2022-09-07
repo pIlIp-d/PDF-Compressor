@@ -23,7 +23,7 @@ def render_upload_view(request):
     if request.method == 'POST':
         current_file = request.FILES.get('file')
         user_id = request.session['user_id']
-        UploadedFile.create(uploaded_file=current_file, user_id=user_id)
+        UploadedFile.create(uploaded_file=current_file, user_id=user_id)   # method .create() in UploadedFile?
         return HttpResponse('upload')
     return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
 
