@@ -7,19 +7,13 @@ from .models import UploadedFile
 
 # Create your views here.
 def render_main_view(request):
-    uploaded_files = UploadedFile.objects.order_by('-date_of_upload')
+    uploaded_files = UploadedFile.objects.order_by('-date_of_upload')  # sorting useful?
     context = {
         'uploaded_files': uploaded_files,
         "default_language": "eng",
         "languages": [
-            {
-                "value": "eng",
-                "text": "English"
-            },
-            {
-                "value": "deu",
-                "text": "Deutsch"
-            }
+            {"value": "eng", "text": "English"},
+            {"value": "deu", "text": "Deutsch"}
         ]
     }
     return render(request, 'application/main.html', context)
@@ -34,8 +28,8 @@ def render_upload_view(request):
     return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
 
 
-def render_download_files_view(request):
-    return JsonResponse("TODO")
+#    def render_download_files_view(request):  # TODO download view
+#    return JsonResponse("TODO")
 
 
 def render_form_submit_view(request):
@@ -43,9 +37,8 @@ def render_form_submit_view(request):
         user_id = request.session['user_id']
         # first show all files from the last request, that can be downloaded
         # or if they are not ready, yet, show a wait thing
-        # underneath show all files that can be downloaded for this user_id (in defined time span
+        # underneath show all files that can be downloaded for this user_id (in defined time span)
 
-        user_id = request.session["user_id"]
         uploaded_file = request.FILES.get('file')
 
         file_path = os.path.join(".", "media", "uploaded_files", f"user_{user_id}", uploaded_file.name)
