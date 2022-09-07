@@ -16,7 +16,7 @@ from .utility.console_utility import ConsoleUtility
 
 from .utility.os_utility import OsUtility
 
-# TODO schreibgeschütze, passwordschutz pdf testen
+# TODO using **kwargs, read-only, password
 
 
 class PDFCompressor:
