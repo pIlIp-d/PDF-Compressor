@@ -21,8 +21,8 @@ def render_main_view(request):
 
 
 def download_processed_files(request):
-    if request.method == 'GET':
-        queue_csrf_token = request.GET.get("queue_csrf_token")
+    queue_csrf_token = request.GET.get("queue_csrf_token")
+    if request.method == 'GET' and queue_csrf_token is not None:
         # TODO model to get path of finished file from user_id and csrf_token combination
         #  maybe replace all input files with the result and return that as download_file_path
         download_file_path = "path"
