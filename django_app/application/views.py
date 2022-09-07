@@ -1,4 +1,5 @@
 import os.path
+from functools import reduce
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -19,21 +20,33 @@ def render_main_view(request):
     return render(request, 'application/main.html', context)
 
 
-def render_upload_view(request):
-    if request.method == 'POST':
-        current_file = request.FILES.get('file')
-        user_id = request.session['user_id']
-        UploadedFile.create(uploaded_file=current_file, user_id=user_id)   # method .create() in UploadedFile?
-        return HttpResponse('upload')
-    return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
+def processing_of_queue_is_finished(request):
+    """
+        :param request.GET.queue_csrf_token - csrf_token that was used for the file upload
+        :returns json.finished - boolean True if all files from 'queue_csrf_token' and current user_id are processed
+    """
+    if request.method == 'GET':
+        queue_csrf_token = request.POST.get("queue_csrf_token")
+        boolean_list_of_finished_for_current_queue = UploadedFile.objects.filter(
+            user_id=request.session["user_id"],
+            csrf_token=queue_csrf_token
+        ).values_list('finished', flat=True)
 
+        processing_of_files_is_finished = reduce(
+            lambda prev_result, current: prev_result and current, boolean_list_of_finished_for_current_queue, True
+        )
 
-#    def render_download_files_view(request):  # TODO download view
-#    return JsonResponse("TODO")
+        return JsonResponse({
+            "status": 200,
+            "finished": processing_of_files_is_finished,
+            "queue_csrf_token": queue_csrf_token
+        }, status=200)
+    return JsonResponse({"status": 405}, status=405)
 
 
 def render_form_submit_view(request):
     if request.method == 'POST':
+        # TODO POST value validating with django forms
         user_id = request.session['user_id']
         # first show all files from the last request, that can be downloaded
         # or if they are not ready, yet, show a wait thing
@@ -43,10 +56,11 @@ def render_form_submit_view(request):
 
         file_path = os.path.join(".", "media", "uploaded_files", f"user_{user_id}", uploaded_file.name)
 
-        UploadedFile.objects.create(uploaded_file=uploaded_file, user_id=str(user_id))
-
-        print("file_path:", file_path)
-
+        UploadedFile.objects.create(
+            uploaded_file=uploaded_file,
+            user_id=user_id,
+            csrf_token=request.POST.get("csrfmiddlewaretoken")
+        )
         """
         data_query = request.POST
         PDFCompressor(
@@ -61,6 +75,6 @@ def render_form_submit_view(request):
             data_query.default_pdf_dpi
         ).compress()
         """
-
         return HttpResponse('upload')
+
     return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
