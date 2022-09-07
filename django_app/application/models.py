@@ -26,4 +26,7 @@ class UploadedFile(models.Model):
 
 
 class Meta:
+    def __init__(self):
+        pass
+
     verbose_name_plural = 'Uploaded files'
