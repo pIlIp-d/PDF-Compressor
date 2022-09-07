@@ -3,16 +3,17 @@
     font-size: x-large;
     margin: 0;
     padding:0;
-
 }
 
 #header {
     width: 100%;
-
+    height: auto;
 }
+
 #heading {
     color:darkolivegreen;
     font-size:xxx-large;
+    font-style: initial;
     text-align: center;
 }
 
@@ -30,22 +31,30 @@
 #compression_options {
     text-align: left;
     font-size: x-large;
+    color: black;
 }
 
 #my-dropzone {
-    width:70%;
-
+    width: auto;
+    height: auto;
     margin: auto;
     border-color: grey;
     border-width: 5px;
-    font-size: larger;
+    font-size: large;
+    padding-bottom: 0;
+    background: lightskyblue;
 }
 
+.dropzone.dz-clickable * {
+    cursor: default;
+}
 
 #submit-all {
     font-size: x-large;
     background: darkolivegreen;
     text-align: center;
+    margin: auto;
+    display: block;
 }
 
 #github_project_link {
@@ -62,3 +71,4 @@
     display: None;
     pointer-events: none;
 }
+
