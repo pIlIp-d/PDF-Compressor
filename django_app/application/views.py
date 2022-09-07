@@ -20,7 +20,7 @@ def render_main_view(request):
     return render(request, 'application/main.html', context)
 
 
-def download_processed_files(request):
+def download_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
     if request.method == 'GET' and queue_csrf_token is not None:
         # TODO model to get path of finished file from user_id and csrf_token combination
