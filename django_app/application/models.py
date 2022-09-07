@@ -1,5 +1,6 @@
 import os.path
 from django.db import models
+from .validators import validate_file_extension
 
 
 def get_directory_to_save_file_in(instance, filename: str) -> str:
@@ -11,14 +12,17 @@ def get_directory_to_save_file_in(instance, filename: str) -> str:
 
 
 class UploadedFile(models.Model):
+    objects = None
     filename = models.TextField()
     user_id = models.CharField(max_length=64)
     finished = models.BooleanField(default=False)
-    uploaded_file = models.ImageField(upload_to=get_directory_to_save_file_in)
+    uploaded_file = models.ImageField(upload_to=get_directory_to_save_file_in,
+                                      validators=[validate_file_extension])
+    # allowed extensions['pdf','png','jpg','jpeg']
     date_of_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.pk)  # returns the primary key
 
 
 class Meta:
