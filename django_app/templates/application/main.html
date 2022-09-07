@@ -12,27 +12,6 @@
 
 <body>
 
-<script>
-    function update_source_file_list(){
-        let files = document.getElementsByClassName("dz-filename");
-        console.log(files);
-        let source_files_list = [];
-        for (let file in files){
-            source_files_list.append(file);
-        }
-        document.getElementById("source_files").innerHTML = JSON.stringify(source_files_list);
-    }
-    Dropzone.options.myDropzone = {
-      init: function() {
-        this.on("success", function(file, responseText) {   <!-- TODO responseText isn't used yet  -->
-            console.log("ready with "+ file);
-
-        });
-      }
-    };
-
-</script>
-
 <!------------------------------------------------Headline------------------------------------------------------------->
 <div id="header">
     <h1 id="heading"> Croco-File-Crusher </h1>
@@ -85,7 +64,7 @@
             Tesseract language:
             <select name="tesseract_language" id="tesseract_language">
                 {% for lang in languages %}
-                <option value="{{ lang.value }}">{{ lang.text }}</option>
+                    <option value="{{ lang.value }}">{{ lang.text }}</option>
                 {% endfor %}
             </select>
         </label>
@@ -93,13 +72,11 @@
     </div>
 
 </form>
-    <br>
+<br>
 <button id="submit-all">Submit all files</button>
 
 
 <!---------------------------image of the "Croco-File"----------------------------------------------------------------->
-
-
 
 
 <img id="picture_of_croco_file"
@@ -116,27 +93,60 @@
 
 <script>
 
-Dropzone.options.myDropzone = {
+    MAIN_INTERVAL_TICK = 1000;
 
-  // Prevents Dropzone from uploading dropped files immediately
-  autoProcessQueue: false,
+    Dropzone.options.myDropzone = {
 
-  init: function() {
-      const submitButton = document.querySelector("#submit-all");
-      const myDropzone = this; // closure
+        // Prevents Dropzone from uploading dropped files immediately
+        autoProcessQueue: false,
 
-    submitButton.addEventListener("click", function() {
-      myDropzone.processQueue(); // Tell Dropzone to process all queued files.
-    });
+        init: function () {
+            const submitButton = document.querySelector("#submit-all");
+            const myDropzone = this; // closure
 
-    // You might want to show the submit button only when
-    // files are dropped here:
-    this.on("added-file", function() {
-      // Show submit button here and/or inform user to click it.
-    });
+            submitButton.addEventListener("click", function () {
+                myDropzone.processQueue(); // Tell Dropzone to process all queued files.
+                setInterval(main_interval, MAIN_INTERVAL_TICK);
+            });
 
-  }
-};
+            // You might want to show the submit button only when
+            // files are dropped here:
+            this.on("added-file", function () {
+                // Show submit button here and/or inform user to click it.
+            });
+            this.on("success", function (file, responseText) {   <!-- TODO responseText isn't used yet  -->
+                console.log("ready with " + file);
+
+            });
+
+        }
+    };
+
+    function main_interval() {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                let json_response = JSON.parse(this.response);
+                if (json_response.finished)
+                    activate_download_button();
+            }
+        }
+        xhttp.open("GET", "../api/processing_of_queue_is_finished", true);
+        xhttp.send();
+    }
+
+    function activate_download_button() {
+        let download_button = document.getElementById("TODO");
+
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            let json_response = JSON.parse(this.response);
+            // download_button.href = json_response.download_file_path;
+        }
+        xhttp.open("GET", "../api/download_processed_file", true);
+        xhttp.send();
+
+    }
 </script>
 
 </body>
