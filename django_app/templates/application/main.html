@@ -23,6 +23,8 @@
 <form action="form_submit/" method="post" class="dropzone" id="my-dropzone">
 
     {% csrf_token %}
+    <input type="hidden" name="files_uploaded_counter" id="files_uploaded_counter" value="0">
+
     <div id="compression_options">
         <label for="destination_file">
             Destination file:
@@ -96,6 +98,8 @@
 <script>
 
     MAIN_INTERVAL_TICK = 1000;
+    let main_interval_tick = null;
+    let file_counter_obj = document.getElementById("files_uploaded_counter");
 
     Dropzone.options.myDropzone = {
 
@@ -108,17 +112,19 @@
 
             submitButton.addEventListener("click", function () {
                 myDropzone.processQueue(); // Tell Dropzone to process all queued files.
-                setInterval(main_interval, MAIN_INTERVAL_TICK);
+                main_interval_tick = setInterval(main_interval, MAIN_INTERVAL_TICK);
             });
-
             // You might want to show the submit button only when
             // files are dropped here:
-            this.on("added-file", function () {
-                // Show submit button here and/or inform user to click it.
+            this.on("addedfile", function () {
+                file_counter_obj.innerHTML = 1 + file_counter_obj.innerHTML;
+            });
+            this.on("removedfile", function () {
+                if (file_counter_obj.innerHTML > 0)
+                    file_counter_obj.innerHTML = parseInt(file_counter_obj.innerHTML) - 1;
             });
             this.on("success", function (file, responseText) {   <!-- TODO responseText isn't used yet  -->
                 console.log("ready with " + file);
-
             });
 
         }
@@ -138,14 +144,25 @@
     }
 
     function activate_download_button() {
-        let download_button = document.getElementById("TODO");
+        let download_button = document.getElementById("download_button");
 
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-            let json_response = JSON.parse(this.response);
-            // download_button.href = json_response.download_file_path;
+            if (this.readyState === 4 && this.status === 200) {
+                let json_response = JSON.parse(this.response);
+                if (json_response.hasOwnProperty("download_file_path")) {
+                    // stop interval request for finished file
+                    clearInterval(main_interval_tick);
+                    // add file link to download
+                    //download_button.addEventListener(window.open(json_response.download_file_path));
+                    // activate download button
+                    download_button.classList.remove("disabled");
+                    download_button.classList.add("enabled");
+                }
+            }
         }
-        xhttp.open("GET", "../api/download_processed_file", true);
+        let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+        xhttp.open("GET", "../api/download_processed_file?queue_csrf_token=" + csrfmiddlewaretoken, true);
         xhttp.send();
 
     }
