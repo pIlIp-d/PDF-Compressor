@@ -80,6 +80,7 @@ label {
 #forms_container{
     padding:1rem;
     border-style: dashed;
+    width:70vw;
 }
 
 .enabled{
