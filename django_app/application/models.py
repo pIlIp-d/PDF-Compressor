@@ -5,6 +5,10 @@ from django.db import models
 from jsons import ValidationError
 
 
+def get_directory_for_file(user_id: str, csrf_token: str) -> str:
+    return os.path.join("uploaded_files", f"user{user_id}", csrf_token[:10])
+
+
 def check_file_extension(path):
     extension_of_file = pathlib.Path(path).suffixes[-1].lower()
     if extension_of_file != '.pdf':
@@ -17,8 +21,9 @@ def check_file_size(instance):
         raise ValidationError("The maximum file size is reached.")
 
 
+# todo use request_queue id for file path, because it is getting too long (id from csrf_token) new Model=processing_request
 def get_destination_directory(instance, filename: str) -> str:
-    path = os.path.join("uploaded_files", f"user{instance.user_id}", filename)
+    path = os.path.join(get_directory_for_file(instance.user_id, instance.csrf_token), filename)
     check_file_extension(path)
     check_file_size(instance)
 
@@ -29,7 +34,6 @@ def get_destination_directory(instance, filename: str) -> str:
         filename_number += 1
 
     return path
-
 
 
 class UploadedFile(models.Model):
