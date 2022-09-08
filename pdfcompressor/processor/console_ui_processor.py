@@ -1,7 +1,7 @@
-from pdfcompressor.processor.postprocessor import Postprocessor
-from pdfcompressor.processor.preprocessor import Preprocessor
-from pdfcompressor.utility.console_utility import ConsoleUtility
-from pdfcompressor.utility.os_utility import OsUtility
+from ..processor.postprocessor import Postprocessor
+from ..processor.preprocessor import Preprocessor
+from ..utility.console_utility import ConsoleUtility
+from ..utility.os_utility import OsUtility
 
 
 class ConsoleUIProcessor(Preprocessor, Postprocessor):
