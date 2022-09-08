@@ -71,6 +71,12 @@ label {
     pointer-events: none;
 }
 
+.remove_button {
+    margin: auto;
+    display: block;
+    position: absolute;
+}
+
 #forms_container{
     padding:1rem;
     border-style: dashed;
