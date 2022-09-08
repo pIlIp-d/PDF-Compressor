@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📌 Drag and Drop</title>
+
+    <link rel="stylesheet" href="/working-board/static/style.css">
+</head>
+<body>
+<main class="board">
+    <div class="First" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+        <h2>Queue</h2><article class="card" draggable="true" ondragstart="drag(event)" data-id="1">
+        <h3>Example</h3>
+    </article><article class="card" draggable="true" ondragstart="drag(event)" data-id="3">
+        <h3>Todo #3</h3>
+    </article></div>
+    <div class="Second" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>In Progress</h2>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="4">
+            <h3>File_Example</h3>
+        </article>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="5">
+            <h3>File_Example</h3>
+        </article>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="6">
+            <h3>File_Example</h3>
+        </article>
+    </div>
+    <div class="Third" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>Compressed</h2>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="7">
+            <h3>Finished_Example</h3>
+        </article>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="8">
+            <h3>Done #2</h3>
+        </article>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="9">
+            <h3>Done #3</h3>
+        </article>
+        <article class="card" draggable="true" ondragstart="drag(event)" data-id="2">
+            <h3>Todo #2</h3>
+        </article></div>
+</main>
+
+<script src="/working-board/static/drag-n-drop.js"></script>
+
+<script>
+
+</script></body></html>

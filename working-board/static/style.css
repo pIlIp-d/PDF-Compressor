@@ -1,0 +1,76 @@
+html {
+background: cornflowerblue;
+    color: black;
+}
+
+.board {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.card {
+    background: darkslategrey;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    width: 150px;
+    height: 60px;
+    cursor: grab;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.card:active {
+    cursor: grabbing;
+}
+
+.card.dragging {
+    opacity: .5;
+    transform: scale(.8);
+}
+
+#first {
+    padding: 10px;
+    background: green;
+    border: 2px solid #2c2c2c;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.column.column-todo h2 {
+    background: red;
+}
+
+#second {
+    background: green;
+}
+
+#third {
+    background: blue;
+    margin: 0 20px;
+}
+
+.column.drop {
+    border: 2px dashed #FFF;
+}
+
+.column.drop article {
+    pointer-events: none;
+}
+
+h3 {
+    font-size: 21px;
+    font-family: Helvetica, serif;
+    margin: 0;
+}
+
+.card:last-child {
+    margin-bottom: 0;
+}
+
+h2 {
+    background: purple;
+    margin: -10px -10px 10px;
+    padding: 4px 10px;
+    font-family: Helvetica, serif;
+    font-size: 21px;
+}
