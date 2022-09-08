@@ -8,12 +8,14 @@ app_name = 'application'
 rest_api_urlspatterns = [
     path('processing_of_queue_is_finished/', views.processing_of_queue_is_finished, name='processing-of-queue-is-finished'),
     path('download_processed_file/', views.download_processed_file, name='download-processed-file'),
+    path('uploads_finished/', views.uploads_finished, name='uploads-finished'),
+    path('upload_file/', views.upload_file, name='upload-file'),
+
 ]
 
 urlpatterns = [
     path('', views.render_main_view, name='main-view'),
     path('pdf-compressor/', views.render_main_view, name='main-view'),
-    path('form_submit/', views.render_form_submit_view, name='form-submit-view'),
     path('api/', include(rest_api_urlspatterns)),
 ]
 
