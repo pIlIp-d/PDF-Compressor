@@ -40,12 +40,19 @@
             Default DPI:
             <input type="number" name="default_pdf_dpi" id="default_pdf_dpi" value="400" step="10">
         </label>
-        <label for="force_ocr">
-            Text recognition (OCR):
-            <input type="checkbox" name="force_ocr" id="force_ocr">
-        </label>
+        <span>If you chouse none of the beneath the program tries to apply ocr at first.</span>
+        <div>
+            <label for="force_ocr">
+                <span>&#8195;Text recognition (OCR):</span>
+                <input type="checkbox" name="force_ocr" id="force_ocr">
+            </label>
+            <label for="no_ocr">
+                <span>&#8195;No Text recognition (OCR)</span>
+                <input type="checkbox" name="no_ocr" id="no_ocr">
+            </label>
+        </div>
         <label for="simple_and_lossless">
-            Simple and lossless:
+            <span>Simple and lossless:</span>
             <input type="checkbox" name="simple_and_lossless" id="simple_and_lossless">
         </label>
         <label for="tesseract_language">
@@ -98,8 +105,7 @@
                     this.removeFile(file);
                     activate_compression_button();
                     return;
-                }
-                else{
+                } else {
                     deactivate_compression_button();
                 }
                 let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
@@ -129,10 +135,11 @@
         compress_button.classList.remove("enabled");
         compress_button.classList.add("disabled");
         compress_button.disabled = true;
-        compress_button.removeEventListener("click", submit_compression_options_form);;
+        compress_button.removeEventListener("click", submit_compression_options_form);
+        ;
     }
 
-    function submit_compression_options_form(){
+    function submit_compression_options_form() {
         document.getElementById("compression_options_form").submit();
     }
 
