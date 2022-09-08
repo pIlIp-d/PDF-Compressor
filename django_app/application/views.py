@@ -69,7 +69,7 @@ def _get_file_amount_in_directory(dir_name: str) -> int:
 def uploads_finished(request):
     if request.method == 'POST':
         queue_csrf_token = request.POST.get("csrfmiddlewaretoken")
-        print(request.post)
+        print(request.POST)
         # TODO run PDFCompressor async
         return JsonResponse({"status": 200}, status=200)
     return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using POST"}, status=405)
