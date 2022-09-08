@@ -18,21 +18,14 @@
     <h2 id="subheading"> Want to get rid of redundant data? </h2>
 </div>
 
-<!-----------------------------------multiple options for compression-------------------------------------------------->
-
-<form action="form_submit/" method="post" class="dropzone" id="my-dropzone">
-
-    {% csrf_token %}
-    <input type="hidden" name="files_uploaded_counter" id="files_uploaded_counter" value="0">
-
-    <div id="compression_options">
+<div id="forms_container">
+    <!----- compression options --------------------------------------------------------------------------------------->
+    <form action="api/uploads_finished/" method="post" name="compression_options_form" id="compression_options_form">
+        {% csrf_token %}
         <label for="destination_file">
             Destination file:
             <input type="text" id="destination_file" name="destination_file" value="default">
         </label>
-
-        <br>
-
         <label for="compression_mode">
             Compression mode:
             <select name="compression_mode" id="compression_mode">
@@ -43,26 +36,18 @@
                 <option selected="selected" value="5">5: Fastest</option>
             </select>
         </label>
-        <br>
-
         <label for="default_pdf_dpi">
             Default DPI:
             <input type="number" name="default_pdf_dpi" id="default_pdf_dpi" value="400" step="10">
         </label>
-        <br>
-
         <label for="force_ocr">
             Text recognition (OCR):
             <input type="checkbox" name="force_ocr" id="force_ocr">
         </label>
-        <br>
-
         <label for="simple_and_lossless">
             Simple and lossless:
             <input type="checkbox" name="simple_and_lossless" id="simple_and_lossless">
         </label>
-        <br>
-
         <label for="tesseract_language">
             Tesseract language:
             <select name="tesseract_language" id="tesseract_language">
@@ -71,25 +56,24 @@
                 {% endfor %}
             </select>
         </label>
-        <br>
-    </div>
+    </form>
+    <!----- Dropzone -------------------------------------------------------------------------------------------------->
+    <form id="my-dropzone" action="api/upload_file/" method="post" class="dropzone">
+        {% csrf_token %}
+    </form>
+</div>
+<button id="compress_button" class="disabled">Compress</button>
 
-</form>
-<br>
-<button id="submit-all">Submit all files</button>
-
-<button id="download_button" class="disabled">Download!</button><!-- css class 'disabled' -> render light gray until the class is 'enabled'-->
+<button id="download_button" class="disabled">Download!</button>
+<!-- TODO css class 'disabled' -> render light gray until the class is 'enabled'-->
 
 <!---------------------------image of the "Croco-File"----------------------------------------------------------------->
-
-
 <img id="picture_of_croco_file"
      src="https://media.istockphoto.com/vectors/illustration-of-a-smiling-crocodile-vector-id1182596568?k=20&m=1182596568&s=170667a&w=0&h=KfqG2ZxPQONZplvl501LTh_b97yfhoOqRzDJeiXGgOY="
      alt="Image of a friendly looking Crocodile in a comic art style."/>
 <br>
 
 <!----------------------------------------------Linking_Git------------------------------------------------------------>
-
 <footer id="github_project_link">
     Do you want to review the project? Visit <a href="https://github.com/pIlIp-d/PDF-Compressor/tree/dev">github.com/Croco-File-Crusher</a>
     to have a look at the Croco-File-Crusher.
@@ -97,75 +81,115 @@
 
 <script>
 
-    MAIN_INTERVAL_TICK = 1000;
-    let main_interval_tick = null;
-    let file_counter_obj = document.getElementById("files_uploaded_counter");
+    let compress_button = document.getElementById("compress_button");
+    let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
+    Dropzone.options.maxFiles = 100;
     Dropzone.options.myDropzone = {
-
         // Prevents Dropzone from uploading dropped files immediately
-        autoProcessQueue: false,
-
+        autoProcessQueue: true,
         init: function () {
-            const submitButton = document.querySelector("#submit-all");
-            const myDropzone = this; // closure
-
-            submitButton.addEventListener("click", function () {
-                myDropzone.processQueue(); // Tell Dropzone to process all queued files.
-                main_interval_tick = setInterval(main_interval, MAIN_INTERVAL_TICK);
-            });
+            let _this = this;
             // You might want to show the submit button only when
             // files are dropped here:
-            this.on("addedfile", function () {
-                file_counter_obj.innerHTML = 1 + file_counter_obj.innerHTML;
+            this.on("addedfile", function (file) {
+                deactivate_compression_button();
+                if (!correct_file_ending(file.name)) {
+                    this.removeFile(file);
+                    return;
+                }
+                let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
+                removeButton.addEventListener("click", function (e) {
+                    // Make sure the button click doesn't submit the form:
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Remove the file preview.
+                    _this.removeFile(file);
+                });
+                file.previewElement.appendChild(removeButton);
             });
-            this.on("removedfile", function () {
-                if (file_counter_obj.innerHTML > 0)
-                    file_counter_obj.innerHTML = parseInt(file_counter_obj.innerHTML) - 1;
+            this.on("queuecomplete", function () {
+                activate_compression_button();
             });
-            this.on("success", function (file, responseText) {   <!-- TODO responseText isn't used yet  -->
-                console.log("ready with " + file);
-            });
-
         }
     };
 
-    function main_interval() {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                let json_response = JSON.parse(this.response);
-                if (json_response.finished)
-                    activate_download_button();
+    function activate_compression_button() {
+        compress_button.classList.remove("disabled");
+        compress_button.classList.add("enabled");
+        compress_button.addEventListener("click", submit_compression_options_form);
+    }
+
+    function deactivate_compression_button() {
+        compress_button.classList.remove("enabled");
+        compress_button.classList.add("disabled");
+        compress_button.removeEventListener("click", submit_compression_options_form);;
+    }
+
+    function submit_compression_options_form(){
+        document.getElementById("compression_options_form").submit();
+    }
+
+    function correct_file_ending(filename) {
+        let allowed_file_ending = [
+            {% for ending in allowed_file_endings  %}
+                "{{ ending }}",
+            {% endfor %}
+        ];
+        for (let ending in allowed_file_ending) {
+            if (ending != null && filename.endsWith(allowed_file_ending[ending])) {
+                return true;
             }
         }
-        xhttp.open("GET", "../api/processing_of_queue_is_finished", true);
-        xhttp.send();
+        return false;
     }
+
+/*
+    function main_interval() {
+        make_request("GET", "../api/processing_of_queue_is_finished/", true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let json_response = JSON.parse(this.response);
+                    if (json_response.finished)
+                        activate_download_button();
+                }
+            }
+        );
+    }
+
 
     function activate_download_button() {
         let download_button = document.getElementById("download_button");
-
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                let json_response = JSON.parse(this.response);
-                if (json_response.hasOwnProperty("download_file_path")) {
-                    // stop interval request for finished file
-                    clearInterval(main_interval_tick);
-                    // add file link to download
-                    //download_button.addEventListener(window.open(json_response.download_file_path));
-                    // activate download button
-                    download_button.classList.remove("disabled");
-                    download_button.classList.add("enabled");
+        make_request(
+            "GET", "../api/download_processed_file/?queue_csrf_token=" + csrfmiddlewaretoken, true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let json_response = JSON.parse(this.response);
+                    if (json_response.hasOwnProperty("download_file_path")) {
+                        // stop interval request for finished file
+                        clearInterval(main_interval_obj);
+                        // add file link to download
+                        // TODO download_button.addEventListener(window.open(json_response.download_file_path));
+                        // activate download button
+                        download_button.classList.remove("disabled");
+                        download_button.classList.add("enabled");
+                    }
                 }
             }
-        }
-        let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-        xhttp.open("GET", "../api/download_processed_file?queue_csrf_token=" + csrfmiddlewaretoken, true);
-        xhttp.send();
-
+        );
     }
+
+    function make_request(method, url, async = true, response_handler = null, post_data = null) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = response_handler;
+        xhttp.open(method, url, async);
+        if (post_data != null) {
+            xhttp.send(post_data);
+        } else {
+            xhttp.send();
+        }
+    }
+*/
 </script>
 
 </body>
