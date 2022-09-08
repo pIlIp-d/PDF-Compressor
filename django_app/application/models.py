@@ -3,27 +3,33 @@ import os.path
 import pathlib
 from django.db import models
 from jsons import ValidationError
-from natsort import natsorted
 
 
-#  Depending on the attributes of the file gets stored in a different directory
-def get_directory_to_save_file_in(instance, filename: str) -> str:
-
-    path = os.path.join("uploaded_files", f"user{instance.user_id}", filename)
-    if os.path.isfile(os.path.join(".", "media", path)):
-        os.chdir(path)
-        for current_file in sorted(os.listdir(path)):  # rename
-            print(current_file)
-
+def check_file_extension(path):
     extension_of_file = pathlib.Path(path).suffixes[-1].lower()
     if extension_of_file != '.pdf':
         raise ValidationError("Invalid extension. Only PDF-File's are allowed.")
 
+
+def check_file_size(instance):
     file_size = instance.uploaded_file.size
     if file_size > UploadedFile.MAX_FILESIZE:
         raise ValidationError("The maximum file size is reached.")
 
+
+def get_destination_directory(instance, filename: str) -> str:
+    path = os.path.join("uploaded_files", f"user{instance.user_id}", filename)
+    check_file_extension(path)
+    check_file_size(instance)
+
+    # TODO compute extension length
+    filename_number = 1
+    while os.path.isfile(os.path.join(".", "media", path)):
+        path = path[:-4] + "(" + str(filename_number) + ")" + path[-4:]
+        filename_number += 1
+
     return path
+
 
 
 class UploadedFile(models.Model):
@@ -31,7 +37,7 @@ class UploadedFile(models.Model):
     filename = models.TextField()
     user_id = models.CharField(max_length=64)
     finished = models.BooleanField(default=False)
-    uploaded_file = models.ImageField(upload_to=get_directory_to_save_file_in)
+    uploaded_file = models.ImageField(upload_to=get_destination_directory)
     date_of_upload = models.DateTimeField(auto_now_add=True)
     csrf_token = models.CharField(max_length=32)
 
