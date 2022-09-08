@@ -89,14 +89,14 @@
         // Prevents Dropzone from uploading dropped files immediately
         autoProcessQueue: true,
         init: function () {
-            let _this = this;
+            let _this = this;   //why copy the reference?
             // You might want to show the submit button only when
             // files are dropped here:
             this.on("addedfile", function (file) {
                 if (!correct_file_ending(file.name)) {
-                    // incorrect file ending was found
                     this.removeFile(file);
-                    activate_compression_button();
+                    showUnsupportedFileAnimation()
+                    activate_compression_button(); // why not deactivate?
                     return;
                 }
                 else{
@@ -129,10 +129,10 @@
         compress_button.classList.remove("enabled");
         compress_button.classList.add("disabled");
         compress_button.disabled = true;
-        compress_button.removeEventListener("click", submit_compression_options_form);;
+        compress_button.removeEventListener("click", submit_compression_options_form);
     }
 
-    function submit_compression_options_form(){
+    function submit_compression_options_form() {
         document.getElementById("compression_options_form").submit();
     }
 
@@ -148,6 +148,10 @@
             }
         }
         return false;
+    }
+
+    // Animations
+       function showUnsupportedFileAnimation() {
     }
 
 /*
