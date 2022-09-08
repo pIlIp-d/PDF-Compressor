@@ -1,3 +1,8 @@
+
+label {
+    display: block;
+}
+
 .body {
     font-family: 'Courier New', serif;
     font-size: x-large;
@@ -8,7 +13,6 @@
 #header {
     width: 100%;
 }
-
 #heading {
     color:darkolivegreen;
     font-size:xxx-large;
@@ -27,34 +31,28 @@
     display: block;
 }
 
-#compression_options {
+#compression_options_form {
     text-align: left;
     font-size: x-large;
     color: black;
-
-
+    margin-bottom: 1.5rem;
 }
 
 #my-dropzone {
-    border-style: none;
-    width: 75vw;
     height: auto;
-    margin: auto;
     border-color: grey;
     border-width: 5px;
     font-size: large;
-    padding-bottom: 0;
+    position: relative;
 }
 
-.dropzone.dz-clickable * {
-    cursor: default;
-}
-
-#submit-all {
+#compress_button {
     font-size: x-large;
     background: darkolivegreen;
     text-align: center;
-    margin: auto;
+    margin: 1rem auto auto;
+    padding: 2rem;
+    border-radius: 0.5rem;
     display: block;
 }
 
@@ -73,14 +71,8 @@
     pointer-events: none;
 }
 
-.dz-default  {
-    border-style: solid;
-    width: 60vw;
-    min-height: 10em;
-    position: relative;
-}
-
-.dz-button  {
-     margin: auto;
+#forms_container{
+    padding:1rem;
+    border-style: dashed;
 }
 
