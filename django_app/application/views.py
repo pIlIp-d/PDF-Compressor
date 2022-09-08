@@ -7,6 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_apscheduler.scheduler import Scheduler
 from apscheduler.triggers.date import DateTrigger
 
+from .forms import PdfCompressorForm
 from .models import UploadedFile, get_directory_for_file
 from django.conf import settings
 
@@ -17,19 +18,14 @@ MEDIA_FOLDER_PATH = os.path.abspath(os.path.join(".", "media"))
 
 # Create your views here.
 def render_main_view(request):
-    uploaded_files = UploadedFile.objects.order_by('-date_of_upload')  # sorting useful?
     allowed_file_endings = [".pdf", ".png"]
+    form = PdfCompressorForm()
     context = {
-        'uploaded_files': uploaded_files,
-        "default_language": "eng",
-        "languages": [
-            {"value": "eng", "text": "English"},
-            {"value": "deu", "text": "Deutsch"}
-        ],
+        "dir": "/",
         "allowed_file_endings": allowed_file_endings,
+        "form": form
     }
     return render(request, 'application/main.html', context)
-
 
 def download_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
@@ -134,7 +130,8 @@ def render_download_view(request):
 
         return JsonResponse({"status": "200"}, status=200)
         # TODO POST value validating with django forms
-
+        # TODO return the download page, where a timed function requests processing_of_queue_is_finished and
+        #  afterwards activates button for download of result
     return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using GET"}, status=405)
 
 
@@ -147,3 +144,7 @@ def upload_file(request):
         )
         return HttpResponse('upload')
     return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
+
+
+def render_test_view(request):
+    return HttpResponse("nothing here")
