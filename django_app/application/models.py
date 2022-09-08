@@ -8,9 +8,9 @@ from django.db import models
 
 #  Depending on the attributes of the file gets stored in a different directory
 def get_directory_to_save_file_in(instance, filename: str) -> str:
-    path = os.path.join("uploaded_files", f"user{instance.user_id}", filename)
+    path = os.path.join("uploaded_files", f"user{instance.user_id}", instance.csrf_token[:10], filename)
     file_extension = pathlib.Path(path).suffixes[-1].lower()
-
+    # todo use request_queue id for file path, because it is getting too long (id from csrf_token) new Model=processing_request
     if file_extension != ".pdf":
         raise ValidationError("File ending not accepted.")
     elif instance.uploaded_file.size > UploadedFile.MAX_FILESIZE:
