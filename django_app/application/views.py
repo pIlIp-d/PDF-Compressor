@@ -3,8 +3,9 @@ from functools import reduce
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from .models import UploadedFile
+from huey.contrib.djhuey import task, db_task
 
+from .models import UploadedFile, get_directory_for_file
 
 # Create your views here.
 def render_main_view(request):
@@ -66,34 +67,42 @@ def _get_file_amount_in_directory(dir_name: str) -> int:
     return len([name for name in os.listdir('.') if os.path.isfile(dir_name)])
 
 
-def uploads_finished(request):
+@db_task()
+def compress_pdf(source_path: str):
+    print("IWUIOBFKJBN")
+    with open("result.txt", "w") as file:
+        file.write("async shit")
+
+
+def render_download_view(request):
     if request.method == 'POST':
+        user_id = request.session["user_id"]
         queue_csrf_token = request.POST.get("csrfmiddlewaretoken")
-        print(request.POST)
-        # TODO run PDFCompressor async
-        return JsonResponse({"status": 200}, status=200)
-    return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using POST"}, status=405)
+        file_list = UploadedFile.objects.filter(
+            user_id=user_id,
+            csrf_token=queue_csrf_token
+        )
+        source_path = get_directory_for_file(user_id=user_id, csrf_token=queue_csrf_token)
+        destination_path = request.POST.get("destination_path")
+        if len(file_list) == 1:
+            source_path = os.path.join(source_path, file_list[0].uploaded_file.name)
+            if destination_path == "default":  # TODO destination path formatting check
+                destination_path = source_path[:-4] + "_compressed.pdf"
+
+        compress_pdf.schedule(("source_path"), delay=0.5)
+
+        return JsonResponse({"status": "200"}, status=200)
+        # TODO POST value validating with django forms
+
+    return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using GET"}, status=405)
 
 
 def upload_file(request):
     if request.method == 'POST':
-        # TODO POST value validating with django forms
-        user_id = request.session['user_id']
-        # first show all files from the last request, that can be downloaded
-        # or if they are not ready, yet, show a wait thing
-        # underneath show all files that can be downloaded for this user_id (in defined time span)
-
-        uploaded_file = request.FILES.get('file')
-
-        print(request.POST)
-
-        csrfmiddlewaretoken = request.POST.get("csrfmiddlewaretoken")
         UploadedFile.objects.create(
-            uploaded_file=uploaded_file,
-            user_id=user_id,
-            csrf_token=csrfmiddlewaretoken
+            uploaded_file=request.FILES.get('file'),
+            user_id=request.session['user_id'],
+            csrf_token=request.POST.get("csrfmiddlewaretoken")
         )
         return HttpResponse('upload')
-
     return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
-
