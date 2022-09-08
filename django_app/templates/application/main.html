@@ -94,6 +94,7 @@
             // files are dropped here:
             this.on("addedfile", function (file) {
                 if (!correct_file_ending(file.name)) {
+                    // incorrect file ending was found
                     this.removeFile(file);
                     activate_compression_button();
                     return;
