@@ -20,7 +20,7 @@
 
 <div id="forms_container">
     <!----- compression options --------------------------------------------------------------------------------------->
-    <form action="api/uploads_finished/" method="post" name="compression_options_form" id="compression_options_form">
+    <form action="download/" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
         <label for="destination_file">
             Destination file:
@@ -93,10 +93,13 @@
             // You might want to show the submit button only when
             // files are dropped here:
             this.on("addedfile", function (file) {
-                deactivate_compression_button();
                 if (!correct_file_ending(file.name)) {
                     this.removeFile(file);
+                    activate_compression_button();
                     return;
+                }
+                else{
+                    deactivate_compression_button();
                 }
                 let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
                 removeButton.addEventListener("click", function (e) {
@@ -117,12 +120,14 @@
     function activate_compression_button() {
         compress_button.classList.remove("disabled");
         compress_button.classList.add("enabled");
+        compress_button.disabled = false;
         compress_button.addEventListener("click", submit_compression_options_form);
     }
 
     function deactivate_compression_button() {
         compress_button.classList.remove("enabled");
         compress_button.classList.add("disabled");
+        compress_button.disabled = true;
         compress_button.removeEventListener("click", submit_compression_options_form);;
     }
 
