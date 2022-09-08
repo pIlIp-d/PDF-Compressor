@@ -1,20 +1,28 @@
 import os
 import os.path
 import pathlib
-
-from django.core.exceptions import ValidationError
 from django.db import models
+from jsons import ValidationError
+from natsort import natsorted
 
 
 #  Depending on the attributes of the file gets stored in a different directory
 def get_directory_to_save_file_in(instance, filename: str) -> str:
-    path = os.path.join("uploaded_files", f"user{instance.user_id}", instance.csrf_token[:10], filename)
-    file_extension = pathlib.Path(path).suffixes[-1].lower()
     # todo use request_queue id for file path, because it is getting too long (id from csrf_token) new Model=processing_request
-    if file_extension != ".pdf":
-        raise ValidationError("File ending not accepted.")
-    elif instance.uploaded_file.size > UploadedFile.MAX_FILESIZE:
-        raise ValidationError("The maximum file size that can be uploaded is unknown MB")
+
+    path = os.path.join("uploaded_files", f"user{instance.user_id}", instance.csrf_token[:10], filename)
+    if os.path.isfile(os.path.join(".", "media", path)):
+        os.chdir(path)
+        for current_file in sorted(os.listdir(path)):  # rename
+            print(current_file)
+
+    extension_of_file = pathlib.Path(path).suffixes[-1].lower()
+    if extension_of_file != '.pdf':
+        raise ValidationError("Invalid extension. Only PDF-File's are allowed.")
+
+    file_size = instance.uploaded_file.size
+    if file_size > UploadedFile.MAX_FILESIZE:
+        raise ValidationError("The maximum file size is reached.")
 
     return path
 
