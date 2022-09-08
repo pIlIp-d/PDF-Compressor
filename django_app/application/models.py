@@ -6,23 +6,17 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
+#  Depending on the attributes of the file gets stored in a different directory
 def get_directory_to_save_file_in(instance, filename: str) -> str:
-    path = os.path.join("uploaded_files", f"user_{instance.user_id}", filename)
+    path = os.path.join("uploaded_files", f"user{instance.user_id}", filename)
+    file_extension = pathlib.Path(path).suffixes[-1].lower()
 
-    if len(path.split("_")) < 2:  # no number appended already
-        path = path[:-4]  # todo APPEND NUMBER
+    if file_extension != ".pdf":
+        raise ValidationError("File ending not accepted.")
+    elif instance.uploaded_file.size > UploadedFile.MAX_FILESIZE:
+        raise ValidationError("The maximum file size that can be uploaded is unknown MB")
 
     return path
-
-
-def validate_file_size(file):
-    filesize = file.size
-
-    if filesize > UploadedFile.MAX_FILESIZE:
-        raise ValidationError("The maximum file size that can be uploaded is unknown MB")
-    elif file.name.lower().endswith(".pdf"):  # TODO dynamic file extensions
-        raise ValidationError("File ending not accepted.")
-    return file
 
 
 class UploadedFile(models.Model):
@@ -31,7 +25,7 @@ class UploadedFile(models.Model):
     user_id = models.CharField(max_length=64)
     finished = models.BooleanField(default=False)
     destination_path = get_directory_to_save_file_in
-    uploaded_file = models.ImageField(upload_to=destination_path, verbose_name="", validators=[validate_file_size])
+    uploaded_file = models.ImageField(upload_to=destination_path)
     date_of_upload = models.DateTimeField(auto_now_add=True)
     csrf_token = models.CharField(max_length=32)
 
