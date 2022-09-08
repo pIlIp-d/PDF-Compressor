@@ -11,6 +11,7 @@ class UserIdMiddleware:
         if 'user_id' not in request.session:
             request.session['user_id'] = self.new_user_id()
             # TODO expand to also allow User from django auth (-> multiple devices from a single user are possible)
+            # TODO cookie, because session isn't saved after reboot etc
 
         return self.get_response(request)
 
