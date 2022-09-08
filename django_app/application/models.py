@@ -3,7 +3,6 @@ import os.path
 import pathlib
 from django.db import models
 from jsons import ValidationError
-from natsort import natsorted
 
 
 #  Depending on the attributes of the file gets stored in a different directory
