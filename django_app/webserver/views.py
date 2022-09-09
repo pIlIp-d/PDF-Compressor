@@ -1,5 +1,4 @@
 import os.path
-import subprocess
 from functools import reduce
 
 from django.shortcuts import render
@@ -7,7 +6,6 @@ from django.http import HttpResponse, JsonResponse
 from rest_apscheduler.scheduler import Scheduler
 from apscheduler.triggers.date import DateTrigger
 
-from pdfcompressor.pdfcompressor import PDFCompressor
 from . import models
 from .forms import PdfCompressorForm
 from .models import UploadedFile, get_directory_for_file
@@ -69,7 +67,7 @@ def processing_of_queue_is_finished(request):
 
 
 def _get_file_amount_in_directory(dir_name: str) -> int:
-    return len([name for name in os.listdir('.') if os.path.isfile(dir_name)])
+    return len([name for name in os.listdir('../../application') if os.path.isfile(dir_name)])
 
 
 def compress_pdf(source_path, destination_path, mode, force_ocr, no_ocr, tesseract_language, simple_and_lossless, dpi):

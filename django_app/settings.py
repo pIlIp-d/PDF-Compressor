@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_apscheduler",
-    "application",
+    "django_app.webserver",
 ]
 
 MIDDLEWARE = [
@@ -46,7 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'application.middlewares.UserIdMiddleware',
+    'django_app.webserver.middlewares.UserIdMiddleware',
 ]
 
 ROOT_URLCONF = 'django_app.urls'
