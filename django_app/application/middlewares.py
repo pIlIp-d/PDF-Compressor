@@ -7,13 +7,15 @@ class UserIdMiddleware:
         # One-time configuration and initialization.
 
     def __call__(self, request):
-        # create new user_id if not exists
-        if 'user_id' not in request.session:
-            request.session['user_id'] = self.new_user_id()
-            # TODO expand to also allow User from django auth (-> multiple devices from a single user are possible)
-            # TODO cookie, because session isn't saved after reboot etc
+        # create new user_id if not exists in session or cookie
+        user_id = self.new_user_id() if 'user_id' not in request.session and not "user_id" not in request.COOKIES \
+            else request.session["user_id"] or request.COOKIES["user_id"]
+        # TODO expand to also allow User from django auth (-> multiple devices from a single user are possible)
 
-        return self.get_response(request)
+        request.session['user_id'] = user_id
+        response = self.get_response(request)
+        response.set_cookie("user_id", user_id)
+        return response
 
     @staticmethod
     def new_user_id() -> str:
