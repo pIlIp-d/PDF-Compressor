@@ -3,10 +3,10 @@ from abc import ABC
 
 import fitz
 
-from pdfcompressor.compressor.compressor import Compressor
-from pdfcompressor.io_path_parser import IOPathParser
-from pdfcompressor.utility.console_utility import ConsoleUtility
-from pdfcompressor.utility.os_utility import OsUtility
+from ...compressor.compressor import Compressor
+from ...utility.io_path_parser import IOPathParser
+from ...utility.console_utility import ConsoleUtility
+from ...utility.os_utility import OsUtility
 
 
 class AbstractPdfCompressor(Compressor, ABC):
