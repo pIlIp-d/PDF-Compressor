@@ -62,7 +62,7 @@
             this.on("addedfile", function (file) {
                 if (!correct_file_ending(file.name)) {
                     this.removeFile(file);
-                    showUnsupportedFileAnimation()
+                    showUnsupportedFileAnimation() // TODO add a css animation
                     deactivate_compression_button();
                     return;
                 } else {
@@ -75,10 +75,10 @@
                     e.stopPropagation();
                     // Remove the file preview.
                     _this.removeFile(file);
+                    if (_this.getUploadingFiles().length === 0 && _this.getQueuedFiles().length === 0)
+                        deactivate_compression_button() // case: no element
                 });
                 file.previewElement.appendChild(removeButton);
-                //if (this.dropzone.getQueuedFiles().length === null) //TODO
-                deactivate_compression_button()
             });
             this.on("queuecomplete", function () {
                 activate_compression_button();
