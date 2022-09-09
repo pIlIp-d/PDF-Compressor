@@ -4,6 +4,8 @@ import pathlib
 from django.db import models
 from jsons import ValidationError
 
+MEDIA_FOLDER_PATH = os.path.abspath(os.path.join(".", "media"))
+
 
 def get_directory_for_file(user_id: str, csrf_token: str) -> str:
     return os.path.join("uploaded_files", f"user{user_id}", csrf_token[:10])
@@ -29,7 +31,7 @@ def get_destination_directory(instance, filename: str) -> str:
 
     # TODO compute extension length
     filename_number = 1
-    while os.path.isfile(os.path.join(".", "media", path)):
+    while os.path.isfile(os.path.join(MEDIA_FOLDER_PATH, path)):
         path = path[:-4] + "(" + str(filename_number) + ")" + path[-4:]
         filename_number += 1
 
