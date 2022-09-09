@@ -51,11 +51,13 @@
     let compress_button = document.getElementById("compress_button");
     let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
+    let dz = null;
     Dropzone.options.maxFiles = 100;
     Dropzone.options.myDropzone = {
         // Prevents Dropzone from uploading dropped files immediately
         autoProcessQueue: true,
         init: function () {
+            dz = this;
             let _this = this;
             // You might want to show the compress-button only when
             // files are dropped here:
@@ -63,10 +65,7 @@
                 if (!correct_file_ending(file.name)) {
                     this.removeFile(file);
                     showUnsupportedFileAnimation() // TODO add a css animation
-                    deactivate_compression_button();
                     return;
-                } else {
-                    deactivate_compression_button();
                 }
                 let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
                 removeButton.addEventListener("click", function (e) {
@@ -75,10 +74,13 @@
                     e.stopPropagation();
                     // Remove the file preview.
                     _this.removeFile(file);
-                    if (_this.getUploadingFiles().length === 0 && _this.getQueuedFiles().length === 0)
-                        deactivate_compression_button() // case: no element
+
                 });
                 file.previewElement.appendChild(removeButton);
+            });
+            this.on("removedfile", function (file) {
+                if (_this.files.length === 0)
+                    deactivate_compression_button() // case: no element
             });
             this.on("queuecomplete", function () {
                 activate_compression_button();
