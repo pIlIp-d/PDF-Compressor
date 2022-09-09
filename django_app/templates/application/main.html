@@ -59,8 +59,6 @@
         init: function () {
             dz = this;
             let _this = this;
-            // You might want to show the compress-button only when
-            // files are dropped here:
             this.on("addedfile", function (file) {
                 if (!correct_file_ending(file.name)) {
                     this.removeFile(file);
@@ -122,6 +120,11 @@
 
     // Animations
     function showUnsupportedFileAnimation() {
+        let dropzone = document.getElementById("my-dropzone");
+        dropzone.classList.add("wiggle");
+        setTimeout(function() {
+            dropzone.classList.remove("wiggle");
+        }, 1000); //At least the time the animation lasts
     }
 
     /*

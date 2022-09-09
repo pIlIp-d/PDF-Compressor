@@ -1,6 +1,9 @@
+:root {
+    --accent-color: darkolivegreen;
+}
 
 label {
-    display: block;
+    display: inline-block;
 }
 
 .body {
@@ -13,8 +16,9 @@ label {
 #header {
     width: 100%;
 }
+
 #heading {
-    color:darkolivegreen;
+    color: var(--accent-color);
     font-size:xxx-large;
     font-style: initial;
     text-align: center;
@@ -48,7 +52,7 @@ label {
 
 #compress_button {
     font-size: x-large;
-    background: darkolivegreen;
+    background: var(--accent-color);
     text-align: center;
     margin: 1rem auto auto;
     padding: 2rem;
@@ -81,6 +85,7 @@ label {
     padding:1rem;
     border-style: dashed;
     width:70vw;
+    margin:auto;
 }
 
 .enabled{
@@ -97,3 +102,29 @@ button:disabled,
         padding: 10px;
         cursor: not-allowed;
     }
+
+/* wiggle animation starts when class wiggle is added*/
+.wiggle {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
