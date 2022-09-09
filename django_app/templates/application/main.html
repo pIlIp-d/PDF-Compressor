@@ -77,8 +77,8 @@
                     _this.removeFile(file);
                 });
                 file.previewElement.appendChild(removeButton);
-                if (this.dropzone.getQueuedFiles().length === null) //TODO
-                    deactivate_compression_button()
+                //if (this.dropzone.getQueuedFiles().length === null) //TODO
+                deactivate_compression_button()
             });
             this.on("queuecomplete", function () {
                 activate_compression_button();
