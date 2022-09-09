@@ -76,7 +76,7 @@
                     // Remove the file preview.
                     _this.removeFile(file);
                     if (_this.getUploadingFiles().length === 0 && _this.getQueuedFiles().length === 0)
-                        deactivate_compression_button() // because of an empty dropzone
+                        deactivate_compression_button() // case: no element
                 });
                 file.previewElement.appendChild(removeButton);
                 if (this.dropzone.getQueuedFiles().length === null) //TODO
