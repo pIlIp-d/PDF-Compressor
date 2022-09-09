@@ -3,7 +3,7 @@ import pathlib
 
 from django.core.exceptions import ValidationError
 
-from django_app.webserver.models import UploadedFile
+MAX_FILESIZE = 100000000  # 100mb
 
 
 def validate_file_extension(uploaded_file):
@@ -22,5 +22,5 @@ def check_file_extension(path):
 
 def check_file_size(instance):
     file_size = instance.uploaded_file.size
-    if file_size > UploadedFile.MAX_FILESIZE:
+    if file_size > MAX_FILESIZE:
         raise ValidationError("The maximum file size is reached.")
