@@ -4,7 +4,7 @@ from abc import ABC
 from PIL import Image
 
 from ..compressor import Compressor
-from ...io_path_parser import IOPathParser
+from ...utility.io_path_parser import IOPathParser
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
