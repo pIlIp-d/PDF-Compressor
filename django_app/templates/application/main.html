@@ -62,12 +62,13 @@
             this.on("addedfile", function (file) {
                 if (!correct_file_ending(file.name)) {
                     this.removeFile(file);
-                    showUnsupportedFileAnimation()
+                    showUnsupportedFileAnimation() // TODO add a css animation
                     deactivate_compression_button();
                     return;
-                } else {
-                    deactivate_compression_button();
                 }
+                //           else {
+                //              deactivate_compression_button();
+                //           }
                 let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
                 removeButton.addEventListener("click", function (e) {
                     // Make sure the button click doesn't submit the form:
@@ -79,8 +80,8 @@
                         deactivate_compression_button() // case: no element
                 });
                 file.previewElement.appendChild(removeButton);
-                if (this.dropzone.getQueuedFiles().length === null) //TODO
-                    deactivate_compression_button()
+                //        if (this.dropzone.getQueuedFiles().length === null) //TODO
+                //           deactivate_compression_button()
             });
             this.on("queuecomplete", function () {
                 activate_compression_button();
