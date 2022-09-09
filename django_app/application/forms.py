@@ -15,7 +15,9 @@ class PdfCompressorForm(forms.Form):
             (2, '2: Strong'),
             (3, '3: Medium'),
             (4, '4: Fast'),
+            (5, '5: Normal'),
         ),
+        initial=5,
         label='Compression mode:',
         coerce=str,
         help_text='TODO'
@@ -52,5 +54,5 @@ class PdfCompressorForm(forms.Form):
         initial="eng",
         label='Compression mode:',
         coerce=str,
-        help_text='TODO'
+        help_text='Choose the language, that tesseract should use to create the OCR.'
     )
