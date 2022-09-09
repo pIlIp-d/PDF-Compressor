@@ -105,7 +105,7 @@ button:disabled,
 
 /* wiggle animation starts when class wiggle is added*/
 .wiggle {
-  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  animation: shake 0.75s cubic-bezier(.5,0,.2,1) both;
 }
 
 @keyframes shake {
