@@ -7,13 +7,14 @@ from django.http import HttpResponse, JsonResponse
 from rest_apscheduler.scheduler import Scheduler
 from apscheduler.triggers.date import DateTrigger
 
+from pdfcompressor.pdfcompressor import PDFCompressor
+from . import models
 from .forms import PdfCompressorForm
 from .models import UploadedFile, get_directory_for_file
 from django.conf import settings
 
-FORCE_SILENT_PROCESSING = True
+FORCE_SILENT_PROCESSING = False
 
-MEDIA_FOLDER_PATH = os.path.abspath(os.path.join(".", "media"))
 
 
 # Create your views here.
@@ -88,7 +89,7 @@ def compress_pdf(source_path, destination_path, mode, force_ocr, no_ocr, tessera
         options.append("--simple-and-lossless")
     if not settings.DEBUG or FORCE_SILENT_PROCESSING:
         options.append("--quiet")
-    return_code = subprocess.call(options)
+    return_code = 0#subprocess.call(options)
     if not return_code == 0:
         pass  # TODO some kind of error
     else:
@@ -103,11 +104,11 @@ def render_download_view(request):
             user_id=user_id,
             csrf_token=queue_csrf_token
         )
-        source_path = os.path.join(MEDIA_FOLDER_PATH,
+        source_path = os.path.join(models.MEDIA_FOLDER_PATH,
                                    get_directory_for_file(user_id=user_id, csrf_token=queue_csrf_token))
         destination_path = request.POST.get("destination_file")
         if len(file_list) == 1:
-            source_path = os.path.join(MEDIA_FOLDER_PATH, file_list[0].uploaded_file.name)
+            source_path = os.path.join(models.MEDIA_FOLDER_PATH, file_list[0].uploaded_file.name)
             if destination_path == "default":  # TODO destination path formatting check
                 destination_path = source_path[:-4] + "_compressed.pdf"
 
@@ -127,7 +128,6 @@ def render_download_view(request):
             replace_existing=False,
             args=args
         )
-
         return JsonResponse({"status": "200"}, status=200)
         # TODO POST value validating with django forms
         # TODO return the download page, where a timed function requests processing_of_queue_is_finished and
