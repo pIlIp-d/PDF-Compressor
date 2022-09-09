@@ -4,7 +4,7 @@ import pathlib
 from django.db import models
 from jsons import ValidationError
 
-MEDIA_FOLDER_PATH = os.path.abspath(os.path.join(".", "media"))
+MEDIA_FOLDER_PATH = os.path.abspath(os.path.join("../../application", "media"))
 
 
 def get_directory_for_file(user_id: str, csrf_token: str) -> str:
