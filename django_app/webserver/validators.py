@@ -1,5 +1,9 @@
 import os
+import pathlib
+
 from django.core.exceptions import ValidationError
+
+from django_app.webserver.models import UploadedFile
 
 
 def validate_file_extension(uploaded_file):
@@ -8,3 +12,15 @@ def validate_file_extension(uploaded_file):
     if not ext.lower() in valid_extensions:
         pass
     raise ValidationError("File extension isn't supported.")
+
+
+def check_file_extension(path):
+    extension_of_file = pathlib.Path(path).suffixes[-1].lower()
+    if extension_of_file != '.pdf':
+        raise ValidationError("Invalid extension. Only PDF-File's are allowed.")
+
+
+def check_file_size(instance):
+    file_size = instance.uploaded_file.size
+    if file_size > UploadedFile.MAX_FILESIZE:
+        raise ValidationError("The maximum file size is reached.")
