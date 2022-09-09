@@ -30,11 +30,12 @@ class ConsoleUtility:
 
     @classmethod
     def print_error(cls, string: str) -> None:
-        cls.print(cls.get_error_string(string))
+        cls.print_ansi_colored_string(cls.RED, string)
 
     @classmethod
     def print_ansi_colored_string(cls, color: str, string: str) -> None:
-        cls.print(color + string + cls.END)
+        if not cls.quiet_mode:
+            cls.print(color + string + cls.END)
 
     @classmethod
     def print_green(cls, string: str) -> None:
