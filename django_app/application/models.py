@@ -37,7 +37,7 @@ def get_destination_directory(instance, filename: str) -> str:
 
 
 class UploadedFile(models.Model):
-    MAX_FILESIZE = 10000000  # Bytes
+    MAX_FILESIZE = 100000000  # 100mb
     filename = models.TextField()
     user_id = models.CharField(max_length=64)
     finished = models.BooleanField(default=False)
