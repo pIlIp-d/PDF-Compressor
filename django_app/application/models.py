@@ -41,7 +41,7 @@ class UploadedFile(models.Model):
     filename = models.TextField()
     user_id = models.CharField(max_length=64)
     finished = models.BooleanField(default=False)
-    uploaded_file = models.ImageField(upload_to=get_destination_directory)
+    uploaded_file = models.FileField(upload_to=get_destination_directory)
     date_of_upload = models.DateTimeField(auto_now_add=True)
     csrf_token = models.CharField(max_length=32)
 

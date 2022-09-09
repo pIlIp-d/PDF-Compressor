@@ -1,8 +1,56 @@
-from django.forms import ModelForm
-from .models import UploadedFile
+from django import forms
 
 
-class UploadedFileForm(ModelForm):
-    class Meta:
-        model = UploadedFile
-        fields = ('filename', )
+class PdfCompressorForm(forms.Form):
+    destination_file = forms.RegexField(
+        regex='',
+        empty_value='default',
+        label='Destination file:',
+        initial='default',
+        help_text='TODO'
+    )
+    compression_mode = forms.TypedChoiceField(
+        choices=(
+            (1, '1: Extreme'),
+            (2, '2: Strong'),
+            (3, '3: Medium'),
+            (4, '4: Fast'),
+        ),
+        label='Compression mode:',
+        coerce=str,
+        help_text='TODO'
+    )
+    default_pdf_dpi = forms.IntegerField(
+        label='Default DPI:',
+        min_value=10,
+        max_value=1000,
+        step_size=10,
+        required=True,
+        initial=400,
+        help_text='TODO'
+    )
+    force_ocr = forms.BooleanField(
+        label='Text recognition (OCR):',
+        initial=False,
+        help_text="TODO"
+    )
+    no_ocr = forms.BooleanField(
+        label='No Text recognition (OCR)',
+        initial=False,
+        help_text="TODO"
+    )
+    simple_and_lossless = forms.BooleanField(
+        label='Simple and lossless:',
+        initial=False,
+        help_text="TODO"
+    )
+    tesseract_language = forms.TypedChoiceField(
+        choices=(
+            ("eng", 'English'),
+            ("deu", 'Deutsch'),
+        ),
+        initial="eng",
+        label='Compression mode:',
+        coerce=str,
+        help_text='TODO'
+    )

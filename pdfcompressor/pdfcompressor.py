@@ -9,9 +9,9 @@
 
 import os
 
-from pdfcompressor.processor.console_ui_processor import ConsoleUIProcessor
-from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
-from pdfcompressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
+from .processor.console_ui_processor import ConsoleUIProcessor
+from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
+from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from .utility.console_utility import ConsoleUtility
 
 from .utility.os_utility import OsUtility

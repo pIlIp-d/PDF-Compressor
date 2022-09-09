@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="static/style.css">
-    <script src="static/dropzone/dropzone.js"></script>
-    <link rel="stylesheet" href="static/dropzone/dropzone.css">
+    <link rel="stylesheet" href="{{ dir }}static/style.css">
+    <script src="{{ dir }}static/dropzone/dropzone.js"></script>
+    <link rel="stylesheet" href="{{ dir }}static/dropzone/dropzone.css">
 
     <title>Croco-File-Crusher</title>
 </head>
@@ -22,40 +22,7 @@
     <!----- compression options --------------------------------------------------------------------------------------->
     <form action="download/" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
-        <label for="destination_file">
-            Destination file:
-            <input type="text" id="destination_file" name="destination_file" value="default">
-        </label>
-        <label for="compression_mode">
-            Compression mode:
-            <select name="compression_mode" id="compression_mode">
-                <option value="1">1: Extreme</option>
-                <option value="2">2: Strong</option>
-                <option value="3">3: Medium</option>
-                <option value="4">4: Fast</option>
-                <option selected="selected" value="5">5: Fastest</option>
-            </select>
-        </label>
-        <label for="default_pdf_dpi">
-            Default DPI:
-            <input type="number" name="default_pdf_dpi" id="default_pdf_dpi" value="400" step="10">
-        </label>
-        <label for="force_ocr">
-            Text recognition (OCR):
-            <input type="checkbox" name="force_ocr" id="force_ocr">
-        </label>
-        <label for="simple_and_lossless">
-            Simple and lossless:
-            <input type="checkbox" name="simple_and_lossless" id="simple_and_lossless">
-        </label>
-        <label for="tesseract_language">
-            Tesseract language:
-            <select name="tesseract_language" id="tesseract_language">
-                {% for lang in languages %}
-                    <option value="{{ lang.value }}">{{ lang.text }}</option>
-                {% endfor %}
-            </select>
-        </label>
+        {{ form }}
     </form>
     <!----- Dropzone -------------------------------------------------------------------------------------------------->
     <form id="my-dropzone" action="api/upload_file/" method="post" class="dropzone">
@@ -89,7 +56,7 @@
         // Prevents Dropzone from uploading dropped files immediately
         autoProcessQueue: true,
         init: function () {
-            let _this = this;   //why copy the reference?
+            let _this = this;
             // You might want to show the compress-button only when
             // files are dropped here:
             this.on("addedfile", function (file) {
@@ -98,9 +65,9 @@
                     showUnsupportedFileAnimation()
                     deactivate_compression_button();
                     return;
-                } else
-                    activate_compression_button();
-
+                } else {
+                    deactivate_compression_button();
+                }
                 let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
                 removeButton.addEventListener("click", function (e) {
                     // Make sure the button click doesn't submit the form:
@@ -112,6 +79,8 @@
                         deactivate_compression_button() // because of an empty dropzone
                 });
                 file.previewElement.appendChild(removeButton);
+                if (this.dropzone.getQueuedFiles().length === null) //TODO
+                    deactivate_compression_button()
             });
             this.on("queuecomplete", function () {
                 activate_compression_button();
