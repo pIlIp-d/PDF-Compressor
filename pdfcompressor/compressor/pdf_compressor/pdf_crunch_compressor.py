@@ -65,7 +65,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
     @classmethod
     def __get_temp_path(cls, file: str) -> str:
         # spaces are replaced because crunch can't handle spaces consistently
-        return os.path.abspath(OsUtility.get_filename(file).replace(" ", "_") + "_tmp")
+        return os.path.abspath(os.path.join("temporary_files", OsUtility.get_filename(file).replace(" ", "_") + "_tmp"))
 
     def __custom_preprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         super().preprocess(source_file, destination_file)
@@ -119,7 +119,6 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         temp_folder = self.__get_new_temp_path(source_file)
         self.__custom_preprocess(source_file, destination_file, temp_folder)
 
-        print("compressing: "+source_file)
         # compress all images in temp_folder
         self.__png_crunch_compressor.compress(temp_folder, temp_folder)
         self.__custom_postprocess(source_file, destination_file, temp_folder)
