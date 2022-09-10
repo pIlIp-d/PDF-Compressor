@@ -99,7 +99,7 @@ class ImagesToPdfConverter(Converter):
             for file in self.images:
                 pdf.insert_pdf(fitz.open(file + ".pdf"))
             pdf.save(self.dest_path)
-        print("finished merge")
+        ConsoleUtility.print("finished merge")
 
     def convert_image_to_pdf(self, img_path, page_id):
         try:

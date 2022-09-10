@@ -51,7 +51,7 @@ class PngcrushCompressor(AbstractImageCompressor):
         try:
             subprocess.check_output(pngcrush_command, stderr=subprocess.STDOUT, shell=True)
         except CalledProcessError as cpe:
-            print(cpe)
+            ConsoleUtility.print_error(str(cpe))
             ConsoleUtility.print_error("processing failed at the pngcrush stage. (IGNORE)\n")
             pass
         except Exception as e:

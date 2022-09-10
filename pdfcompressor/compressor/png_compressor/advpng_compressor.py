@@ -68,7 +68,7 @@ class AdvanceCompressor(AbstractImageCompressor):
         try:
             subprocess.check_output(advpng_command, stderr=subprocess.STDOUT, shell=True)
         except CalledProcessError as cpe:
-            print(cpe)
+            ConsoleUtility.print_error(str(cpe))
             ConsoleUtility.print(ConsoleUtility.get_error_string("processing failed at the advpng stage. (IGNORE)\n"))
             pass
         except Exception as e:
