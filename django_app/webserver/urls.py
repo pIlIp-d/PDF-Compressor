@@ -16,6 +16,8 @@ urlpatterns = [
     path('pdf-compressor/', views.render_main_view, name='main-view'),
     path('download/', views.render_download_view, name='download_view'),
     path('test_view/', views.render_test_view, name='test_view'),
+    path('start_pdf_compression/', views.start_pdf_compression_and_show_download_view,
+         name='start_pdf_compression_and_show_download_view'),
     path('api/', include(rest_api_urlspatterns)),
 ]
 
