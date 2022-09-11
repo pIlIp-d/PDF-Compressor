@@ -11,17 +11,23 @@ def get_directory_for_file(user_id: str, csrf_token: str) -> str:
     return os.path.join("uploaded_files", f"user{user_id}", csrf_token[:10])
 
 
-# todo use request_queue id for file path, because it is getting too long (id from csrf_token)
-#  new Model=processing_request
-def get_destination_directory(instance, filename: str) -> str:
-    path = os.path.join(get_directory_for_file(instance.user_id, instance.csrf_token), filename)
-    check_file_extension(path)
+def get_destination_filepath(instance, filename: str) -> str:
+    path = os.path.join(".", "uploaded_files", instance.processing_request.user_id, str(instance.processing_request.id),
+                        filename)
+    check_file_extension(instance, path)
     check_file_size(instance)
 
-    # TODO compute extension length
+    # a file is present already
     filename_number = 1
+    file_ending = get_file_extension(path)
     while os.path.isfile(os.path.join(MEDIA_FOLDER_PATH, path)):
-        path = path[:-4] + "(" + str(filename_number) + ")" + path[-4:]
+        path_without_file_ending = path[:-len(file_ending)]
+
+        # path is already numbered .path/filename_00.xxx
+        if path_without_file_ending.split("_")[-1].isnumeric():
+            number_string = path_without_file_ending.split("_")[-1]
+            path_without_file_ending = path_without_file_ending[:-len(number_string) - 1]
+        path = path_without_file_ending + f"_{filename_number}" + file_ending
         filename_number += 1
 
     return path
