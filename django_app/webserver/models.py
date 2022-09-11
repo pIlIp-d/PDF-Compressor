@@ -1,8 +1,12 @@
 import os
 import os.path
+
 from django.db import models
 
-from django_app.webserver.validators import check_file_extension, check_file_size
+from django_app.webserver.validators import check_file_extension, check_file_size, get_file_extension
+from pdfcompressor.processor.postprocessor import Postprocessor
+from pdfcompressor.processor.preprocessor import Preprocessor
+from pdfcompressor.processor.processor import Processor
 
 MEDIA_FOLDER_PATH = os.path.join(".", "django_app", "media")
 
@@ -52,8 +56,6 @@ class UploadedFile(models.Model):
     finished = models.BooleanField(default=False)
     uploaded_file = models.FileField(upload_to=get_destination_filepath)
     date_of_upload = models.DateTimeField(auto_now_add=True)
-    csrf_token = models.CharField(max_length=32)
-
 
     def __str__(self):
         return str(self.pk) + ": " + str(self.uploaded_file.name)
