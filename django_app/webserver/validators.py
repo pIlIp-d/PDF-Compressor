@@ -6,18 +6,14 @@ from django.core.exceptions import ValidationError
 MAX_FILESIZE = 100000000  # 100mb
 
 
-def validate_file_extension(uploaded_file):
-    ext = os.path.splitext(uploaded_file.name)[1]  # returns path+filename
-    valid_extensions = ['.pdf', '.png', '.jpg', '.jpeg']
-    if not ext.lower() in valid_extensions:
-        pass
-    raise ValidationError("File extension isn't supported.")
+def get_file_extension(path: str) -> str:
+    return pathlib.Path(path).suffixes[-1].lower()
 
 
-def check_file_extension(path):
-    extension_of_file = pathlib.Path(path).suffixes[-1].lower()
-    if extension_of_file != '.pdf':
-        raise ValidationError("Invalid extension. Only PDF-File's are allowed.")
+def check_file_extension(instance, path):
+    extension_of_file = get_file_extension(path)
+    if extension_of_file not in str(instance.valid_file_endings).split(","):
+        raise ValidationError("Invalid File extension.")
 
 
 def check_file_size(instance):
