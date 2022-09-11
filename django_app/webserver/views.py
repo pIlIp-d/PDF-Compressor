@@ -66,9 +66,11 @@ def processing_of_queue_is_finished(request):
     """
     if request.method == 'GET':
         queue_csrf_token = request.POST.get("queue_csrf_token")
-        boolean_list_of_finished_for_current_queue = UploadedFile.objects.filter(
-            user_id=request.session["user_id"],
-            csrf_token=queue_csrf_token
+        boolean_list_of_finished_for_current_queue = get_file_list_of_current_request(
+            get_request_id(
+                user_id=request.session["user_id"],
+                queue_csrf_token=queue_csrf_token
+            )
         ).values_list('finished', flat=True)
 
         processing_of_files_is_finished = reduce(
