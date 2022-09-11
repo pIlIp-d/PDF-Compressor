@@ -101,16 +101,28 @@ def get_or_create_new_request(user_id: str, queue_csrf_token: str) -> Processing
 
 
 class ProcessStatsProcessor(Preprocessor, Postprocessor):
-    def __init__(self, files_to_process: int):
+    def __init__(self, files_to_process: list, request: ProcessingFilesRequest):
         super().__init__()
         self.__files_to_process = files_to_process
         self.__finished_files = 0
+        self.__request = request
+        request.started = True
+        request.save()
 
     def get_progress(self):
-        return self.__finished_files / self.__files_to_process
+        return self.__finished_files / len(self.__files_to_process)
 
     def preprocess(self, source_file: str, destination_file: str) -> None:
+        print("preprocessing", source_file, destination_file)
         pass
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
+        print("postprocessing", source_file, destination_file)
         self.__finished_files += 1
+        for file in self.__files_to_process:
+            if source_file == os.path.abspath(os.path.join(MEDIA_FOLDER_PATH, file.uploaded_file.name)):
+                file.finished = True
+                file.save()
+        if self.get_progress() == 1:
+            self.__request.finished = True
+            self.__request.save()
