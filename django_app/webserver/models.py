@@ -35,9 +35,8 @@ class UploadedFile(models.Model):
     csrf_token = models.CharField(max_length=32)
 
 
-def __str__(self):
-    return str(self.pk)  # returns the primary key
-
+    def __str__(self):
+        return str(self.pk) + ": " + str(self.uploaded_file.name)
 
     class Meta:
         verbose_name_plural = 'Uploaded files'
