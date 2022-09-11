@@ -36,8 +36,8 @@ class PDFCompressor:
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
-            extra_preprocessors: tuple[Preprocessor] = None,
-            extra_postprocessors: tuple[Postprocessor] = None
+            extra_preprocessors: list[Preprocessor] = None,
+            extra_postprocessors: list[Postprocessor] = None
     ):
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
