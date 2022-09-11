@@ -1,18 +1,20 @@
 import os.path
 from functools import reduce
 
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from rest_apscheduler.scheduler import Scheduler
 from apscheduler.triggers.date import DateTrigger
+from django.conf import settings
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+from rest_apscheduler.scheduler import Scheduler
 
+from pdfcompressor.pdfcompressor import PDFCompressor
 from . import models
 from .forms import PdfCompressorForm
-from .models import UploadedFile, get_directory_for_file
-from django.conf import settings
+from .models import UploadedFile, get_or_create_new_request, \
+    get_request_id, get_file_list_of_current_request, start_process, ProcessStatsProcessor, \
+    MEDIA_FOLDER_PATH
 
 FORCE_SILENT_PROCESSING = False
-
 
 
 # Create your views here.
@@ -22,7 +24,8 @@ def render_main_view(request):
     context = {
         "dir": "/",
         "allowed_file_endings": allowed_file_endings,
-        "form": form
+        "form": form,
+        "user_id": request.session["user_id"],
     }
     return render(request, 'application/main.html', context)
 
@@ -47,16 +50,13 @@ def render_download_view(request):
 def get_download_path_of_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
     if request.method == 'GET' and queue_csrf_token is not None:
-        # TODO model to get path of finished file from user_id and csrf_token combination
-        #  maybe replace all input files with the result and return that as download_file_path
         download_file_path = "path"
-
+        # TODO get file path
         return JsonResponse({
             "status": 200,
-            "download_file_path": download_file_path,
-            "queue_csrf_token": queue_csrf_token
+            "download_file_path": download_file_path
         }, status=200)
-    return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using GET"}, status=405)
+    return wrong_method_error("GET")
 
 
 def processing_of_queue_is_finished(request):
@@ -72,23 +72,24 @@ def processing_of_queue_is_finished(request):
                 queue_csrf_token=queue_csrf_token
             )
         ).values_list('finished', flat=True)
-
         processing_of_files_is_finished = reduce(
             lambda prev_result, current: prev_result and current, boolean_list_of_finished_for_current_queue, True
         )
-
         return JsonResponse({
             "status": 200,
             "finished": processing_of_files_is_finished,
             "queue_csrf_token": queue_csrf_token
         }, status=200)
 
-    return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using GET"}, status=405)
+    return wrong_method_error("GET")
 
 
-def _get_file_amount_in_directory(dir_name: str) -> int:
-    return len([name for name in os.listdir('../../application') if os.path.isfile(dir_name)])
+def wrong_method_error(*allowed_methods):
+    method_hint = "".join("Try using " if i == 1 else "or" + allowed_methods[i] for i in range(len(allowed_methods)))
+    return JsonResponse({"status": 405, "error": "Method Not Allowed. " + method_hint}, status=405)
 
+
+# TODO /api/rename_file
 
 
 def remove_file(request):
