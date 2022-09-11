@@ -4,7 +4,7 @@ from django.db import models
 
 from django_app.webserver.validators import check_file_extension, check_file_size
 
-MEDIA_FOLDER_PATH = os.path.abspath(os.path.join("../../application", "media"))
+MEDIA_FOLDER_PATH = os.path.join(".", "django_app", "media")
 
 
 def get_directory_for_file(user_id: str, csrf_token: str) -> str:
