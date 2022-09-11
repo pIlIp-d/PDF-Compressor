@@ -59,8 +59,57 @@ def __str__(self):
     return str(self.pk)  # returns the primary key
 
 
-class Meta:
-    def __init__(self):
+    class Meta:
+        verbose_name_plural = 'Uploaded files'
+
+
+def get_file_list_of_current_request(request_id):
+    return UploadedFile.objects.filter(
+        processing_request=get_request_by_id(request_id)
+    )
+
+
+def start_process(request_id):
+    request = get_request_by_id(request_id)
+    request.started = True
+    request.save()
+
+
+def get_request_id(user_id: str, queue_csrf_token: str) -> int:
+    return get_or_create_new_request(user_id, queue_csrf_token).id or -1
+
+
+def get_request_by_id(request_id: int) -> ProcessingFilesRequest:
+    return ProcessingFilesRequest.objects.filter(
+        id=request_id
+    ).first()
+
+
+def get_or_create_new_request(user_id: str, queue_csrf_token: str) -> ProcessingFilesRequest:
+    processing_request = ProcessingFilesRequest.objects.filter(
+        user_id=user_id,
+        csrf_token=queue_csrf_token
+    ).first()
+    if processing_request is None:
+        ProcessingFilesRequest(
+            user_id=user_id,
+            csrf_token=queue_csrf_token
+        ).save()
+        processing_request = get_or_create_new_request(user_id, queue_csrf_token)
+    return processing_request
+
+
+class ProcessStatsProcessor(Preprocessor, Postprocessor):
+    def __init__(self, files_to_process: int):
+        super().__init__()
+        self.__files_to_process = files_to_process
+        self.__finished_files = 0
+
+    def get_progress(self):
+        return self.__finished_files / self.__files_to_process
+
+    def preprocess(self, source_file: str, destination_file: str) -> None:
         pass
 
-    verbose_name_plural = 'Uploaded files'
+    def postprocess(self, source_file: str, destination_file: str) -> None:
+        self.__finished_files += 1
