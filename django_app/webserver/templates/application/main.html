@@ -22,8 +22,13 @@
 </div>
 
 <div id="forms_container">
+    <!----- Dropzone -------------------------------------------------------------------------------------------------->
+    <form id="my-dropzone" action="api/upload_file/" method="post" class="dropzone">
+        {% csrf_token %}
+    </form>
+
     <!----- compression options --------------------------------------------------------------------------------------->
-    <form action="download/" method="post" name="compression_options_form" id="compression_options_form">
+    <form action="start_pdf_compression/" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
         {% for form_element in form %}
             <div class="form_element">
@@ -33,10 +38,7 @@
             </div>
         {% endfor %}
     </form>
-    <!----- Dropzone -------------------------------------------------------------------------------------------------->
-    <form id="my-dropzone" action="api/upload_file/" method="post" class="dropzone">
-        {% csrf_token %}
-    </form>
+
 </div>
 <button id="compress_button" class="disabled">Compress</button>
 
@@ -152,52 +154,6 @@
         }, 1000); //At least the time the animation lasts
     }
 
-    /*
-        function main_interval() {
-            make_request("GET", "../api/processing_of_queue_is_finished/", true,
-                function () {
-                    if (this.readyState === 4 && this.status === 200) {
-                        let json_response = JSON.parse(this.response);
-                        if (json_response.finished)
-                            activate_download_button();
-                    }
-                }
-            );
-        }
-
-
-        function activate_download_button() {
-            let download_button = document.getElementById("download_button");
-            make_request(
-                "GET", "../api/download_processed_file/?queue_csrf_token=" + csrfmiddlewaretoken, true,
-                function () {
-                    if (this.readyState === 4 && this.status === 200) {
-                        let json_response = JSON.parse(this.response);
-                        if (json_response.hasOwnProperty("download_file_path")) {
-                            // stop interval request for finished file
-                            clearInterval(main_interval_obj);
-                            // add file link to download
-                            // TODO download_button.addEventListener(window.open(json_response.download_file_path));
-                            // activate download button
-                            download_button.classList.remove("disabled");
-                            download_button.classList.add("enabled");
-                        }
-                    }
-                }
-            );
-        }
-
-        function make_request(method, url, async = true, response_handler = null, post_data = null) {
-            let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = response_handler;
-            xhttp.open(method, url, async);
-            if (post_data != null) {
-                xhttp.send(post_data);
-            } else {
-                xhttp.send();
-            }
-        }
-    */
 </script>
 
 </body>
