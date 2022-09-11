@@ -90,28 +90,20 @@ def _get_file_amount_in_directory(dir_name: str) -> int:
     return len([name for name in os.listdir('../../application') if os.path.isfile(dir_name)])
 
 
-def compress_pdf(source_path, destination_path, mode, force_ocr, no_ocr, tesseract_language, simple_and_lossless, dpi):
-    options = [
-        "python3", "../__main__.py",
-        "-p", os.path.abspath(source_path),
-        "-o", destination_path,
-        "-m", str(mode),
-        "-l", tesseract_language,
-        "--dpi", str(dpi)
-    ]
-    if force_ocr:
-        options.append("--force-ocr")
-    if no_ocr:
-        options.append("--no-ocr")
-    if simple_and_lossless:
-        options.append("--simple-and-lossless")
-    if not settings.DEBUG or FORCE_SILENT_PROCESSING:
-        options.append("--quiet")
-    return_code = 0#subprocess.call(options)
-    if not return_code == 0:
-        pass  # TODO some kind of error
-    else:
-        pass  # TODO alter finished field of uploaded files
+
+def remove_file(request):
+    if request.method == "GET":
+        uploaded_file = UploadedFile.objects.filter(
+            id=request.GET.get("file_id")
+        )
+        print(uploaded_file)
+        if len(uploaded_file) == 1 and uploaded_file[0].processing_request.user_id == request.session["user_id"]:
+            uploaded_file[0].uploaded_file.delete()
+            uploaded_file[0].delete()
+        else:
+            return JsonResponse({"status": 412, "error": "No file with that id found."}, status=412)
+        return JsonResponse({"status": 200, "error": "Removed file successfully."}, status=200)
+    return wrong_method_error("GET")
 
 
 # TODO POST value validating with django forms
