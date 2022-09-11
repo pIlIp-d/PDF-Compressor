@@ -94,43 +94,58 @@ def compress_pdf(source_path, destination_path, mode, force_ocr, no_ocr, tessera
         pass  # TODO alter finished field of uploaded files
 
 
-def render_download_view(request):
+# TODO POST value validating with django forms
+
+def start_pdf_compression_and_show_download_view(request):
     if request.method == 'POST':
         user_id = request.session["user_id"]
         queue_csrf_token = request.POST.get("csrfmiddlewaretoken")
-        file_list = UploadedFile.objects.filter(
-            user_id=user_id,
-            csrf_token=queue_csrf_token
-        )
-        source_path = os.path.join(models.MEDIA_FOLDER_PATH,
-                                   get_directory_for_file(user_id=user_id, csrf_token=queue_csrf_token))
-        destination_path = request.POST.get("destination_file")
-        if len(file_list) == 1:
-            source_path = os.path.join(models.MEDIA_FOLDER_PATH, file_list[0].uploaded_file.name)
-            if destination_path == "default":  # TODO destination path formatting check
-                destination_path = source_path[:-4] + "_compressed.pdf"
+        get_or_create_new_request(user_id, queue_csrf_token)
 
-        args = (
-            source_path,
-            destination_path,
-            request.POST.get("compression_mode"),
-            True if request.POST.get("force_ocr") == "on" else False,
-            True if request.POST.get("no_ocr") == "on" else False,
-            request.POST.get("tesseract_language"),
-            True if request.POST.get("simple_and_lossless") == "on" else False,
-            request.POST.get("default_pdf_dpi")
+        request_id = get_request_id(user_id, queue_csrf_token)
+
+        file_list = get_file_list_of_current_request(request_id)
+
+        if len(file_list) < 1:
+            return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
+
+        source_path = os.path.join(MEDIA_FOLDER_PATH, os.path.dirname(file_list[0].uploaded_file.name))
+
+        merge_pdfs = True if request.POST.get("merge_pdfs") == "on" else False
+
+        destination_path = "default"
+        if merge_pdfs:
+            destination_path = os.path.join(os.path.dirname(source_path), "merged.pdf")
+
+        print(source_path, destination_path)
+
+        stats = list()
+        stats.append(ProcessStatsProcessor(len(file_list)))
+
+        pdf_compressor = PDFCompressor(
+            source_path=source_path,
+            destination_path=destination_path,
+            compression_mode=int(request.POST.get("compression_mode")),
+            force_ocr=True if request.POST.get("force_ocr") == "on" else False,
+            no_ocr=True if request.POST.get("no_ocr") == "on" else False,
+            quiet=not settings.DEBUG or FORCE_SILENT_PROCESSING,
+            tesseract_language=request.POST.get("tesseract_language"),
+            simple_and_lossless=True if request.POST.get("simple_and_lossless") == "on" else False,
+            default_pdf_dpi=int(request.POST.get("default_pdf_dpi")),
+            extra_preprocessors=stats,
+            extra_postprocessors=stats
         )
+        # update db
+        start_process(request_id)
+        # start compression (async)
         Scheduler.add_job(
-            compress_pdf,
+            pdf_compressor.compress,
             trigger=DateTrigger(),
-            replace_existing=False,
-            args=args
+            replace_existing=False
         )
-        return JsonResponse({"status": "200"}, status=200)
-        # TODO POST value validating with django forms
-        # TODO return the download page, where a timed function requests processing_of_queue_is_finished and
-        #  afterwards activates button for download of result
-    return JsonResponse({"status": 405, "error": "405 Method Not Allowed. Try using GET"}, status=405)
+    elif request.method == "GET":
+        queue_csrf_token = request.GET.get("csrfmiddlewaretoken") or ""
+    return redirect("../download/")
 
 
 def upload_file(request):
