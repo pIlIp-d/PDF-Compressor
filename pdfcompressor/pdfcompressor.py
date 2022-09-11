@@ -103,8 +103,10 @@ class PDFCompressor:
     def __add_processors(self, compressor: AbstractPdfCompressor):
         console_ui_processor = ConsoleUIProcessor()
         compressor.add_postprocessor(console_ui_processor)
-        for processor in self.__extra_preprocessors + self.__extra_postprocessors:
+        for processor in self.__extra_preprocessors:
             compressor.add_preprocessor(processor)
+        for processor in self.__extra_postprocessors:
+            compressor.add_postprocessor(processor)
 
     def compress(self) -> None:
         if self.__simple_and_lossless:
