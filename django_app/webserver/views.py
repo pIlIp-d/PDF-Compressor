@@ -1,6 +1,7 @@
 import os.path
 from functools import reduce
 
+import jsons
 from apscheduler.triggers.date import DateTrigger
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
@@ -12,7 +13,7 @@ from . import models
 from .forms import PdfCompressorForm
 from .models import UploadedFile, get_or_create_new_request, \
     get_request_id, get_file_list_of_current_request, start_process, ProcessStatsProcessor, \
-    MEDIA_FOLDER_PATH
+    MEDIA_FOLDER_PATH, ProcessingFilesRequest, get_request_by_id
 
 FORCE_SILENT_PROCESSING = False
 
@@ -40,11 +41,38 @@ def render_download_view(request):
 
     context = {
         "request_id": id,
-        "dir": "/",
+        "dir": "../",
         "user_id": request.session["user_id"],
         "queue_csrf_token": queue_csrf_token
     }
     return render(request, 'application/download.html', context)
+
+
+def get_all_processing_files(request):
+    """
+        :returns json of all files that are owned by the current user
+    """
+    all_user_requests = ProcessingFilesRequest.objects.filter(
+        user_id=request.session["user_id"]
+    )
+    all_files = []
+    for request in all_user_requests:
+        for file in UploadedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
+            all_files.append(file)
+
+    result_json = []
+    for file in all_files:
+        print(file)
+        result_json.append(
+            {
+                "file_id": file.id,
+                "filename":  file.uploaded_file.name,
+                "request_id": file.processing_request.id,
+                "finished": file.finished,
+                "date_of_upload": file.date_of_upload.strftime("%d.%m.%Y %H:%M:%S")
+            }
+        )
+    return HttpResponse(jsons.dumps({"status": 200, "payload": result_json}), content_type="application/json")
 
 
 def get_download_path_of_processed_file(request):
@@ -133,7 +161,7 @@ def start_pdf_compression_and_show_download_view(request):
         print(source_path, destination_path)
 
         stats = list()
-        stats.append(ProcessStatsProcessor(len(file_list)))
+        stats.append(ProcessStatsProcessor(file_list, get_request_by_id(request_id)))
 
         pdf_compressor = PDFCompressor(
             source_path=source_path,
@@ -148,8 +176,6 @@ def start_pdf_compression_and_show_download_view(request):
             extra_preprocessors=stats,
             extra_postprocessors=stats
         )
-        # update db
-        start_process(request_id)
         # start compression (async)
         Scheduler.add_job(
             pdf_compressor.compress,
