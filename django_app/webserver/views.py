@@ -26,7 +26,25 @@ def render_main_view(request):
     }
     return render(request, 'application/main.html', context)
 
-def download_processed_file(request):
+
+def render_download_view(request):
+    # save queue_csrf_token from used method or leave it empty
+    queue_csrf_token = request.GET.get("csrfmiddlewaretoken") or request.POST.get("csrfmiddlewaretoken") or ""
+    if not (request.method == "POST" or request.method == "GET"):
+        return wrong_method_error("GET", "POST")
+
+    request_id = models.get_request_id(request.session["user_id"], queue_csrf_token)
+
+    context = {
+        "request_id": id,
+        "dir": "/",
+        "user_id": request.session["user_id"],
+        "queue_csrf_token": queue_csrf_token
+    }
+    return render(request, 'application/download.html', context)
+
+
+def get_download_path_of_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
     if request.method == 'GET' and queue_csrf_token is not None:
         # TODO model to get path of finished file from user_id and csrf_token combination
