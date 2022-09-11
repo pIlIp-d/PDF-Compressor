@@ -135,13 +135,17 @@ def render_download_view(request):
 
 def upload_file(request):
     if request.method == 'POST':
-        UploadedFile.objects.create(
+        user_id = request.session['user_id']
+        csrfmiddlewaretoken = request.POST.get("csrfmiddlewaretoken")
+        uploaded_file = UploadedFile(
             uploaded_file=request.FILES.get('file'),
-            user_id=request.session['user_id'],
-            csrf_token=request.POST.get("csrfmiddlewaretoken")
+            processing_request=get_or_create_new_request(user_id, csrfmiddlewaretoken),
+            valid_file_endings=".pdf"
         )
-        return HttpResponse('upload')
-    return HttpResponse("405 Method Not Allowed. Try using POST", status=405)
+        uploaded_file.save()
+        file_id = uploaded_file.id
+        return JsonResponse({"file_id": file_id})
+    return wrong_method_error("POST")
 
 
 def render_test_view(request):
