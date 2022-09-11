@@ -2,12 +2,10 @@ from django import forms
 
 
 class PdfCompressorForm(forms.Form):
-    destination_file = forms.RegexField(
-        regex='',
-        empty_value='default',
-        label='Destination file:',
-        initial='default',
-        help_text='TODO'
+    merge_pdfs = forms.BooleanField(
+        label='Merge files into a single PDF.',
+        initial=False,
+        help_text="TODO"
     )
     compression_mode = forms.TypedChoiceField(
         choices=(
