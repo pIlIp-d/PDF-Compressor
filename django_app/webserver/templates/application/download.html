@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ dir }}static/style.css">
+    <link rel="stylesheet" href="{{ dir }}static/variables.css">
+    <link rel="stylesheet" href="{{ dir }}static/helptext.css">
+
+    <title>Croco-File-Crusher</title>
+</head>
+
+<body>
+<div hidden id="user_id">{{ user_id }}</div>
+<div hidden id="request_id">{{ request_id }}</div>
+<div hidden id="queue_csrf_token">{{ queue_csrf_token }}</div>
+
+<div id="header">
+    <h1 id="heading"> Croco-File-Crusher </h1>
+    <h2 id="subheading"> Download the processed Files here. </h2>
+</div>
+<div id="file-container">
+
+</div>
+<script>
+    // TODO completely
+    MAIN_INTERVAL_TICK = 1000
+    //let main_interval_obj = setInterval(main_interval, MAIN_INTERVAL_TICK)
+    let queue_csrf_token = document.getElementById("queue_csrf_token").innerHTML;
+
+    function main_interval() {
+        make_request("GET", "../api/processing_of_queue_is_finished/", true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let json_response = JSON.parse(this.response);
+                    if (json_response.finished)
+                        activate_download_button();
+                }
+            }
+        );
+    }
+
+
+    function activate_download_button() {
+        let download_button = document.getElementById("download_button");
+        make_request(
+            "GET", "../api/download_processed_file/?queue_csrf_token=" + queue_csrf_token, true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let json_response = JSON.parse(this.response);
+                    if (json_response.hasOwnProperty("download_file_path")) {
+                        // stop interval request for finished file
+                        clearInterval(main_interval_obj);
+                        // add file link to download
+                        // TODO download_button.addEventListener(window.open(json_response.download_file_path));
+                        // activate download button
+                        download_button.classList.remove("disabled");
+                        download_button.classList.add("enabled");
+                    }
+                }
+            }
+        );
+    }
+
+    function make_request(method, url, async = true, response_handler = null, post_data = null) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = response_handler;
+        xhttp.open(method, url, async);
+        if (post_data != null) {
+            xhttp.send(post_data);
+        } else {
+            xhttp.send();
+        }
+    }
+
+</script>
+</body>
+</html>
