@@ -33,11 +33,24 @@ def get_destination_filepath(instance, filename: str) -> str:
     return path
 
 
-class UploadedFile(models.Model):
-    filename = models.TextField()
+class ProcessingFilesRequest(models.Model):
+    id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
     user_id = models.CharField(max_length=64)
+    csrf_token = models.CharField(max_length=32)
+    date_of_request = models.DateTimeField(auto_now_add=True)
+    started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
-    uploaded_file = models.FileField(upload_to=get_destination_directory)
+
+    def __str__(self):
+        return "Object(ProcessingFilesRequest): " + str(self.pk)
+
+
+class UploadedFile(models.Model):
+    valid_file_endings = models.TextField(default="")
+    id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
+    processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE)
+    finished = models.BooleanField(default=False)
+    uploaded_file = models.FileField(upload_to=get_destination_filepath)
     date_of_upload = models.DateTimeField(auto_now_add=True)
     csrf_token = models.CharField(max_length=32)
 
