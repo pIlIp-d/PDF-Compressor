@@ -9,6 +9,7 @@ rest_api_urlspatterns = [
     path('processing_of_queue_is_finished/', views.processing_of_queue_is_finished, name='processing-of-queue-is-finished'),
     path('download_processed_file/', views.download_processed_file, name='download-processed-file'),
     path('upload_file/', views.upload_file, name='upload-file'),
+    path('remove_file/', views.remove_file, name='remove-file'),
 ]
 
 urlpatterns = [
