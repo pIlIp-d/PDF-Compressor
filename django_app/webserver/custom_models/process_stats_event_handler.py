@@ -1,7 +1,8 @@
 import os
 import shutil
 
-from django_app.webserver.models import ProcessedFile, ProcessingFilesRequest, PathParser, MEDIA_FOLDER_PATH
+from django_app.webserver.custom_models.path_parser import PathParser
+from django_app.webserver.models import ProcessedFile, MEDIA_FOLDER_PATH, ProcessingFilesRequest
 from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -23,7 +24,6 @@ class ProcessStatsEventHandler(EventHandler):
         self.__request.save()
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
-        print("postprocessing", source_file, destination_file)
         self.__finished_files += 1
         if not self.__is_merger:
             for file in self.__result_files:
