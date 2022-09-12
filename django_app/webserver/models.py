@@ -123,6 +123,8 @@ def get_all_processing_files(user_id: str):
             request_files.append({
                 "file_id": file.id,
                 "filename": simplify_filename(file.uploaded_file.name) + " (Original)",
+                "filename_path": os.path.join("media", file.uploaded_file.name),
+                "finished": True,
                 "request_id": file.processing_request.id,
                 "date_of_upload": get_formatted_time(file.date_of_upload)
             })
@@ -131,6 +133,8 @@ def get_all_processing_files(user_id: str):
                 request_files.append({
                     "file_id": processed_file.id,
                     "filename": simplify_filename(processed_file.processed_file_path),
+                    "filename_path": os.path.join("media", processed_file.processed_file_path),
+                    "finished": processed_file.finished,
                     "request_id": request.id,
                     "date_of_upload": get_formatted_time(processed_file.date_of_upload)
                 })
