@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ dir }}static/style.css">
+    <link rel="stylesheet" href="{{ dir }}static/download.css">
     <link rel="stylesheet" href="{{ dir }}static/variables.css">
     <link rel="stylesheet" href="{{ dir }}static/helptext.css">
 
@@ -20,16 +21,45 @@
     <h2 id="subheading"> Download the processed Files here. </h2>
 </div>
 <div id="file-container">
-
+    <div id='request_container'>
+        {% for request in processing_files %}
+            <table id='${request_id}' class='request_files_container'>
+                {% if request %}
+                    <tr><td>Filename</td><td>date of upload</td><td>download</td></tr>
+                {% endif %}
+                {% for file in request %}
+                    <tr id='${file.request_id}' class='file_container'>
+                        <td class='filename'>{{ file.filename }}</td>
+                        <td class='date_of_upload'>{{ file.date_of_upload }}</td>
+                        <td><button  class="download_button disabled" id="{{ file.file_id }}" disabled>Download</button></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    </div>
 </div>
 <script>
     // TODO completely
     MAIN_INTERVAL_TICK = 1000
     //let main_interval_obj = setInterval(main_interval, MAIN_INTERVAL_TICK)
     let queue_csrf_token = document.getElementById("queue_csrf_token").innerHTML;
+    let file_list = []
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    function updateDownloadButtons(){
+        let file_containers = document.getElementsByClassName("file_container");
+
+        make_request(
+            "GET", "", true,
+            function() {
+
+            }
+        );
+    }
 
     function main_interval() {
-        make_request("GET", "../api/processing_of_queue_is_finished/", true,
+        make_request("GET", "{{ dir }}api/processing_of_queue_is_finished/", true,
             function () {
                 if (this.readyState === 4 && this.status === 200) {
                     let json_response = JSON.parse(this.response);

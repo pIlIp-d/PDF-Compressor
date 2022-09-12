@@ -15,6 +15,7 @@ from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompres
 from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from .processor.postprocessor import Postprocessor
 from .processor.preprocessor import Preprocessor
+from .utility import EventHandler
 from .utility.console_utility import ConsoleUtility
 
 from .utility.os_utility import OsUtility
@@ -36,8 +37,7 @@ class PDFCompressor:
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
-            extra_preprocessors: list[Preprocessor] = None,
-            extra_postprocessors: list[Postprocessor] = None
+            event_handler: list[EventHandler] = None
     ):
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
@@ -47,8 +47,7 @@ class PDFCompressor:
         self.__tesseract_language = tesseract_language
         self.__compression_mode = compression_mode
         self.__default_pdf_dpi = default_pdf_dpi
-        self.__extra_preprocessors = extra_preprocessors
-        self.__extra_postprocessors = extra_postprocessors
+        self.__event_handlers = event_handler
         self.__uses_default_destination = destination_path == "default"
 
         self.__source_path = rf"{os.path.abspath(source_path)}"
@@ -103,18 +102,22 @@ class PDFCompressor:
     def __add_processors(self, compressor: AbstractPdfCompressor):
         console_ui_processor = ConsoleUIProcessor()
         compressor.add_postprocessor(console_ui_processor)
-        for processor in self.__extra_preprocessors:
+        for processor in self.__event_handlers:
             compressor.add_preprocessor(processor)
-        for processor in self.__extra_postprocessors:
+        for processor in self.__event_handlers:
             compressor.add_postprocessor(processor)
 
     def compress(self) -> None:
+        for event_handler in self.__event_handlers:
+            event_handler.started_processing()
         if self.__simple_and_lossless:
             self.__add_processors(self.__cpdf)
             self.__cpdf.compress(self.__source_path, self.__destination_path)
         else:
             self.__add_processors(self.__pdf_crunch)
             self.__pdf_crunch.compress(self.__source_path, self.__destination_path)
+        for event_handler in self.__event_handlers:
+            event_handler.finished_all_files()
 
     @staticmethod
     def __raise_value_error(error_string: str) -> None:
