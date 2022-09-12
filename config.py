@@ -47,6 +47,8 @@ if os.name == "nt":
         os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'Programs', 'Tesseract-OCR', 'tessdata'),
         "Tessdata Folder wasn't found. check README.md for help."
     )+"'"
+    wine_path = ""
+
 else:
     # LINUX
     pngquant_path = check_existence(
@@ -60,6 +62,10 @@ else:
     pngcrush_path = check_existence(
         path=os.path.join("/", "usr", "bin", "pngcrush"),
         error_message="pngcrush path not found. Install it with 'sudo apt install pngcrush'."
+    )
+    wine_path = check_existence(
+        path=os.path.join("/", "usr", "bin", "wine"),
+        error_message="wine wasn't found and is needed for cpdfsqueeze. Install it with 'sudo apt install pngcrush'."
     )
     tesseract_path = check_existence(
         path=os.path.join("/", "usr", "bin", "tesseract"),
@@ -77,6 +83,7 @@ with open("./config.json", "w") as config_file:
     "pngcrush_path" : "{pngcrush_path}",
     "cpdfsqueeze_path" : "{cpdfsqueeze_path}",
     "tesseract_path" : "{tesseract_path}",
-    "tessdata_prefix" : "{tessdata_prefix}"
+    "tessdata_prefix" : "{tessdata_prefix}",
+    "wine_path" : "{wine_path}"
 ''' + "}"
     config_file.write(config_string.replace("\\", "\\\\"))
