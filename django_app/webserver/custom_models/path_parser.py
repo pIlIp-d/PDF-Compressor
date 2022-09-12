@@ -1,6 +1,6 @@
 import os
 
-from django_app.webserver.models import get_formatted_time
+from ..models import get_formatted_time
 
 
 class PathParser:  # TODO testing
