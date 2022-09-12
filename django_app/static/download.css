@@ -1,0 +1,18 @@
+.request_files_container {
+    padding-bottom: 1rem;
+    width: 80%;
+    margin: auto;
+}
+
+.file_container {
+    border-style: solid;
+    border-color: black;
+    border-width: 2px;
+}
+
+.download_button {
+    border: 1px solid #999999;
+    color: #fff;
+    padding: 6px;
+    background-color: darkgrey;
+}
