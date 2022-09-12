@@ -16,7 +16,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             pngquant_path: str,
             advpng_path: str,
             pngcrush_path: str,
-            c_pdf_squeeze_compressor: CPdfSqueezeCompressor,
+            cpdf_squeeze_compressor: CPdfSqueezeCompressor,
             compression_mode: int,
             default_pdf_dpi: int = 400
     ):
@@ -27,7 +27,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         self.__tesseract_language = None
         self.__force_ocr = False
         self.__no_ocr = True
-        self.__c_pdf_squeeze_compressor = c_pdf_squeeze_compressor
+        self.__cpdf_squeeze_compressor = cpdf_squeeze_compressor
         if default_pdf_dpi < 0:
             raise ValueError("default dpi needs to be greater than 0")
         self.__default_pdf_dpi = default_pdf_dpi
@@ -92,10 +92,12 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         OsUtility.clean_up_folder(temp_folder)
 
         ConsoleUtility.quiet_mode = True
-        self.__c_pdf_squeeze_compressor.compress(destination_file, destination_file)
+        if self.__cpdf_squeeze_compressor is not None:
+            self.__cpdf_squeeze_compressor.compress(destination_file, destination_file)
 
         if not self.__force_ocr and OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
-            self.__c_pdf_squeeze_compressor.compress_file(source_file, destination_file)
+            if self.__cpdf_squeeze_compressor is not None:
+                self.__cpdf_squeeze_compressor.compress_file(source_file, destination_file)
             if OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
                 ConsoleUtility.print(ConsoleUtility.get_error_string("File couldn't be compressed."))
                 # copy source_file to destination_file
@@ -110,10 +112,13 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         super().postprocess(source_file, destination_file)
 
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        # don't use parallel pdf compression
-        # instead it uses parallel image compression per pdf
-        for source, destination in zip(source_files, destination_files):
-            self.compress_file(source, destination)
+        # only use parallel compression of files, when there are more than 8 threads available
+        if os.cpu_count() > 8:
+            self.compress_file_list_multi_threaded(source_files, destination_files, os.cpu_count() // 4)
+        else:
+            # instead it uses parallel image compression per pdf
+            for source, destination in zip(source_files, destination_files):
+                self.compress_file(source, destination)
 
     def compress_file(self, source_file: str, destination_file: str) -> None:
         temp_folder = self.__get_new_temp_path(source_file)
