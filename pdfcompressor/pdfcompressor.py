@@ -34,7 +34,7 @@ class PDFCompressor:
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
-            event_handler: list[EventHandler] = None
+            event_handler: list[EventHandler] = list()
     ):
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
@@ -71,7 +71,12 @@ class PDFCompressor:
         config_paths = OsUtility.get_config()
 
         # lossless compressor
-        self.__cpdf = CPdfSqueezeCompressor(config_paths.cpdfsqueeze_path, True)
+        try:
+            self.__cpdf = CPdfSqueezeCompressor(config_paths.cpdfsqueeze_path, config_paths.wine_path)
+        except ValueError:
+            ConsoleUtility.print_error("Error: Program cpdfsqueeze not found or configured inorrectly, "
+                                       "skipped compression with cpdfsqueeze.")
+            self.__cpdf = None
         if not self.__simple_and_lossless:
             # lossy compressor
             self.__pdf_crunch = self.__get_and_configure_pdf_crunch(config_paths, self.__cpdf)
