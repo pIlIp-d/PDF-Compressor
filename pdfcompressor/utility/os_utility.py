@@ -79,13 +79,14 @@ class OsUtility:
             raise FileNotFoundError("config file not found")
 
         class Config:
-            def __init__(self, advpng_path, pngquant_path, pngcrush_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix):
+            def __init__(self, advpng_path, pngquant_path, pngcrush_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix, wine_path):
                 self.advpng_path = advpng_path
                 self.pngquant_path = pngquant_path
                 self.pngcrush_path = pngcrush_path
                 self.cpdfsqueeze_path = cpdfsqueeze_path
                 self.tesseract_path = tesseract_path
                 self.tessdata_prefix = tessdata_prefix
+                self.wine_path = wine_path
 
         with open(config_path, "r") as config_file:
             obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
