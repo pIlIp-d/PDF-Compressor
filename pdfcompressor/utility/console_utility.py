@@ -5,6 +5,7 @@ class ConsoleUtility:
     END: str = "\033[0m"
 
     quiet_mode: bool = False
+    show_errors_always: bool = False
 
     @classmethod
     def get_error_string(cls, string: str) -> str:
@@ -30,11 +31,11 @@ class ConsoleUtility:
 
     @classmethod
     def print_error(cls, string: str) -> None:
-        cls.print_ansi_colored_string(cls.RED, string)
+        cls.print_ansi_colored_string(cls.RED, string, cls.show_errors_always)
 
     @classmethod
-    def print_ansi_colored_string(cls, color: str, string: str) -> None:
-        if not cls.quiet_mode:
+    def print_ansi_colored_string(cls, color: str, string: str, force_print: bool = False) -> None:
+        if not cls.quiet_mode or force_print:
             cls.print(color + string + cls.END)
 
     @classmethod
