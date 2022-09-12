@@ -3,13 +3,14 @@ import subprocess
 
 from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
 from pdfcompressor.utility.console_utility import ConsoleUtility
+from pdfcompressor.utility.os_utility import OsUtility
 
 
 class CPdfSqueezeCompressor(AbstractPdfCompressor):
     def __init__(
             self,
             cpdfsqueeze_path: str,
-            use_wine_on_linux: bool = False,
+            wine_path_on_linux: str = "",
             user_password: str = None,
             owner_password: str = None
     ):
@@ -23,7 +24,9 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         """
         super().__init__()
         self.__cpdfsqueeze_path = cpdfsqueeze_path
-        self.__use_wine = use_wine_on_linux and not "nt" == os.name
+        self.__wine_path_on_linux = wine_path_on_linux
+        if not os.path.exists(self.__wine_path_on_linux):
+            raise ValueError(rf"wine_path couldn't be found. '{self.__wine_path_on_linux}'")
         if not os.path.exists(self.__cpdfsqueeze_path):
             raise ValueError(rf"cpdfsqueeze_path couldn't be found. '{self.__cpdfsqueeze_path}'")
 
@@ -34,19 +37,19 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
             self.extra_args += " -opw " + owner_password
 
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        self.compress_file_list_multi_threaded(source_files, destination_files)
+        self.compress_file_list_multi_threaded(source_files, destination_files, os.cpu_count())
 
     def compress_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
         if not os.path.exists(source_file) or not destination_file.endswith(".pdf"):
             raise ValueError("Only pdf files are accepted")
 
-        command = "wine " if self.__use_wine else ""
-        command += self.__cpdfsqueeze_path
+        command = self.__wine_path_on_linux +" " + self.__cpdfsqueeze_path
         # path arguments "from" "to"
         command += rf' "{source_file}" "{destination_file}"{self.extra_args}'
         try:
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         except Exception:
             ConsoleUtility.print_error("[!] Compression Failed during CPdfSqueezeCompressor stage.")
+            OsUtility.move_file(source_file, destination_file)
         self.postprocess(source_file, destination_file)
