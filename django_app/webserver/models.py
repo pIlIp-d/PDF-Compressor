@@ -11,13 +11,17 @@ from pdfcompressor.processor.processor import Processor
 MEDIA_FOLDER_PATH = os.path.join(".", "django_app", "media")
 
 
-def get_directory_for_file(user_id: str, csrf_token: str) -> str:
-    return os.path.join("uploaded_files", f"user{user_id}", csrf_token[:10])
+def get_formatted_time(t):
+    return t.strftime("%d.%m.%Y-%H:%M:%S")
 
 
-def get_destination_filepath(instance, filename: str) -> str:
-    path = os.path.join(".", "uploaded_files", instance.processing_request.user_id, str(instance.processing_request.id),
-                        filename)
+def get_uploaded_file_path(instance, filename: str) -> str:
+    path = os.path.join(
+        ".", "uploaded_files",
+        instance.processing_request.user_id,
+        str(instance.processing_request.id),
+        filename
+    )
     check_file_extension(instance, path)
     check_file_size(instance)
 
