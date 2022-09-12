@@ -33,7 +33,12 @@ class AbstractImageCompressor(Compressor, ABC):
         return os.path.abspath("./temp_" + str(number)) + os.path.sep
 
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        self.compress_file_list_multi_threaded(source_files, destination_files)
+        self.compress_file_list_multi_threaded(
+            source_files,
+            destination_files,
+            # use all cores, but after 8 it splits bigger tasks -> only 4 each
+            os.cpu_count() if os.cpu_count() < 8 else 4
+        )
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         super().postprocess(source_file, destination_file)
