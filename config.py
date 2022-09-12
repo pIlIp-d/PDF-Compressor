@@ -62,10 +62,10 @@ else:
         error_message="pngcrush path not found. Install it with 'sudo apt install pngcrush'."
     )
     tesseract_path = check_existence(
-        path=os.path.join(os.path.abspath(os.path.expanduser('~')), ".local", "bin", "pytesseract"),
+        path=os.path.join("/", "usr", "bin", "tesseract"),
         error_message="pytesseract path not found. Install it with 'sudo apt install "
-                      "pytesseract-ocr'. Additionally add language packs with f.e. "
-                      "'german/deutsch': 'sudo apt install pytesseract-ocr-deu'"
+                      "tesseract-ocr'. Additionally add language packs with f.e. "
+                      "'german/deutsch': 'sudo apt install tesseract-ocr-deu'"
     )
     tessdata_prefix = ""
 
