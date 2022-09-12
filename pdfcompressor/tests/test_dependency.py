@@ -135,7 +135,7 @@ class TestDependency(TestCase):
         self.__test_invalid_path("cpdfsqueeze_path")
     '''
 
-    def test_with_cpdfsqueeze_path_is_invalid(self):
+    def test_with_cpdfsqueeze_path_is_invalid(self):  # TODO test cpdf_path with wine add on and the fails without wine
         self.__change_to_invalid_path("cpdfsqueeze_path")
         self.__run_simple_compression(False, False)
 
