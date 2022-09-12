@@ -3,10 +3,7 @@ import os.path
 
 from django.db import models
 
-from django_app.webserver.validators import check_file_extension, check_file_size, get_file_extension
-from pdfcompressor.processor.postprocessor import Postprocessor
-from pdfcompressor.processor.preprocessor import Preprocessor
-from pdfcompressor.processor.processor import Processor
+from .validators import check_file_extension, check_file_size, get_file_extension
 
 MEDIA_FOLDER_PATH = os.path.join(".", "django_app", "media")
 
@@ -48,17 +45,104 @@ class ProcessingFilesRequest(models.Model):
     date_of_request = models.DateTimeField(auto_now_add=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
+    path_extra = models.TextField(default="")
 
     def __str__(self):
         return "Object(ProcessingFilesRequest): " + str(self.pk)
+
+    class Meta:
+        verbose_name_plural = 'Processing Files Requests'
+
+
+def get_request_id(user_id: str, queue_csrf_token: str) -> int:
+    return get_or_create_new_request(user_id, queue_csrf_token).id or -1
+
+
+def get_request_by_id(request_id: int) -> ProcessingFilesRequest:
+    return ProcessingFilesRequest.objects.filter(
+        id=request_id
+    ).first()
+
+
+def get_or_create_new_request(user_id: str, queue_csrf_token: str, path_extra: str = "") -> ProcessingFilesRequest:
+    processing_request = ProcessingFilesRequest.objects.filter(
+        user_id=user_id,
+        csrf_token=queue_csrf_token
+    ).first()
+    if path_extra != "":
+        processing_request.path_extra = path_extra
+    if processing_request is None:
+        processing_request = ProcessingFilesRequest(
+            user_id=user_id,
+            csrf_token=queue_csrf_token,
+            path_extra=path_extra
+        )
+    processing_request.save()
+    return processing_request
+
+
+class ProcessedFile(models.Model):
+    id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
+    processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE)
+    finished = models.BooleanField(default=False)
+    processed_file_path = models.TextField()
+    date_of_upload = models.DateTimeField(auto_now_add=True)
+    merger = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.pk) + ": " + str(self.processed_file_path)
+
+    class Meta:
+        verbose_name_plural = 'Processed files'
+
+    @classmethod
+    def add_processed_file_by_id(cls, processed_file_path: str, processing_request_id: int, ):
+        return cls.add_processed_file(processed_file_path, get_request_by_id(processing_request_id))
+
+    @classmethod
+    def add_processed_file(cls, processed_file_path: str, processing_request: ProcessingFilesRequest):
+        processed_file = ProcessedFile(
+            processed_file_path=processed_file_path,
+            processing_request=processing_request
+        )
+        processed_file.save()
+        return processed_file
+
+
+def get_all_processing_files(user_id: str):
+    def simplify_filename(path: str) -> str:
+        return path[len(os.path.dirname(path)) + 1:]
+
+    all_user_requests = ProcessingFilesRequest.objects.filter(
+        user_id=user_id
+    )
+    all_files = []
+    for request in all_user_requests:
+        request_files = []
+        for file in UploadedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
+            request_files.append({
+                "file_id": file.id,
+                "filename": simplify_filename(file.uploaded_file.name) + " (Original)",
+                "request_id": file.processing_request.id,
+                "date_of_upload": get_formatted_time(file.date_of_upload)
+            })
+        for processed_file in ProcessedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
+            if processed_file.processing_request.id == request.id:
+                request_files.append({
+                    "file_id": processed_file.id,
+                    "filename": simplify_filename(processed_file.processed_file_path),
+                    "request_id": request.id,
+                    "date_of_upload": get_formatted_time(processed_file.date_of_upload)
+                })
+        all_files.append(reversed(request_files))
+    return reversed(all_files)
 
 
 class UploadedFile(models.Model):
     valid_file_endings = models.TextField(default="")
     id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
     processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE)
-    finished = models.BooleanField(default=False)
-    uploaded_file = models.FileField(upload_to=get_destination_filepath)
+    uploaded_file = models.FileField(upload_to=get_uploaded_file_path)
     date_of_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -72,61 +156,3 @@ def get_file_list_of_current_request(request_id):
     return UploadedFile.objects.filter(
         processing_request=get_request_by_id(request_id)
     )
-
-
-def start_process(request_id):
-    request = get_request_by_id(request_id)
-    request.started = True
-    request.save()
-
-
-def get_request_id(user_id: str, queue_csrf_token: str) -> int:
-    return get_or_create_new_request(user_id, queue_csrf_token).id or -1
-
-
-def get_request_by_id(request_id: int) -> ProcessingFilesRequest:
-    return ProcessingFilesRequest.objects.filter(
-        id=request_id
-    ).first()
-
-
-def get_or_create_new_request(user_id: str, queue_csrf_token: str) -> ProcessingFilesRequest:
-    processing_request = ProcessingFilesRequest.objects.filter(
-        user_id=user_id,
-        csrf_token=queue_csrf_token
-    ).first()
-    if processing_request is None:
-        ProcessingFilesRequest(
-            user_id=user_id,
-            csrf_token=queue_csrf_token
-        ).save()
-        processing_request = get_or_create_new_request(user_id, queue_csrf_token)
-    return processing_request
-
-
-class ProcessStatsProcessor(Preprocessor, Postprocessor):
-    def __init__(self, files_to_process: list, request: ProcessingFilesRequest):
-        super().__init__()
-        self.__files_to_process = files_to_process
-        self.__finished_files = 0
-        self.__request = request
-        request.started = True
-        request.save()
-
-    def get_progress(self):
-        return self.__finished_files / len(self.__files_to_process)
-
-    def preprocess(self, source_file: str, destination_file: str) -> None:
-        print("preprocessing", source_file, destination_file)
-        pass
-
-    def postprocess(self, source_file: str, destination_file: str) -> None:
-        print("postprocessing", source_file, destination_file)
-        self.__finished_files += 1
-        for file in self.__files_to_process:
-            if source_file == os.path.abspath(os.path.join(MEDIA_FOLDER_PATH, file.uploaded_file.name)):
-                file.finished = True
-                file.save()
-        if self.get_progress() == 1:
-            self.__request.finished = True
-            self.__request.save()
