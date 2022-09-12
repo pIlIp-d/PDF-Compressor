@@ -13,11 +13,8 @@ from .compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompre
 from .processor.console_ui_processor import ConsoleUIProcessor
 from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
-from .processor.postprocessor import Postprocessor
-from .processor.preprocessor import Preprocessor
 from .utility import EventHandler
 from .utility.console_utility import ConsoleUtility
-
 from .utility.os_utility import OsUtility
 
 
