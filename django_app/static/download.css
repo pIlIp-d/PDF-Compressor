@@ -16,3 +16,7 @@
     padding: 6px;
     background-color: darkgrey;
 }
+
+.download_button:hover {
+    scale: 0.98;
+}
