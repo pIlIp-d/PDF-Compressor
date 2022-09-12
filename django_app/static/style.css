@@ -94,11 +94,13 @@ label {
 }
 
 button:disabled, button[disabled] {
-    border: 1px solid #999999;
     background-color: darkgrey;
+    cursor: not-allowed;
+}
+#compress_button:disabled, #compress_button[disabled] {
+    border: 1px solid #999999;
     color: #fff;
     padding: 10px;
-    cursor: not-allowed;
 }
 
 /* wiggle animation starts when class wiggle is added*/
