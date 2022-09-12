@@ -36,8 +36,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
             processor.postprocess(source_file, destination_file)
 
     @staticmethod
-    def _custom_map_execute(method, args_list: list):
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+    def _custom_map_execute(method, args_list: list, cpu_count: int):
+        with ThreadPoolExecutor(max_workers=cpu_count) as executor:
             tasks = []
             for method_parameter in args_list:
                 tasks.append(executor.submit(method, **method_parameter))
