@@ -1,16 +1,11 @@
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django_app.webserver import views
 
-app_name = 'application'
+from ..api.urls import urlpatterns as api_urls
+from . import views
 
-rest_api_urlspatterns = [
-    path('processing_of_queue_is_finished/', views.processing_of_queue_is_finished, name='processing-of-queue-is-finished'),
-    path('get_download_path_of_processed_file/', views.get_download_path_of_processed_file, name='get-download-path-of-processed-file'),
-    path('upload_file/', views.upload_file, name='upload-file'),
-    path('remove_file/', views.remove_file, name='remove-file'),
-]
+app_name = 'webserver'
 
 urlpatterns = [
     path('', views.render_main_view, name='main-view'),
@@ -19,7 +14,7 @@ urlpatterns = [
     path('test_view/', views.render_test_view, name='test_view'),
     path('start_pdf_compression/', views.start_pdf_compression_and_show_download_view,
          name='start_pdf_compression_and_show_download_view'),
-    path('api/', include(rest_api_urlspatterns)),
+    path('api/', include(api_urls)),
 ]
 
 
