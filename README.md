@@ -9,7 +9,7 @@ Additionally, the program can apply OCR - Optical Character Recognition (creates
 
 ## External Dependencies
 
-`Pngquant`, `AdvPNG`, `Pngcrush`, `Tesseract`, `cpdfsqueeze`, on Linux you also need `wine` for cpdfsqueeze
+`Pngquant`, `AdvPNG`, `Pngcrush`, `Tesseract`, `cpdfsqueeze`, on Linux you also need `wine` 
  
 pngquant, advPNG and pngcrush can be ignored when using --simple-lossless option
 Tesseract is optional for OCR - Optical Character Recognition
@@ -40,8 +40,10 @@ apt install tesseract-ocr
 ```
 add additional language packs with  
 [language list](https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html)
-```
+```bash
 apt install tesseract-ocr-<language-shortform> -y
+```
+```bash
 # example for german
 apt install tesseract-ocr-deu -y
 ```
@@ -53,7 +55,9 @@ pre-installed in compressor_lib directory (paths are already configured)
 #### Linux(ubuntu)
 ```bash
 apt install pngquant -y && apt install advancecomp -y && apt install pngcrush -y
+```
 # or
+```bash
 sudo apt install pngquant -y && sudo apt install advancecomp -y && sudo apt install pngcrush -y
 ```
 cpdfsqueeze is used via wine.
