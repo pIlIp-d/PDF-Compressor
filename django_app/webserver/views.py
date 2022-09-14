@@ -13,6 +13,7 @@ from .models import UploadedFile, get_or_create_new_request, \
     get_request_id, get_file_list_of_current_request, MEDIA_FOLDER_PATH, get_all_processing_files, ProcessedFile
 from .custom_models.path_parser import PathParser
 from .custom_models.process_stats_event_handler import ProcessStatsEventHandler
+from ..api.views import wrong_method_error
 
 FORCE_SILENT_PROCESSING = False
 
@@ -115,8 +116,6 @@ def start_pdf_compression_and_show_download_view(request):
     else:
         return wrong_method_error("POST")
     return redirect("../download/")
-
-
 
 
 def render_test_view(request):
