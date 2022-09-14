@@ -1,4 +1,11 @@
+from functools import reduce
+
+from django.http import JsonResponse
 from django.shortcuts import render
+
+from django_app.webserver.models import get_request_id, get_file_list_of_current_request, UploadedFile, \
+    get_or_create_new_request
+
 
 def get_download_path_of_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
@@ -10,6 +17,7 @@ def get_download_path_of_processed_file(request):
             "download_file_path": download_file_path
         }, status=200)
     return wrong_method_error("GET")
+
 
 def processing_of_queue_is_finished(request):
     """
@@ -35,13 +43,13 @@ def processing_of_queue_is_finished(request):
 
     return wrong_method_error("GET")
 
+
 def wrong_method_error(*allowed_methods):
     method_hint = "".join("Try using " if i == 1 else "or" + allowed_methods[i] for i in range(len(allowed_methods)))
     return JsonResponse({"status": 405, "error": "Method Not Allowed. " + method_hint}, status=405)
 
 
 # TODO /api/rename_file
-
 
 def remove_file(request):
     if request.method == "GET":
