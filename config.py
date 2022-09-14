@@ -23,6 +23,7 @@ cpdfsqueeze_path = check_existence(
     path=os.path.join(compressor_lib_path, "cpdfsqueeze", "cpdfsqueeze.exe"),
     error_message="cpdfsqueeze path not found. You need to install or download it. cpdfsqueeze.exe run by wine"
 )
+wine_path = ""
 
 if os.name == "nt":
     # WINDOWS
@@ -47,8 +48,6 @@ if os.name == "nt":
         os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'Programs', 'Tesseract-OCR', 'tessdata'),
         "Tessdata Folder wasn't found. check README.md for help."
     )+"'"
-    wine_path = ""
-
 else:
     # LINUX
     pngquant_path = check_existence(
@@ -63,15 +62,15 @@ else:
         path=os.path.join("/", "usr", "bin", "pngcrush"),
         error_message="pngcrush path not found. Install it with 'sudo apt install pngcrush'."
     )
-    wine_path = check_existence(
-        path=os.path.join("/", "usr", "bin", "wine"),
-        error_message="wine wasn't found and is needed for cpdfsqueeze. Install it with 'sudo apt install pngcrush'."
-    )
     tesseract_path = check_existence(
         path=os.path.join("/", "usr", "bin", "tesseract"),
         error_message="pytesseract path not found. Install it with 'sudo apt install "
                       "tesseract-ocr'. Additionally add language packs with f.e. "
                       "'german/deutsch': 'sudo apt install tesseract-ocr-deu'"
+    )
+    wine_path = check_existence(
+        path=os.path.join("/", "usr", "bin", "wine"),
+        error_message="wine wasn't found and is needed for cpdfsqueeze. Install it with 'sudo apt install wine'."
     )
     tessdata_prefix = ""
 
