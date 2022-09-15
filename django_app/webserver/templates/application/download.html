@@ -26,7 +26,9 @@
     const deleteFile = (file_id, file_origin) => {
         make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, true,
             function () {
-                location.reload();
+                if (this.readyState === 4 && this.status === 200) {
+                    location.reload();
+                }
             }
         );
     };
