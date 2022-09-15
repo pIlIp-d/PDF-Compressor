@@ -13,6 +13,8 @@ from ..api.views import wrong_method_error
 FORCE_SILENT_PROCESSING = False
 
 
+# TODO change to django-background-tasks lib
+
 def render_main_view(request):
     allowed_file_endings = [".pdf", ".png"]
     form = PdfCompressorForm()
