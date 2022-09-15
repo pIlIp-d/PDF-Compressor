@@ -1,11 +1,16 @@
 import os
 import os.path
+from time import strftime
 
 from django.db import models
 
 from .validators import check_file_extension, check_file_size, get_file_extension
 
 MEDIA_FOLDER_PATH = os.path.join(".", "django_app", "media")
+
+
+def get_local_relative_path(download_path):
+    return os.path.join(MEDIA_FOLDER_PATH, download_path)
 
 
 def get_formatted_time(t):
@@ -25,7 +30,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     # a file is present already
     filename_number = 1
     file_ending = get_file_extension(path)
-    while os.path.isfile(os.path.join(MEDIA_FOLDER_PATH, path)):
+    while os.path.isfile(get_local_relative_path(path)):
         path_without_file_ending = path[:-len(file_ending)]
 
         # path is already numbered .path/filename_00.xxx
@@ -56,6 +61,32 @@ class ProcessingFilesRequest(models.Model):
         verbose_name_plural = 'Processing Files Requests'
 
     @classmethod
+    def get_file_ending(cls, file_path):
+        return file_path.split(".")[-1]
+
+    def get_source_dir(self):
+        return os.path.join("uploaded_files", str(self.user_id), str(self.id))
+
+    def get_destination_dir(self):
+        return self.get_source_dir() + "_" + str(self.path_extra)
+
+    def get_merged_destination_filename(self, datetime):
+        return f"{self.path_extra}_files_{str(self.id)}_{get_formatted_time(datetime)}"
+
+    def get_merged_destination_path(self, datetime: strftime, file_ending_including_dot: str):
+        return os.path.join(
+            self.get_destination_dir(), self.get_merged_destination_filename(datetime) + file_ending_including_dot)
+
+    def get_zip_destination_path(self, datetime: strftime):
+        return self.get_merged_destination_path(datetime, ".zip")
+
+    def get_destination_path(self, source_file):
+        return os.path.join(
+            self.get_destination_dir(),
+            source_file[len(self.get_source_dir()) + 1:]  # get only the filename
+        )
+
+    @classmethod
     def __get_request(cls, user_id: str, queue_csrf_token: str):
         return cls.objects.filter(
             user_id=user_id,
@@ -70,7 +101,7 @@ class ProcessingFilesRequest(models.Model):
 
     @classmethod
     def get_request_id(cls, user_id: str, queue_csrf_token: str) -> int:
-        return cls.__get_request(user_id, queue_csrf_token).id or -1
+        return cls.get_or_create_new_request(user_id, queue_csrf_token).id or -1
 
     @classmethod
     def get_request_by_id(cls, request_id: int):
