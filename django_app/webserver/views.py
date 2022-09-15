@@ -1,5 +1,4 @@
 import os.path
-from functools import reduce
 
 from apscheduler.triggers.date import DateTrigger
 from django.conf import settings
@@ -9,8 +8,7 @@ from rest_apscheduler.scheduler import Scheduler
 
 from pdfcompressor.pdfcompressor import PDFCompressor
 from .forms import PdfCompressorForm
-from .models import UploadedFile, get_or_create_new_request, \
-    get_request_id, get_file_list_of_current_request, MEDIA_FOLDER_PATH, get_all_processing_files, ProcessedFile
+from .models import MEDIA_FOLDER_PATH, ProcessedFile, ProcessingFilesRequest
 from .custom_models.path_parser import PathParser
 from .custom_models.process_stats_event_handler import ProcessStatsEventHandler
 from ..api.views import wrong_method_error
@@ -38,14 +36,14 @@ def render_download_view(request):
         return wrong_method_error("GET", "POST")
 
     user_id = request.session["user_id"]
-    request_id = get_request_id(user_id, queue_csrf_token)
+    request_id = ProcessingFilesRequest.get_request_id(user_id, queue_csrf_token)
 
     context = {
         "request_id": request_id,
         "dir": "../",
         "user_id": request.session["user_id"],
         "queue_csrf_token": queue_csrf_token,
-        "processing_files": get_all_processing_files(user_id)
+        "processing_files": ProcessedFile.get_all_processing_files(user_id)
     }
     return render(request, 'application/download.html', context)
 
@@ -54,14 +52,14 @@ def render_download_view(request):
 
 def start_pdf_compression_and_show_download_view(request):
     if request.method == 'POST':
-        processing_request = get_or_create_new_request(
+        processing_request = ProcessingFilesRequest.get_or_create_new_request(
             request.session["user_id"],
             request.POST.get("csrfmiddlewaretoken"),
             "compressed"
         )
         if processing_request.finished:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
-        file_list = get_file_list_of_current_request(processing_request.id)
+        file_list = ProcessingFilesRequest.get_file_list_of_current_request(processing_request.id)
         if len(file_list) < 1:
             return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
