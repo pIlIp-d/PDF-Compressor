@@ -10,13 +10,13 @@
     border-width: 2px;
 }
 
-.download_button {
+.button {
     border: 1px solid #999999;
     color: #fff;
     padding: 6px;
     background-color: darkgrey;
 }
 
-.download_button:hover {
+.button:hover {
     scale: 0.98;
 }

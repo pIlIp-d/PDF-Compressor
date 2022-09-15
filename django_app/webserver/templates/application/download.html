@@ -23,6 +23,12 @@
         anchor.click();
         document.body.removeChild(anchor);
     };
+    const deleteFile = (file_id, file_origin) => {
+        make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, false,
+            function (){}
+        );
+        location.reload();
+    };
 
 </script>
 <div hidden id="user_id">{{ user_id }}</div>
@@ -50,10 +56,17 @@
                         <td class='filename'>{{ file.filename }}</td>
                         <td class='date_of_upload'>{{ file.date_of_upload }}</td>
                         <td>
-                            <button class="download_button {% if not file.finished %}disabled{% endif %}" id="{{ file.file_id }}"
+                            <button class="button download_button {% if not file.finished %}disabled{% endif %}" id="{{ file.file_id }}"
                                     {% if not file.finished %}disabled{% endif %}
                                     onclick="download('{{ file.filename_path }}', '{{ file.filename }}');">Download
                             </button>
+                        </td>
+                        <td>
+                            <button class="button delete_button {% if not file.finished %}disabled{% endif %}" id="{{ file.file_id }}"
+                                    {% if not file.finished %}disabled{% endif %}
+                                    onclick="deleteFile(this.id, '{{file.file_origin}}');" >Delete
+                            </button>
+
                         </td>
                     </tr>
                 {% endfor %}
@@ -71,17 +84,6 @@
 
     function init() {
         main_interval_obj = setInterval(main_interval, MAIN_INTERVAL_TICK)
-    }
-
-    function updateDownloadButtons() {
-        let file_containers = document.getElementsByClassName("file_container");
-
-        make_request(
-            "GET", "{{ dir }}", true,
-            function () {
-
-            }
-        );
     }
 
     function main_interval() {

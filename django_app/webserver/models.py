@@ -136,6 +136,10 @@ class ProcessedFile(models.Model):
     def __str__(self):  # todo use str instead of manual path building
         return str(self.pk) + ": " + str(self.processed_file_path)
 
+    def delete(self, using=None, keep_parents=False):
+        os.remove(get_local_relative_path(self.processed_file_path))
+        super(ProcessedFile, self).delete(using, keep_parents)
+
     class Meta:
         verbose_name_plural = 'Processed files'
 
@@ -162,14 +166,15 @@ class ProcessedFile(models.Model):
     @classmethod
     def get_all_processing_files(cls, user_id: str):
 
-        def ___get_json(file_obj, filename: str, filename_path: str, finished: bool, request_id: int):
+        def ___get_json(file_obj, filename: str, filename_path: str, finished: bool, request_id: int, file_origin: str):
             return {
                 "file_id": file_obj.id,
                 "filename": cls.__simplify_filename(filename),
                 "filename_path": os.path.join("media", filename_path),
                 "finished": finished,
                 "request_id": request_id,
-                "date_of_upload": get_formatted_time(file_obj.date_of_upload)
+                "date_of_upload": get_formatted_time(file_obj.date_of_upload),
+                "file_origin": file_origin
             }
 
         all_user_requests = ProcessingFilesRequest.objects.filter(
@@ -181,7 +186,7 @@ class ProcessedFile(models.Model):
             for file in UploadedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
                 request_files.append(___get_json(
                     file_obj=file, filename=file.uploaded_file.name + " (Original)",
-                    filename_path=file.uploaded_file.name, finished=True, request_id=request.id
+                    filename_path=file.uploaded_file.name, finished=True, request_id=request.id, file_origin="uploaded"
                 ))
 
             for processed_file in ProcessedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
@@ -189,7 +194,7 @@ class ProcessedFile(models.Model):
                     request_files.append(___get_json(
                         file_obj=processed_file, filename=processed_file.processed_file_path,
                         filename_path=processed_file.processed_file_path, finished=processed_file.finished,
-                        request_id=request.id
+                        request_id=request.id, file_origin="processed"
                     ))
             all_files.append(reversed(request_files))
         return reversed(all_files)
@@ -204,6 +209,10 @@ class UploadedFile(models.Model):
 
     def __str__(self):
         return str(self.pk) + ": " + str(self.uploaded_file.name)
+
+    def delete(self, using=None, keep_parents=False):
+        self.uploaded_file.delete()
+        super(UploadedFile, self).delete(using, keep_parents)
 
     class Meta:
         verbose_name_plural = 'Uploaded files'
