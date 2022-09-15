@@ -1,5 +1,3 @@
-import os.path
-
 from apscheduler.triggers.date import DateTrigger
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
@@ -8,8 +6,7 @@ from rest_apscheduler.scheduler import Scheduler
 
 from pdfcompressor.pdfcompressor import PDFCompressor
 from .forms import PdfCompressorForm
-from .models import MEDIA_FOLDER_PATH, ProcessedFile, ProcessingFilesRequest
-from .custom_models.path_parser import PathParser
+from .models import ProcessedFile, ProcessingFilesRequest, get_local_relative_path
 from .custom_models.process_stats_event_handler import ProcessStatsEventHandler
 from ..api.views import wrong_method_error
 
@@ -52,11 +49,13 @@ def render_download_view(request):
 
 def start_pdf_compression_and_show_download_view(request):
     if request.method == 'POST':
+        print(request.POST)
         processing_request = ProcessingFilesRequest.get_or_create_new_request(
             request.session["user_id"],
             request.POST.get("csrfmiddlewaretoken"),
-            "compressed"
+            request.POST.get("processing_file_extension")
         )
+
         if processing_request.finished:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
         file_list = ProcessingFilesRequest.get_file_list_of_current_request(processing_request.id)
@@ -64,19 +63,18 @@ def start_pdf_compression_and_show_download_view(request):
             return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
         processed_files_list = []
-        path_parser = PathParser(file_list[0].uploaded_file.name, processing_request.id, processing_request.path_extra)
 
         # add zip-file path
         processed_zip_file = ProcessedFile.add_processed_file_by_id("", processing_request.id)
         current_time = processed_zip_file.date_of_upload
         # override processed_file_path
-        processed_zip_file.processed_file_path = path_parser.get_zip_destination_path(current_time)
+        processed_zip_file.processed_file_path = processing_request.get_zip_destination_path(current_time)
         processed_zip_file.save()
 
         if request.POST.get("merge_pdfs") == "on":
             # add merge pdf-file path
             processed_file = ProcessedFile.add_processed_file_by_id(
-                path_parser.get_merged_destination_path(current_time),
+                processing_request.get_merged_destination_path(current_time, ".pdf"),
                 processing_request.id
             )
             processed_files_list.append(processed_file)
@@ -84,7 +82,7 @@ def start_pdf_compression_and_show_download_view(request):
             # add all results
             for file in file_list:
                 processed_file = ProcessedFile.add_processed_file_by_id(
-                    path_parser.get_destination_path(file.uploaded_file.name),
+                    processing_request.get_destination_path(file.uploaded_file.name),
                     processing_request.id
                 )
                 processed_file.save()
@@ -94,11 +92,11 @@ def start_pdf_compression_and_show_download_view(request):
         stats.append(ProcessStatsEventHandler(len(file_list), processed_files_list, processing_request))
 
         pdf_compressor = PDFCompressor(
-            source_path=os.path.join(MEDIA_FOLDER_PATH, path_parser.get_source_dir()),
+            source_path=get_local_relative_path(processing_request.get_source_dir()),
             destination_path="default",
             compression_mode=int(request.POST.get("compression_mode")),
-            force_ocr=True if request.POST.get("force_ocr") == "on" else False,
-            no_ocr=True if request.POST.get("no_ocr") == "on" else False,
+            force_ocr=True if request.POST.get("ocr_mode") == "on" else False,
+            no_ocr=True if request.POST.get("ocr_mode") == "off" else False,
             quiet=not settings.DEBUG or FORCE_SILENT_PROCESSING,
             tesseract_language=request.POST.get("tesseract_language"),
             simple_and_lossless=True if request.POST.get("simple_and_lossless") == "on" else False,
@@ -117,4 +115,6 @@ def start_pdf_compression_and_show_download_view(request):
 
 
 def render_test_view(request):
+    p = ProcessingFilesRequest.get_or_create_new_request(request.session["user_id"], "abc", "path_extra")
+    print(p.get_local_relative_path(p.get_source_dir()))
     return HttpResponse("nothing here")
