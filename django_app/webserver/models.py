@@ -184,7 +184,7 @@ class ProcessedFile(models.Model):
                 "date_of_upload": get_formatted_time(file_obj.date_of_upload),
                 "file_origin": file_origin,
                 "size":  "%.2fmb" % (
-                    0 if not finished else os.path.getsize(get_local_relative_path(filename_path)) / 1000000)
+                    0 if not finished or not os.path.isfile(get_local_relative_path(filename_path)) else os.path.getsize(get_local_relative_path(filename_path)) / 1000000)
             }
 
         all_user_requests = ProcessingFilesRequest.objects.filter(
