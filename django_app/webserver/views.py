@@ -13,7 +13,6 @@ from ..api.views import wrong_method_error
 FORCE_SILENT_PROCESSING = False
 
 
-# Create your views here.
 def render_main_view(request):
     allowed_file_endings = [".pdf", ".png"]
     form = PdfCompressorForm()
@@ -49,7 +48,6 @@ def render_download_view(request):
 
 def start_pdf_compression_and_show_download_view(request):
     if request.method == 'POST':
-        print(request.POST)
         processing_request = ProcessingFilesRequest.get_or_create_new_request(
             request.session["user_id"],
             request.POST.get("csrfmiddlewaretoken"),
