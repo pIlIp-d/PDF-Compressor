@@ -41,7 +41,7 @@ class ProcessStatsEventHandler(EventHandler):
         shutil.make_archive(
             filename,
             compression_format,
-            get_local_relative_path(self.__request.get_source_dir())
+            get_local_relative_path(self.__request.get_destination_dir())
         )
 
         zip_file = ProcessedFile.objects.get(
