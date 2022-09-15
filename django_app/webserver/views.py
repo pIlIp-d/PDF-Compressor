@@ -93,7 +93,7 @@ def start_pdf_compression_and_show_download_view(request):
 
         pdf_compressor = PDFCompressor(
             source_path=get_local_relative_path(processing_request.get_source_dir()),
-            destination_path="default",
+            destination_path=get_local_relative_path(processing_request.get_destination_dir()),
             compression_mode=int(request.POST.get("compression_mode")),
             force_ocr=True if request.POST.get("ocr_mode") == "on" else False,
             no_ocr=True if request.POST.get("ocr_mode") == "off" else False,
