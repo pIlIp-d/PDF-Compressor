@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from rest_apscheduler.scheduler import Scheduler
 
 from pdfcompressor.pdfcompressor import PDFCompressor
+from pdfcompressor.utility.console_utility import ConsoleUtility
 from .forms import PdfCompressorForm
 from .models import ProcessedFile, ProcessingFilesRequest, get_local_relative_path
 from .custom_models.process_stats_event_handler import ProcessStatsEventHandler
@@ -69,6 +70,7 @@ def start_pdf_compression_and_show_download_view(request):
         processed_zip_file.processed_file_path = processing_request.get_zip_destination_path(current_time)
         processed_zip_file.save()
 
+        destination_path = get_local_relative_path(processing_request.get_destination_dir())
         if request.POST.get("merge_pdfs") == "on":
             # add merge pdf-file path
             processed_file = ProcessedFile.add_processed_file_by_id(
@@ -76,6 +78,8 @@ def start_pdf_compression_and_show_download_view(request):
                 processing_request.id
             )
             processed_files_list.append(processed_file)
+            # change destination path to get merged result
+            destination_path = get_local_relative_path(processed_file.processed_file_path)
         else:
             # add all results
             for file in file_list:
@@ -89,9 +93,10 @@ def start_pdf_compression_and_show_download_view(request):
         stats = list()
         stats.append(ProcessStatsEventHandler(len(file_list), processed_files_list, processing_request))
 
+        ConsoleUtility.print_error(destination_path)
         pdf_compressor = PDFCompressor(
             source_path=get_local_relative_path(processing_request.get_source_dir()),
-            destination_path=get_local_relative_path(processing_request.get_destination_dir()),
+            destination_path=destination_path,
             compression_mode=int(request.POST.get("compression_mode")),
             force_ocr=True if request.POST.get("ocr_mode") == "on" else False,
             no_ocr=True if request.POST.get("ocr_mode") == "off" else False,
