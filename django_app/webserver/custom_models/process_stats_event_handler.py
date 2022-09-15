@@ -1,8 +1,8 @@
 import os
 import shutil
 
-from django_app.webserver.custom_models.path_parser import PathParser
-from django_app.webserver.models import ProcessedFile, MEDIA_FOLDER_PATH, ProcessingFilesRequest
+from django_app.webserver.models import ProcessedFile, ProcessingFilesRequest, \
+    get_local_relative_path
 from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -34,24 +34,23 @@ class ProcessStatsEventHandler(EventHandler):
 
     def _zip_result_folder(self):
         result_file = self.__result_files[0]
-        path_parser = PathParser(result_file.processed_file_path, self.__request.id, self.__request.path_extra)
 
-        filename = path_parser.get_destination_filename(result_file.date_of_upload)
+        filename = self.__request.get_merged_destination_filename(result_file.date_of_upload)
         compression_format = "zip"
         # create zip-archive
         shutil.make_archive(
             filename,
             compression_format,
-            os.path.join(MEDIA_FOLDER_PATH, path_parser.get_source_dir())
+            get_local_relative_path(self.__request.get_source_dir())
         )
 
         zip_file = ProcessedFile.objects.get(
-            processed_file_path=os.path.join(path_parser.get_source_dir(), filename + ".zip")
+            processed_file_path=os.path.join(self.__request.get_destination_dir(), filename + ".zip")
         )
         # move file into media folder
         shutil.move(
             os.path.join(".", filename + ".zip"),
-            os.path.join(MEDIA_FOLDER_PATH, zip_file.processed_file_path)
+            get_local_relative_path(zip_file.processed_file_path)
         )
         for file in ProcessedFile.objects.filter(processing_request=self.__request):
             file.finished = True
