@@ -24,10 +24,11 @@
         document.body.removeChild(anchor);
     };
     const deleteFile = (file_id, file_origin) => {
-        make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, false,
-            function (){}
+        make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, true,
+            function () {
+                location.reload();
+            }
         );
-        location.reload();
     };
 
 </script>
@@ -43,37 +44,37 @@
 <div id="file-container">
     <div id='request_container'>
         {% for request in processing_files %}
-            <table id='${request_id}' class='request_files_container'>
-                {% if request %}
-                    <tr>
-                        <td>Filename</td>
-                        <td>date of upload</td>
-                        <td>Size</td>
-                        <td>Download</td>
-                        <td>Delete</td>
-                    </tr>
-                {% endif %}
-                {% for file in request %}
-                    <tr id='${file.request_id}' class='file_container'>
-                        <td class='filename'>{{ file.filename }}</td>
-                        <td class='date_of_upload'>{{ file.date_of_upload }}</td>
-                        <td class='size'>{{ file.size }}</td>
-                        <td>
-                            <button class="button download_button {% if not file.finished %}disabled{% endif %}" id="{{ file.file_id }}"
-                                    {% if not file.finished %}disabled{% endif %}
-                                    onclick="download('{{ file.filename_path }}', '{{ file.filename }}');">Download
-                            </button>
-                        </td>
-                        <td>
-                            <button class="button delete_button {% if not file.finished %}disabled{% endif %}" id="{{ file.file_id }}"
-                                    {% if not file.finished %}disabled{% endif %}
-                                    onclick="deleteFile(this.id, '{{file.file_origin}}');" >Delete
-                            </button>
+        <table id='${request_id}' class='request_files_container'>
+            {% if request %}
+            <tr>
+                <td>Filename</td>
+                <td>date of upload</td>
+                <td>Size</td>
+                <td>Download</td>
+                <td>Delete</td>
+            </tr>
+            {% endif %}
+            {% for file in request %}
+            <tr id='${file.request_id}' class='file_container'>
+                <td class='filename'>{{ file.filename }}</td>
+                <td class='date_of_upload'>{{ file.date_of_upload }}</td>
+                <td class='size'>{{ file.size }}</td>
+                <td>
+                    <button class="button download_button {% if not file.finished %}disabled{% endif %}"
+                            id="{{ file.file_id }}" {% if not file.finished %}disabled{% endif %}
+                            onclick="download('{{ file.filename_path }}', '{{ file.filename }}');">Download
+                    </button>
+                </td>
+                <td>
+                    <button class="button delete_button {% if not file.finished %}disabled{% endif %}"
+                            id="{{ file.file_id }}"
+                            onclick="deleteFile(this.id, '{{file.file_origin}}');">Delete
+                    </button>
 
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
         {% endfor %}
     </div>
 </div>
@@ -91,7 +92,7 @@
 
     function main_interval() {
         let disabled_downloads = document.getElementsByClassName("disabled");
-        if (disabled_downloads.length > 0){
+        if (disabled_downloads.length > 0) {
             location.reload();
         }
     }
