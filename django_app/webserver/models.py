@@ -60,6 +60,10 @@ class ProcessingFilesRequest(models.Model):
     class Meta:
         verbose_name_plural = 'Processing Files Requests'
 
+    def file_count(self):
+        return len(UploadedFile.objects.filter(processing_request=self)) \
+               + len(ProcessedFile.objects.filter(processing_request=self))
+
     @classmethod
     def get_file_ending(cls, file_path):
         return file_path.split(".")[-1]
@@ -137,7 +141,11 @@ class ProcessedFile(models.Model):
         return str(self.pk) + ": " + str(self.processed_file_path)
 
     def delete(self, using=None, keep_parents=False):
-        os.remove(get_local_relative_path(self.processed_file_path))
+        file = get_local_relative_path(self.processed_file_path)
+        if os.path.isfile(file):
+            os.remove(file)
+        if self.processing_request.file_count() <= 1:
+            self.processing_request.delete()
         super(ProcessedFile, self).delete(using, keep_parents)
 
     class Meta:
@@ -196,8 +204,11 @@ class ProcessedFile(models.Model):
                         filename_path=processed_file.processed_file_path, finished=processed_file.finished,
                         request_id=request.id, file_origin="processed"
                     ))
-            all_files.append(reversed(request_files))
-        return reversed(all_files)
+            request_files.reverse()
+            all_files.append(request_files)
+
+        all_files.reverse()
+        return all_files
 
 
 class UploadedFile(models.Model):
