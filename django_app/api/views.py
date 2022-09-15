@@ -1,10 +1,8 @@
 from functools import reduce
 
 from django.http import JsonResponse
-from django.shortcuts import render
 
-from django_app.webserver.models import get_request_id, get_file_list_of_current_request, UploadedFile, \
-    get_or_create_new_request
+from django_app.webserver.models import UploadedFile, ProcessingFilesRequest
 
 
 def get_download_path_of_processed_file(request):
@@ -22,12 +20,12 @@ def get_download_path_of_processed_file(request):
 def processing_of_queue_is_finished(request):
     """
         :param request.GET.queue_csrf_token - csrf_token that was used for the file upload
-        :returns json.finished - boolean True if all files from 'queue_csrf_token' and current user_id are processed
+        :returns json.Finished - boolean True if all files from 'queue_csrf_token' and current user_id are processed
     """
     if request.method == 'GET':
         queue_csrf_token = request.POST.get("queue_csrf_token")
-        boolean_list_of_finished_for_current_queue = get_file_list_of_current_request(
-            get_request_id(
+        boolean_list_of_finished_for_current_queue = ProcessingFilesRequest.get_file_list_of_current_request(
+            ProcessingFilesRequest.get_request_id(
                 user_id=request.session["user_id"],
                 queue_csrf_token=queue_csrf_token
             )
@@ -72,7 +70,7 @@ def upload_file(request):
         csrfmiddlewaretoken = request.POST.get("csrfmiddlewaretoken")
         uploaded_file = UploadedFile(
             uploaded_file=request.FILES.get('file'),
-            processing_request=get_or_create_new_request(user_id, csrfmiddlewaretoken),
+            processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, csrfmiddlewaretoken),
             valid_file_endings=".pdf"
         )
         uploaded_file.save()
