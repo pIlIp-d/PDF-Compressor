@@ -5,7 +5,6 @@ from django.shortcuts import render, redirect
 from rest_apscheduler.scheduler import Scheduler
 
 from pdfcompressor.pdfcompressor import PDFCompressor
-from pdfcompressor.utility.console_utility import ConsoleUtility
 from .forms import PdfCompressorForm
 from .models import ProcessedFile, ProcessingFilesRequest, get_local_relative_path
 from .custom_models.process_stats_event_handler import ProcessStatsEventHandler
@@ -93,7 +92,6 @@ def start_pdf_compression_and_show_download_view(request):
         stats = list()
         stats.append(ProcessStatsEventHandler(len(file_list), processed_files_list, processing_request))
 
-        ConsoleUtility.print_error(destination_path)
         pdf_compressor = PDFCompressor(
             source_path=get_local_relative_path(processing_request.get_source_dir()),
             destination_path=destination_path,
