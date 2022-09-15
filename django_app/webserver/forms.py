@@ -9,7 +9,7 @@ class PdfCompressorForm(forms.Form):
     )
     processing_file_extension = forms.RegexField(
         regex="",  # TODO regex for allowed chars
-        initial="_compressed",
+        initial="compressed",
         label='Processing File Extension:',
         help_text='TODO'
     )
