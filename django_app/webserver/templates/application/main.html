@@ -31,13 +31,46 @@
     <!----- compression options --------------------------------------------------------------------------------------->
     <form action="start_pdf_compression/" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
-        {% for form_element in form %}
-            <div class="form_element">
-                <span class="helptext">{{ form_element.help_text }}</span>
-                <span id="{{ form_element.auto_id }}">{{ form_element.label }}</span>
-                {{ form_element }}
+
+        <div class="form_element" id="id_merge_pdfs">
+            <span class="helptext">{{ form.merge_pdfs.help_text }}</span>
+            <span>{{ form.merge_pdfs.label }}</span>
+            {{ form.merge_pdfs }}
+        </div>
+        <div class="form_element" id="id_processing_file_extension">
+            <span class="helptext">{{ form.processing_file_extension.help_text }}</span>
+            <span>{{ form.processing_file_extension.label }}</span>
+            {{ form.processing_file_extension }}
+        </div>
+        <div class="form_element" id="id_simple_and_lossless">
+            <span class="helptext">{{ form.simple_and_lossless.help_text }}</span>
+            <span>{{ form.simple_and_lossless.label }}</span>
+            {{ form.simple_and_lossless }}
+        </div>
+        <div class="form_logic_container" id="not_lossless_container">
+            <div class="form_element" id="id_compression_mode">
+                <span class="helptext">{{ form.compression_mode.help_text }}</span>
+                <span>{{ form.compression_mode.label }}</span>
+                {{ form.compression_mode }}
             </div>
-        {% endfor %}
+            <div class="form_element" id="id_default_pdf_dpi">
+                <span class="helptext">{{ form.default_pdf_dpi.help_text }}</span>
+                <span>{{ form.default_pdf_dpi.label }}</span>
+                {{ form.default_pdf_dpi }}
+            </div>
+            <div class="form_element" id="id_ocr_mode">
+                <span class="helptext">{{ form.ocr_mode.help_text }}</span>
+                <span>{{ form.ocr_mode.label }}</span>
+                {{ form.ocr_mode }}
+            </div>
+            <div class="form_logic_container" id="no_ocr_container">
+                <div class="form_element" id="id_tesseract_language">
+                    <span class="helptext">{{ form.tesseract_language.help_text }}</span>
+                    <span>{{ form.tesseract_language.label }}</span>
+                    {{ form.tesseract_language }}
+                </div>
+            </div>
+        </div>
     </form>
 
 </div>
@@ -56,6 +89,33 @@
 </footer>
 
 <script>
+
+    document.addEventListener("DOMContentLoaded", init);
+    function init() {
+        // add onchange functions for special form elements which deactivate other options when checked
+        let simple_and_lossless = document.getElementsByName("simple_and_lossless")[0];
+        simple_and_lossless.onchange = function(){
+            update_visibility_of_container("not_lossless_container", this.checked);
+        }
+        let ocr_mode = document.getElementsByName("ocr_mode")[0];
+        ocr_mode.onchange = function(){
+            update_visibility_of_container("no_ocr_container", this.value === "off");
+        };
+        // call them once to initiate css classes from default values
+        simple_and_lossless.onchange();
+        ocr_mode.onchange();
+    }
+
+    function update_visibility_of_container(container_id, disabled){
+        let container = document.getElementById(container_id);
+        let DISABLED_CLASS = "disabled_container";
+        if (disabled){
+            container.classList.add(DISABLED_CLASS);
+        }
+        else{
+            container.classList.remove(DISABLED_CLASS);
+        }
+    }
 
     let compress_button = document.getElementById("compress_button");
     let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
@@ -113,10 +173,11 @@
 
     function correct_file_ending(filename) {
         let allowed_file_ending = [
-            {% for ending in allowed_file_endings  %}
+            {% for ending in allowed_file_endings %}
                 "{{ ending }}",
             {% endfor %}
         ];
+
         for (let ending in allowed_file_ending) {
             if (ending != null && filename.endsWith(allowed_file_ending[ending])) {
                 return true;
