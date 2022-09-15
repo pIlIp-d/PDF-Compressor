@@ -63,7 +63,7 @@
                 <td class='size'>{{ file.size }}</td>
                 <td>
                     <button class="button download_button {% if not file.finished %}disabled{% endif %}"
-                            id="{{ file.file_id }}" {% if not file.finished %}disabled{% endif %}
+                            {% if not file.finished %}disabled{% endif %}
                             onclick="download('{{ file.filename_path }}', '{{ file.filename }}');">Download
                     </button>
                 </td>
