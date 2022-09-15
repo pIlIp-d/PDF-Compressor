@@ -48,13 +48,16 @@
                     <tr>
                         <td>Filename</td>
                         <td>date of upload</td>
-                        <td>download</td>
+                        <td>Size</td>
+                        <td>Download</td>
+                        <td>Delete</td>
                     </tr>
                 {% endif %}
                 {% for file in request %}
                     <tr id='${file.request_id}' class='file_container'>
                         <td class='filename'>{{ file.filename }}</td>
                         <td class='date_of_upload'>{{ file.date_of_upload }}</td>
+                        <td class='size'>{{ file.size }}</td>
                         <td>
                             <button class="button download_button {% if not file.finished %}disabled{% endif %}" id="{{ file.file_id }}"
                                     {% if not file.finished %}disabled{% endif %}
