@@ -7,6 +7,17 @@ class PdfCompressorForm(forms.Form):
         initial=False,
         help_text="TODO"
     )
+    processing_file_extension = forms.RegexField(
+        regex="",  # TODO regex for allowed chars
+        initial="_compressed",
+        label='Processing File Extension:',
+        help_text='TODO'
+    )
+    simple_and_lossless = forms.BooleanField(
+        label='Simple and lossless:',
+        initial=False,
+        help_text="TODO"
+    )
     compression_mode = forms.TypedChoiceField(
         choices=(
             (1, '1: Extreme'),
@@ -29,20 +40,16 @@ class PdfCompressorForm(forms.Form):
         initial=400,
         help_text='TODO'
     )
-    force_ocr = forms.BooleanField(
-        label='Text recognition (OCR):',
-        initial=False,
-        help_text="TODO"
-    )
-    no_ocr = forms.BooleanField(
-        label='No Text recognition (OCR)',
-        initial=False,
-        help_text="TODO"
-    )
-    simple_and_lossless = forms.BooleanField(
-        label='Simple and lossless:',
-        initial=False,
-        help_text="TODO"
+    ocr_mode = forms.TypedChoiceField(
+        choices=(
+            ('auto', 'Auto'),
+            ('on', 'On (force)'),
+            ('off', 'Off'),
+        ),
+        initial="auto",
+        label='OCR Mode:',
+        coerce=str,
+        help_text='TODO'
     )
     tesseract_language = forms.TypedChoiceField(
         choices=(
@@ -50,7 +57,7 @@ class PdfCompressorForm(forms.Form):
             ("deu", 'Deutsch'),
         ),
         initial="eng",
-        label='Compression mode:',
+        label='Tesseract Language:',
         coerce=str,
         help_text='Choose the language, that tesseract should use to create the OCR.'
     )
