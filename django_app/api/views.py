@@ -1,8 +1,9 @@
+import os
 from functools import reduce
 
 from django.http import JsonResponse
 
-from django_app.webserver.models import UploadedFile, ProcessingFilesRequest
+from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile, get_local_relative_path
 
 
 def get_download_path_of_processed_file(request):
@@ -51,15 +52,21 @@ def wrong_method_error(*allowed_methods):
 
 def remove_file(request):
     if request.method == "GET":
-        uploaded_file = UploadedFile.objects.filter(
-            id=request.GET.get("file_id")
-        )
-        print(uploaded_file)
-        if len(uploaded_file) == 1 and uploaded_file[0].processing_request.user_id == request.session["user_id"]:
-            uploaded_file[0].uploaded_file.delete()
-            uploaded_file[0].delete()
+        file = None
+        if request.GET.get("file_origin") == "uploaded":
+            file = UploadedFile.objects.filter(
+                id=request.GET.get("file_id")
+            ).first()
+        elif request.GET.get("file_origin") == "processed":
+            file = ProcessedFile.objects.filter(
+                id=request.GET.get("file_id")
+            ).first()
+
+        print(file)
+        if file is not None and file.processing_request.user_id == request.session["user_id"]:
+            file.delete()
         else:
-            return JsonResponse({"status": 412, "error": "No file with that id found."}, status=412)
+            return JsonResponse({"status": 412, "error": "No file with that id found for you."}, status=412)
         return JsonResponse({"status": 200, "error": "Removed file successfully."}, status=200)
     return wrong_method_error("GET")
 
