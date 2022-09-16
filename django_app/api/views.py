@@ -3,7 +3,7 @@ from functools import reduce
 
 from django.http import JsonResponse
 
-from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile, get_local_relative_path
+from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 
 
 def get_download_path_of_processed_file(request):
@@ -25,7 +25,7 @@ def processing_of_queue_is_finished(request):
     """
     if request.method == 'GET':
         queue_csrf_token = request.POST.get("queue_csrf_token")
-        boolean_list_of_finished_for_current_queue = ProcessingFilesRequest.get_file_list_of_current_request(
+        boolean_list_of_finished_for_current_queue = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(
             ProcessingFilesRequest.get_request_id(
                 user_id=request.session["user_id"],
                 queue_csrf_token=queue_csrf_token
@@ -46,6 +46,10 @@ def processing_of_queue_is_finished(request):
 def wrong_method_error(*allowed_methods):
     method_hint = "".join("Try using " if i == 1 else "or" + allowed_methods[i] for i in range(len(allowed_methods)))
     return JsonResponse({"status": 405, "error": "Method Not Allowed. " + method_hint}, status=405)
+
+
+def parameter_missing_error(parameter_name: str):
+    return JsonResponse({"status": 400, "error": f"Parameter '{parameter_name}' is required!"}, status=412)
 
 
 # TODO /api/rename_file
@@ -84,3 +88,48 @@ def upload_file(request):
         file_id = uploaded_file.id
         return JsonResponse({"file_id": file_id})
     return wrong_method_error("POST")
+
+
+# todo check, that it only comes from localhost
+def finish_file(request):
+    if request.method == "GET":
+        if "processed_file_path" in request.GET:
+            file = ProcessedFile.objects.filter(processed_file_path=request.GET.get("processed_file_path"))
+            file.finished = True
+            file.save()
+            return JsonResponse({"status": 200}, status=200)
+        else:
+            return parameter_missing_error("processed_file_path")
+    else:
+        return wrong_method_error("GET")
+
+
+# todo check, that it only comes from localhost
+def finish_request(request):
+    if request.method == "GET":
+        if "request_id" in request.GET:
+            processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
+            for file in ProcessedFile.objects.filter(processing_request=processing_request):
+                file.finished = True
+                file.save()
+            processing_request.finished = True
+            processing_request.save()
+            return JsonResponse({"status": 200}, status=200)
+        else:
+            return parameter_missing_error("request_id")
+    else:
+        return wrong_method_error("GET")
+
+
+def started_request_processing(request):
+    if request.method == "GET":
+        if "request_id" in request.GET:
+            print(request.GET.get("request_id"))
+            processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
+            processing_request.started = True
+            processing_request.save()
+            return JsonResponse({"status": 200}, status=200)
+        else:
+            return parameter_missing_error("request_id")
+    else:
+        return wrong_method_error("GET")
