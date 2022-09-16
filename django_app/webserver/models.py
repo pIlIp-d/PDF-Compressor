@@ -4,17 +4,8 @@ from time import strftime
 
 from django.db import models
 
+from .custom_models.string_utility import StringUtility
 from .validators import check_file_extension, check_file_size, get_file_extension
-
-MEDIA_FOLDER_PATH = os.path.join(".", "django_app", "media")
-
-
-def get_local_relative_path(download_path):
-    return os.path.join(MEDIA_FOLDER_PATH, download_path)
-
-
-def get_formatted_time(t):
-    return t.strftime("%d.%m.%Y-%H:%M:%S")
 
 
 def get_uploaded_file_path(instance, filename: str) -> str:
@@ -30,7 +21,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     # a file is present already
     filename_number = 1
     file_ending = get_file_extension(path)
-    while os.path.isfile(get_local_relative_path(path)):
+    while os.path.isfile(StringUtility.get_local_relative_path(path)):
         path_without_file_ending = path[:-len(file_ending)]
 
         # path is already numbered .path/filename_00.xxx
@@ -64,10 +55,6 @@ class ProcessingFilesRequest(models.Model):
         return len(UploadedFile.objects.filter(processing_request=self)) \
                + len(ProcessedFile.objects.filter(processing_request=self))
 
-    @classmethod
-    def get_file_ending(cls, file_path):
-        return file_path.split(".")[-1]
-
     def get_source_dir(self):
         return os.path.join("uploaded_files", str(self.user_id), str(self.id))
 
@@ -75,7 +62,7 @@ class ProcessingFilesRequest(models.Model):
         return self.get_source_dir() + "_" + str(self.path_extra)
 
     def get_merged_destination_filename(self, datetime):
-        return f"{self.path_extra}_files_{str(self.id)}_{get_formatted_time(datetime)}"
+        return StringUtility.get_merged_destination_filename(str(self.path_extra), str(self.id), datetime)
 
     def get_merged_destination_path(self, datetime: strftime, file_ending_including_dot: str):
         return os.path.join(
@@ -98,8 +85,14 @@ class ProcessingFilesRequest(models.Model):
         ).first()
 
     @classmethod
-    def get_file_list_of_current_request(cls, request_id: int):
+    def get_uploaded_file_list_of_current_request(cls, request_id: int):
         return UploadedFile.objects.filter(
+            processing_request=cls.get_request_by_id(request_id)
+        )
+
+    @classmethod
+    def get_processed_file_list_of_current_request(cls, request_id: int):
+        return ProcessedFile.objects.filter(
             processing_request=cls.get_request_by_id(request_id)
         )
 
@@ -141,7 +134,7 @@ class ProcessedFile(models.Model):
         return str(self.pk) + ": " + str(self.processed_file_path)
 
     def delete(self, using=None, keep_parents=False):
-        file = get_local_relative_path(self.processed_file_path)
+        file = StringUtility.get_local_relative_path(self.processed_file_path)
         if os.path.isfile(file):
             os.remove(file)
         if self.processing_request.file_count() <= 1:
@@ -150,10 +143,6 @@ class ProcessedFile(models.Model):
 
     class Meta:
         verbose_name_plural = 'Processed files'
-
-    @classmethod
-    def __simplify_filename(cls, path: str) -> str:
-        return path[len(os.path.dirname(path)) + 1:]
 
     @classmethod
     def add_processed_file_by_id(cls, processed_file_path: str, processing_request_id: int):
@@ -177,14 +166,15 @@ class ProcessedFile(models.Model):
         def ___get_json(file_obj, filename: str, filename_path: str, finished: bool, request_id: int, file_origin: str):
             return {
                 "file_id": file_obj.id,
-                "filename": cls.__simplify_filename(filename),
+                "filename": StringUtility.get_filename_with_ending(filename),
                 "filename_path": os.path.join("media", filename_path),
                 "finished": finished,
                 "request_id": request_id,
-                "date_of_upload": get_formatted_time(file_obj.date_of_upload),
+                "date_of_upload": StringUtility.get_formatted_time(file_obj.date_of_upload),
                 "file_origin": file_origin,
-                "size":  "%.2fmb" % (
-                    0 if not finished or not os.path.isfile(get_local_relative_path(filename_path)) else os.path.getsize(get_local_relative_path(filename_path)) / 1000000)
+                "size": "%.2fmb" % (
+                    0 if not finished or not os.path.isfile(StringUtility.get_local_relative_path(filename_path))
+                    else os.path.getsize(StringUtility.get_local_relative_path(filename_path)) / 1000000)
             }
 
         all_user_requests = ProcessingFilesRequest.objects.filter(
