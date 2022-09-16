@@ -1,65 +1,70 @@
 import os
 import shutil
+from time import sleep
 
-from django_app.webserver.models import ProcessedFile, ProcessingFilesRequest, \
-    get_local_relative_path
+import jsons
+import requests
+
+from django_app.settings import ROOT_URL
+from django_app.webserver.custom_models.string_utility import StringUtility
 from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.os_utility import OsUtility
 
 
 class ProcessStatsEventHandler(EventHandler):
-    def __init__(self, amount_of_input_files: int, result_files: list[ProcessedFile], request: ProcessingFilesRequest):
+    def __init__(self, amount_of_input_files: int, result_files: list, request_id: int):
         super().__init__()
         self.__amount_of_input_files = amount_of_input_files
         self.__result_files = result_files
+        self.__request_id = request_id
         self.__finished_files = 0
-        self.__request = request
-        self.__is_merger = len(result_files) > 1 and amount_of_input_files == 1
+        self.__is_merger = len(result_files) == 1 and amount_of_input_files > 1
 
     def get_progress(self):
         return self.__finished_files / self.__amount_of_input_files
 
+    @staticmethod
+    def __make_request(request_string: str, args):
+        for i in range(3):  # retry 3 times on failure
+            status = requests.get(ROOT_URL + "/api" + request_string, args)
+            if status != 200:
+                sleep(1)
+            else:
+                return jsons.loads(status.text)
+
     def started_processing(self):
-        self.__request.started = True
-        self.__request.save()
+        self.__make_request("/started_request_processing", {"request_id": str(self.__request_id)})
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         self.__finished_files += 1
         if not self.__is_merger:
-            for file in self.__result_files:
+            for file in self.__result_files[1:]:
                 if OsUtility.get_filename(destination_file) == OsUtility.get_filename(
                         str(file.processed_file_path)) + "_temp":
-                    file.finished = True
-                    file.save()
+                    self.__make_request("/finish_file", {"processed_file_path": file.processed_file_path})
 
     def _zip_result_folder(self):
         result_file = self.__result_files[0]
+        destination_directory = os.path.dirname(result_file)
+        filename_without_file_ending = StringUtility.get_filename_with_ending(result_file)[:-len(".zip")]
 
-        filename = self.__request.get_merged_destination_filename(result_file.date_of_upload)
-        compression_format = "zip"
         # create zip-archive
+        compression_format = "zip"
         shutil.make_archive(
-            filename,
+            filename_without_file_ending,
             compression_format,
-            get_local_relative_path(self.__request.get_destination_dir())
+            StringUtility.get_local_relative_path(destination_directory)
         )
 
-        zip_file = ProcessedFile.objects.get(
-            processed_file_path=os.path.join(self.__request.get_destination_dir(), filename + ".zip")
-        )
         # move file into media folder
         shutil.move(
-            os.path.join(".", filename + ".zip"),
-            get_local_relative_path(zip_file.processed_file_path)
+            os.path.join(".", filename_without_file_ending + ".zip"),
+            StringUtility.get_local_relative_path(os.path.join(destination_directory, filename_without_file_ending + ".zip"))
         )
-        for file in ProcessedFile.objects.filter(processing_request=self.__request):
-            file.finished = True
-            file.save()
+        self.__make_request("/finish_request", {"request_id": str(self.__request_id)})
 
     def finished_all_files(self):
         if self.__is_merger:
-            self.__result_files[0].finished = True
-            self.__result_files[0].save()
-        self.__request.finished = True
-        self.__request.save()
+            self.__make_request("/finish_file", {"processed_file_path": self.__result_files[1].processed_file_path})
+
         self._zip_result_folder()
