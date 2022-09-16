@@ -25,6 +25,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+ROOT_URL = "http://localhost:8000"
+
 # Application definition
 
 INSTALLED_APPS = [
