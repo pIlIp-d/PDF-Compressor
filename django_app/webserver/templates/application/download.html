@@ -13,17 +13,18 @@
 
 <body>
 <script>
-    const download = (path, filename) => {
-        // Create a new link
+    function download(path, filename){
+        // Create a new link for download
         const anchor = document.createElement('a');
         anchor.href = "{{ dir }}" + path;
         anchor.download = filename;
-
         document.body.appendChild(anchor);
+        // click link to download the file
         anchor.click();
+        // remove link again
         document.body.removeChild(anchor);
-    };
-    const deleteFile = (file_id, file_origin) => {
+    }
+    function deleteFile(file_id, file_origin){
         make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, true,
             function () {
                 if (this.readyState === 4 && this.status === 200) {
@@ -31,7 +32,7 @@
                 }
             }
         );
-    };
+    }
 
 </script>
 <div hidden id="user_id">{{ user_id }}</div>
@@ -81,7 +82,6 @@
     </div>
 </div>
 <script>
-    // TODO completely
     MAIN_INTERVAL_TICK = 2000
     let main_interval_obj;
     let queue_csrf_token = document.getElementById("queue_csrf_token").innerHTML;
@@ -99,37 +99,12 @@
         }
     }
 
-
-    function activate_download_button() {
-        let download_button = document.getElementById("download_button");
-        make_request(
-            "GET", "../api/download_processed_file/?queue_csrf_token=" + queue_csrf_token, true,
-            function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    let json_response = JSON.parse(this.response);
-                    if (json_response.hasOwnProperty("download_file_path")) {
-                        // stop interval request for finished file
-                        clearInterval(main_interval_obj);
-                        // add file link to download
-                        // TODO download_button.addEventListener(window.open(json_response.download_file_path));
-                        // activate download button
-                        download_button.classList.remove("disabled");
-                        download_button.classList.add("enabled");
-                    }
-                }
-            }
-        );
-    }
-
     function make_request(method, url, async = true, response_handler = null, post_data = null) {
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = response_handler;
         xhttp.open(method, url, async);
-        if (post_data != null) {
-            xhttp.send(post_data);
-        } else {
-            xhttp.send();
-        }
+        if (post_data != null) xhttp.send(post_data);
+        else xhttp.send();
     }
 
 </script>
