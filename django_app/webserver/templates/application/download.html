@@ -13,7 +13,7 @@
 
 <body>
 <script>
-    function download(path, filename){
+    function download(path, filename) {
         // Create a new link for download
         const anchor = document.createElement('a');
         anchor.href = "{{ dir }}" + path;
@@ -24,7 +24,8 @@
         // remove link again
         document.body.removeChild(anchor);
     }
-    function deleteFile(file_id, file_origin){
+
+    function deleteFile(file_id, file_origin) {
         make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, true,
             function () {
                 if (this.readyState === 4 && this.status === 200) {
