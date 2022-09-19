@@ -56,8 +56,13 @@ class TaskScheduler:
             def ___get_task(task):
                 if task["task_type"] not in SUPPORTED_TASK_TYPES:
                     raise ValueError("Task type invalid!")
-                print(jsons.loads(task["parameters"]))
-                return globals()[task["task_type"]](**jsons.loads(task["parameters"]), task_id=task["id"], request_id=task["request_id"], finished=task["finished"])
+                # create instance of class that is inside task_type
+                return globals()[task["task_type"]](
+                    **jsons.loads(task["parameters"]),
+                    task_id=task["id"],
+                    request_id=task["request_id"],
+                    finished=task["finished"]
+                )
             return [___get_task(task) for task in cls._get_raw_tasks()]
 
         except AttributeError as e:
