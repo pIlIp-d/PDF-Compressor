@@ -130,7 +130,7 @@ class ProcessedFile(models.Model):
     date_of_upload = models.DateTimeField(auto_now_add=True)
     merger = models.BooleanField(default=False)
 
-    def __str__(self):  # todo use str instead of manual path building
+    def __str__(self):
         return str(self.pk) + ": " + str(self.processed_file_path)
 
     def delete(self, using=None, keep_parents=False):
