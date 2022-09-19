@@ -11,15 +11,14 @@ from ..task_scheduler.pdf_compression_task import PdfCompressionTask
 FORCE_SILENT_PROCESSING = False
 
 
-# TODO change to django-background-tasks lib
 # TODO tox, for basic functionality test after install (!= unitTesting)
 
 def render_main_view(request):
-    allowed_file_endings = [".pdf", ".png"]
+    allowed_file_endings = [".pdf", ".png"]  # no ',' allowed in file ending
     form = PdfCompressorForm()
     context = {
         "dir": "/",
-        "allowed_file_endings": allowed_file_endings,
+        "allowed_file_endings": ",".join(allowed_file_endings),
         "form": form,
         "user_id": request.session["user_id"],
     }
