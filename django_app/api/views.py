@@ -1,4 +1,3 @@
-import os
 from functools import reduce
 
 from django.http import JsonResponse
@@ -9,12 +8,21 @@ from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, Pr
 def get_download_path_of_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
     if request.method == 'GET' and queue_csrf_token is not None:
+        ProcessedFile.get_all_processing_files(request.session["user_id"])
+
         download_file_path = "path"
         # TODO get file path
         return JsonResponse({
             "status": 200,
             "download_file_path": download_file_path
         }, status=200)
+    return wrong_method_error("GET")
+
+
+def get_all_files(request):
+    if request.method == "GET":
+        files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
+        return JsonResponse({"status": 200, "files": files_json}, status=200)
     return wrong_method_error("GET")
 
 
