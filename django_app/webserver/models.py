@@ -207,7 +207,7 @@ class UploadedFile(models.Model):
     valid_file_endings = models.TextField(default="")
     id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
     processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE)
-    uploaded_file = models.FileField(upload_to=get_uploaded_file_path)
+    uploaded_file = models.FileField(upload_to=get_uploaded_file_path, max_length=255)
     date_of_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
