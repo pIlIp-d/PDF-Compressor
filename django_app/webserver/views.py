@@ -26,21 +26,9 @@ def render_main_view(request):
 
 
 def render_download_view(request):
-    # save queue_csrf_token from used method or leave it empty
-    queue_csrf_token = request.GET.get("csrfmiddlewaretoken") or request.POST.get("csrfmiddlewaretoken") or ""
     if not (request.method == "POST" or request.method == "GET"):
         return wrong_method_error("GET", "POST")
-
-    user_id = request.session["user_id"]
-    request_id = ProcessingFilesRequest.get_request_id(user_id, queue_csrf_token)
-
-    context = {
-        "request_id": request_id,
-        "dir": "../",
-        "user_id": request.session["user_id"],
-        "queue_csrf_token": queue_csrf_token,
-        "processing_files": ProcessedFile.get_all_processing_files(user_id)
-    }
+    context = {"dir": "../"}
     return render(request, 'application/download.html', context)
 
 
