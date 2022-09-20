@@ -2,6 +2,7 @@ from functools import reduce
 
 from django.http import JsonResponse
 
+from django_app.api.decorators import only_for_localhost
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 
 
@@ -98,7 +99,7 @@ def upload_file(request):
     return wrong_method_error("POST")
 
 
-# todo check, that it only comes from localhost
+@only_for_localhost
 def finish_file(request):
     if request.method == "GET":
         if "processed_file_path" in request.GET:
@@ -112,7 +113,7 @@ def finish_file(request):
         return wrong_method_error("GET")
 
 
-# todo check, that it only comes from localhost
+@only_for_localhost
 def finish_request(request):
     if request.method == "GET":
         if "request_id" in request.GET:
@@ -129,6 +130,7 @@ def finish_request(request):
         return wrong_method_error("GET")
 
 
+@only_for_localhost
 def started_request_processing(request):
     if request.method == "GET":
         if "request_id" in request.GET:
