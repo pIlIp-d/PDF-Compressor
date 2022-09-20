@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ dir }}static/style.css">
-    <link rel="stylesheet" href="{{ dir }}static/download.css">
-    <link rel="stylesheet" href="{{ dir }}static/variables.css">
-    <link rel="stylesheet" href="{{ dir }}static/helptext.css">
-
-    <title>Croco-File-Crusher</title>
-</head>
-
 <body>
 <script>
     function download(path, filename) {
@@ -36,67 +26,122 @@
     }
 
 </script>
+{% csrf_token %}
 <div hidden id="user_id">{{ user_id }}</div>
 <div hidden id="request_id">{{ request_id }}</div>
-<div hidden id="queue_csrf_token">{{ queue_csrf_token }}</div>
 
 <div id="header">
     <h1 id="heading"> Croco-File-Crusher </h1>
     <h2 id="subheading"> Download the processed Files here. </h2>
 </div>
 <button id="refresh_button" onclick="location.reload()">Refresh</button>
-<div id="file-container">
-    <div id='request_container'>
-        {% for request in processing_files %}
-        <table id='${request_id}' class='request_files_container'>
-            {% if request %}
-            <tr>
-                <td>Filename</td>
-                <td>date of upload</td>
-                <td>Size</td>
-                <td>Download</td>
-                <td>Delete</td>
-            </tr>
-            {% endif %}
-            {% for file in request %}
-            <tr id='${file.request_id}' class='file_container'>
-                <td class='filename'>{{ file.filename }}</td>
-                <td class='date_of_upload'>{{ file.date_of_upload }}</td>
-                <td class='size'>{{ file.size }}</td>
-                <td>
-                    <button class="button download_button {% if not file.finished %}disabled{% endif %}"
-                            {% if not file.finished %}disabled{% endif %}
-                            onclick="download('{{ file.filename_path }}', '{{ file.filename }}');">Download
-                    </button>
-                </td>
-                <td>
-                    <button class="button delete_button {% if not file.finished %}disabled{% endif %}"
-                            id="{{ file.file_id }}"
-                            onclick="deleteFile(this.id, '{{file.file_origin}}');">Delete
-                    </button>
-
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% endfor %}
-    </div>
-</div>
+<div id="content_container"></div>
 <script>
     MAIN_INTERVAL_TICK = 2000
     let main_interval_obj;
-    let queue_csrf_token = document.getElementById("queue_csrf_token").innerHTML;
+    let queue_csrf_token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
     let file_list = [];
+    let current_sorting = "request";
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
         main_interval_obj = setInterval(main_interval, MAIN_INTERVAL_TICK)
     }
 
+    update_files();
+
     function main_interval() {
-        let disabled_downloads = document.getElementsByClassName("disabled");
-        if (disabled_downloads.length > 0) {
-            location.reload();
+        update_files();
+    }
+
+    function update_files() {
+        make_request(
+            "GET",
+            "{{ dir }}api/get_all_files/?csrfmiddlewaretoken="+queue_csrf_token,
+            true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let new_file_list = JSON.parse(this.response).files;
+                    if (file_list !== new_file_list) {
+                        file_list = new_file_list
+                        update_html(current_sorting);
+                    }
+                }
+            }
+        );
+    }
+
+    function get_table_head() {
+        let header = document.createElement("tr");
+        let th_list = ["Filename", "date of upload", "Size", "Download", "Delete"];
+        for (let col in th_list) {
+            let column = document.createElement("th");
+            column.appendChild(document.createTextNode(th_list[col]));
+            header.appendChild(column);
+        }
+        return header;
+    }
+
+    function get_file_row(file) {
+        function get_td(class_list, text_value) {
+            let td = document.createElement("td");
+            for (let i in class_list) {
+                td.classList.add(class_list[i]);
+            }
+            td.appendChild(document.createTextNode(text_value));
+            return td;
+        }
+
+        function get_button_td(text, hard_disabled, extra_class, onclick_function) {
+            let button = document.createElement("button");
+            button.classList.add("button", extra_class);
+            if (!file.finished) {
+                button.classList.add("disabled");
+                if (hard_disabled)
+                    button.disabled = true;
+            } else {
+                button.onclick = onclick_function;
+            }
+            button.appendChild(document.createTextNode(text));
+            let td = document.createElement("td");
+            td.appendChild(button);
+            return td;
+        }
+
+        let file_row = document.createElement("tr");
+        file_row.id = file.request_id;
+        file_row.appendChild(get_td(["filename"], file.filename));
+        file_row.appendChild(get_td(["date_of_upload"], file.date_of_upload));
+        file_row.appendChild(get_td(["size"], file.size));
+        file_row.appendChild(
+            get_button_td("Download", true, "download_button", () => download(file.filename_path, file.filename))
+        );
+        file_row.appendChild(
+            get_button_td("Delete", false, "delete_button", () => deleteFile(file.file_id, file.file_origin))
+        );
+        file_row.lastChild.id = file.file_id;
+        return file_row;
+    }
+
+    function update_html(sort_by) {
+        let container = document.getElementById("content_container");
+        let last_request_id = null;
+
+        // remove all old children
+        while (container.lastChild) {
+            container.removeChild(container.lastChild);
+        }
+
+        for (let file_id in file_list) {
+            let file = file_list[file_id];
+            if (file.request_id !== last_request_id) {
+                container.appendChild(document.createElement("table"));
+                container.lastElementChild.classList.add("request_files_container");
+                container.lastElementChild.id = file.request_id;
+                container.lastElementChild.appendChild(get_table_head());
+            }
+            container.lastElementChild.appendChild(get_file_row(file));
+            last_request_id = file.request_id;
         }
     }
 
@@ -110,4 +155,14 @@
 
 </script>
 </body>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ dir }}static/style.css">
+    <link rel="stylesheet" href="{{ dir }}static/download.css">
+    <link rel="stylesheet" href="{{ dir }}static/variables.css">
+    <link rel="stylesheet" href="{{ dir }}static/helptext.css">
+
+    <title>Croco-File-Crusher</title>
+</head>
 </html>
