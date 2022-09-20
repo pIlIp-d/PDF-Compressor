@@ -177,27 +177,33 @@ class ProcessedFile(models.Model):
                     else os.path.getsize(StringUtility.get_local_relative_path(filename_path)) / 1000000)
             }
 
-        all_user_requests = ProcessingFilesRequest.objects.filter(
-            user_id=user_id
-        )
-        all_files = []
-        for request in all_user_requests:
-            request_files = []
-            for file in UploadedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
-                request_files.append(___get_json(
+        def ___get_source_files(processing_request):
+            files = []
+            for file in UploadedFile.objects.filter(processing_request=processing_request).order_by('date_of_upload'):
+                files.append(___get_json(
                     file_obj=file, filename=file.uploaded_file.name + " (Original)",
-                    filename_path=file.uploaded_file.name, finished=True, request_id=request.id, file_origin="uploaded"
+                    filename_path=file.uploaded_file.name, finished=True, request_id=processing_request.id,
+                    file_origin="uploaded"
                 ))
+            return files
 
-            for processed_file in ProcessedFile.objects.filter(processing_request=request).order_by('date_of_upload'):
-                if processed_file.processing_request.id == request.id:
-                    request_files.append(___get_json(
+        def ___get_processed_files(processing_request):
+            files = []
+            for processed_file in ProcessedFile.objects.filter(processing_request=processing_request).order_by(
+                    'date_of_upload'):
+                if processed_file.processing_request.id == processing_request.id:
+                    files.append(___get_json(
                         file_obj=processed_file, filename=processed_file.processed_file_path,
                         filename_path=processed_file.processed_file_path, finished=processed_file.finished,
-                        request_id=request.id, file_origin="processed"
+                        request_id=processing_request.id, file_origin="processed"
                     ))
-            request_files.reverse()
-            all_files.append(request_files)
+            return files
+
+        all_user_requests = ProcessingFilesRequest.objects.filter(user_id=user_id)
+        all_files = []
+        for processing_request in all_user_requests:
+            all_files += ___get_source_files(processing_request)
+            all_files += ___get_processed_files(processing_request)
 
         all_files.reverse()
         return all_files
