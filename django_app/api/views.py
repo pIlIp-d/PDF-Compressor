@@ -1,11 +1,13 @@
 from functools import reduce
 
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
 
 from django_app.api.decorators import only_for_localhost
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 
 
+@csrf_protect
 def get_download_path_of_processed_file(request):
     queue_csrf_token = request.GET.get("queue_csrf_token")
     if request.method == 'GET' and queue_csrf_token is not None:
@@ -20,6 +22,7 @@ def get_download_path_of_processed_file(request):
     return wrong_method_error("GET")
 
 
+@csrf_protect
 def get_all_files(request):
     if request.method == "GET":
         files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
@@ -27,6 +30,7 @@ def get_all_files(request):
     return wrong_method_error("GET")
 
 
+# TODO remove
 def processing_of_queue_is_finished(request):
     """
         :param request.GET.queue_csrf_token - csrf_token that was used for the file upload
@@ -63,6 +67,7 @@ def parameter_missing_error(parameter_name: str):
 
 # TODO /api/rename_file
 
+@csrf_protect
 def remove_file(request):
     if request.method == "GET":
         file = None
@@ -84,6 +89,7 @@ def remove_file(request):
     return wrong_method_error("GET")
 
 
+@csrf_protect
 def upload_file(request):
     if request.method == 'POST':
         user_id = request.session['user_id']
