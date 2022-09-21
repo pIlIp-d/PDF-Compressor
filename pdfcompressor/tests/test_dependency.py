@@ -1,10 +1,11 @@
+import io
 import os
-import subprocess
 import sys
-from unittest import TestCase
+from unittest import TestCase, mock
 from io import StringIO
 import jsons
 
+from pdfcompressor.tests.TestCaseUtility import run_subprocess_and_get_output
 from pdfcompressor.utility.os_utility import OsUtility
 
 
@@ -21,9 +22,7 @@ class TestDependency(TestCase):
         sys.stdout = console_buffer
         return console_buffer
 
-    def __run_simple_compression(self, assume_success: bool, simple_and_lossless: bool) -> tuple[StringIO, int]:
-        console_buffer = self.get_console_buffer()
-
+    def __run_simple_compression(self, assume_success: bool, simple_and_lossless: bool) -> tuple[str, str, int]:
         if os.path.isfile(self.result_path):
             os.remove(self.result_path)
 
@@ -34,16 +33,17 @@ class TestDependency(TestCase):
         if simple_and_lossless:
             args.append("--simple-and-lossless")
 
-        return_code = subprocess.call(args)
+        return_code, output_str, err_str = run_subprocess_and_get_output(args)
+        print(output_str)
         if assume_success or simple_and_lossless:
             self.assertTrue(os.path.exists(self.result_path))
             os.remove(self.result_path)
             self.assertEqual(0, return_code)
-            self.assertFalse("Error:" in console_buffer.getvalue())  # TODO console buffer
+            if not assume_success:
+                self.assertFalse("Error:" in output_str)
         else:
-            self.assertTrue("Error:" in console_buffer.getvalue())  # TODO console buffer
-
-        return console_buffer, return_code
+            self.assertTrue("Error:" in output_str)
+        return output_str, err_str, return_code
 
     def __get_config(self):
         with open(self.config_file, "r") as f:
@@ -68,7 +68,7 @@ class TestDependency(TestCase):
         self.__change_to_empty_path("advpng_path")
         self.__run_simple_compression(False, False)
 
-    def test_with_advpng_path_is_valid(self):  # should be valid for all paths
+    def test_with_advpng_path_is_valid(self):
         self.__run_simple_compression(True, False)
 
     def test_with_advpng_path_is_invalid(self):
@@ -86,19 +86,9 @@ class TestDependency(TestCase):
         self.__change_to_empty_path("pngquant_path")
         self.__run_simple_compression(False, False)
 
-    '''
-    def test_with_pngquant_path_is_valid(self):
-        self.fail("Not implemented yet")
-    '''
-
     def test_with_pngquant_path_is_invalid(self):
         self.__change_to_invalid_path("pngquant_path")
         self.__run_simple_compression(False, False)
-
-    '''
-    def test_with_pngquant_path_is_valid_with_simple_and_lossless(self):
-        self.fail("Not implemented yet")
-    '''
 
     def test_with_pngquant_path_is_invalid_with_simple_and_lossless(self):
         self.__change_to_invalid_path("pngquant_path")
@@ -108,19 +98,9 @@ class TestDependency(TestCase):
         self.__change_to_empty_path("pngcrush_path")
         self.__run_simple_compression(False, False)
 
-    '''
-    def test_with_pngcrush_path_is_valid(self):
-        self.fail("Not implemented yet")
-    '''
-
     def test_with_pngcrush_path_is_invalid(self):
         self.__change_to_invalid_path("pngcrush_path")
         self.__run_simple_compression(False, False)
-
-    '''
-    def test_with_pngcrush_path_is_valid_with_simple_and_lossless(self):
-    self.fail("Not implemented yet")
-    '''
 
     def test_with_pngcrush_path_is_invalid_with_simple_and_lossless(self):
         self.__change_to_invalid_path("pngcrush_path")
@@ -130,31 +110,29 @@ class TestDependency(TestCase):
         self.__change_to_empty_path("cpdfsqueeze_path")
         self.__run_simple_compression(False, False)
 
-    '''
-    def test_with_cpdfsqueeze_path_is_valid(self):
-        self.__test_invalid_path("cpdfsqueeze_path")
-    '''
-
     def test_with_cpdfsqueeze_path_is_invalid(self):  # TODO test cpdf_path with wine add on and the fails without wine
         self.__change_to_invalid_path("cpdfsqueeze_path")
         self.__run_simple_compression(False, False)
 
-    '''
-    def test_with_cpdfsqueeze_path_is_valid_with_simple_and_lossless(self):
-        self.fail("Not implemented yet")
-    '''
-
     def test_with_cpdfsqueeze_path_is_invalid_with_simple_and_lossless(self):
-        self.fail("Not implemented yet")
+        self.__change_to_invalid_path("cpdfsqueeze_path")
+
+        if os.path.isfile(self.result_path):
+            os.remove(self.result_path)
+
+        args = [
+            "python3", self.program_path,
+            "-p", self.source_path,
+            "--simple-and-lossless"
+        ]
+        return_code, output_str, err_str = run_subprocess_and_get_output(args)
+        self.assertFalse(os.path.exists(self.result_path))
+        self.assertNotEqual(0, return_code)
+        self.assertTrue("Error:" in output_str)
 
     def test_with_tesseract_path_is_empty(self):
         self.__change_to_empty_path("tesseract_path")
         self.__run_simple_compression(False, False)
-
-    '''
-    def test_with_tesseract_path_is_valid(self):
-        self.fail("Not implemented yet")
-    '''
 
     def test_with_tesseract_path_is_invalid(self):
         self.__change_to_invalid_path("tesseract_path")
@@ -162,8 +140,8 @@ class TestDependency(TestCase):
 
     def test_with_tessdata_prefix_is_empty(self):
         # TODO precondition
-        self.__change_to_empty_path("tessdata_prefix")
-        self.__run_simple_compression(False, False)
+        # self.__change_to_empty_path("tessdata_prefix")
+        # self.__run_simple_compression(False, False)
         self.fail("Not fully implemented yet")
 
     def test_with_tessdata_prefix_is_valid(self):
@@ -178,11 +156,9 @@ class TestDependency(TestCase):
         self.fail("Not implemented yet")
 
     def setUp(self) -> None:
-        # save the original file as a copy
+        # save the original config file as a copy
         OsUtility.copy_file(self.config_file, self.config_file + "_tmp")
 
     def tearDown(self) -> None:
-        # restore the original
+        # restore the original config file
         OsUtility.move_file(self.config_file + "_tmp", self.config_file)
-        # restore stout
-#        sys.stdout = sys.__stdout__
