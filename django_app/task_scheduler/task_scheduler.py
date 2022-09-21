@@ -1,12 +1,8 @@
+import pickle
 from datetime import datetime
 
-import jsons
 
 from .db_con import get_connection, fetch_all_as_dict
-
-# for every task type the import must be correct and the exact Classname must be used as task_type
-from .pdf_compression_task import PdfCompressionTask
-SUPPORTED_TASK_TYPES = ["PdfCompressionTask"]
 
 QUIET_MODE = False
 
@@ -17,16 +13,13 @@ class TaskScheduler:
     def __init__(self):
         # create db table if not exists
         connection = get_connection()
-
         cursor = connection.cursor()
         cursor.execute(
-            "CREATE TABLE IF NOT EXISTS tasks("
+            "CREATE TABLE IF NOT EXISTS task_objects("
             "id INTEGER primary key autoincrement,"
-            "request_id INTEGER NOT NULL,"
-            "task_type TEXT NOT NULL,"
-            "parameters JSON NOT NULL,"
-            "datetime datetime DEFAULT CURRENT_TIMESTAMP,"
-            "finished BOOL DEFAULT 0"
+            "object TEXT NOT NULL,"
+            "finished BOOL DEFAULT 0,"
+            "datetime DATETIME DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
         self.last_time = ""
@@ -46,30 +39,16 @@ class TaskScheduler:
         if not QUIET_MODE:
             print("checked db at " + str(datetime.now()))
         cur = get_connection().cursor()
-        res = cur.execute("SELECT * FROM tasks where finished=False;").fetchone()
+        res = cur.execute("SELECT * FROM task_objects where finished=False;").fetchone()
         return False if res is None else len(res) >= 1
 
     @classmethod
     def get_tasks(cls) -> list:
-        try:
-            def ___get_task(task):
-                if task["task_type"] not in SUPPORTED_TASK_TYPES:
-                    raise ValueError("Task type invalid!")
-                # create instance of class that is inside task_type
-                return globals()[task["task_type"]](
-                    **jsons.loads(task["parameters"]),
-                    task_id=task["id"],
-                    request_id=task["request_id"],
-                    finished=task["finished"]
-                )
-            return [___get_task(task) for task in cls._get_raw_tasks()]
+        def __load_task(query_row):
+            task = pickle.loads(query_row["object"])
+            task.task_id = query_row["id"]
+            return task
 
-        except AttributeError as e:
-            return []
-
-    @classmethod
-    def _get_raw_tasks(cls, task_type: str = "all"):
         cur = get_connection().cursor()
-        special = "" if task_type == "all" else f" WHERE task_type = {task_type}"
-        res = cur.execute(f"SELECT * FROM tasks{special};")
-        return fetch_all_as_dict(res)
+        response = cur.execute("SELECT * FROM task_objects where finished=False;").fetchall()
+        return [__load_task(obj) for obj in response]
