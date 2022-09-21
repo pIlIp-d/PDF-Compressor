@@ -1,3 +1,6 @@
+import sys
+
+
 class ConsoleUtility:
     RED: str = "\033[0;31m"
     YELLOW: str = "\033[0;33;33m"
@@ -31,12 +34,13 @@ class ConsoleUtility:
 
     @classmethod
     def print_error(cls, string: str) -> None:
-        cls.print_ansi_colored_string(cls.RED, string, cls.show_errors_always)
+        if not cls.quiet_mode:
+            print(string, file=sys.stderr)
 
     @classmethod
-    def print_ansi_colored_string(cls, color: str, string: str, force_print: bool = False) -> None:
+    def print_ansi_colored_string(cls, ansi_color_string: str, string: str, force_print: bool = False) -> None:
         if not cls.quiet_mode or force_print:
-            cls.print(color + string + cls.END)
+            cls.print(ansi_color_string + string + cls.END)
 
     @classmethod
     def print_green(cls, string: str) -> None:
