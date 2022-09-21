@@ -32,7 +32,7 @@ class Task(ABC):
     def finish_task(self):
         connection = get_connection()
         cur = connection.cursor()
-        print(self.task_id)
         cur.execute(f"UPDATE tasks SET finished = True WHERE id = ?;", (self.task_id, ))
         connection.commit()
+        self.finished = True
 
