@@ -8,12 +8,12 @@ from django_app.webserver.custom_models.process_stats_event_handler import Proce
 
 class ProcessingTask(Task, ABC):
 
-    def __init__(self, request_id: int, amount_of_input_files: int, processed_file_paths: list, task_type: str,
+    def __init__(self, request_id: int, amount_of_input_files: int, processed_file_paths: list,
                  task_id: int = None, finished: bool = False,
                  **parameters):
         parameters["amount_of_input_files"] = amount_of_input_files
         parameters["processed_file_paths"] = processed_file_paths
-        super().__init__(request_id, task_type, task_id, finished, **parameters)
+        super().__init__(request_id, task_id, finished, **parameters)
 
     def _get_process_stats_event_handler(self) -> ProcessStatsEventHandler:
         def ___count_files_in_dir(dir_path):

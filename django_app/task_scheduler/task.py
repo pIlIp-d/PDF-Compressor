@@ -1,3 +1,4 @@
+import pickle
 from abc import abstractmethod, ABC
 
 import jsons
@@ -6,9 +7,8 @@ from django_app.task_scheduler.db_con import get_connection
 
 
 class Task(ABC):
-    def __init__(self, request_id: int, task_type: str, task_id: int = None, finished: bool = False, **parameters):
+    def __init__(self, request_id: int, task_id: int = None, finished: bool = False, **parameters):
         self.request_id = request_id
-        self.task_type = task_type
         self.task_id = task_id
         self.finished = finished
         self._parameters = dict()
@@ -21,8 +21,9 @@ class Task(ABC):
         connection = get_connection()
         cur = connection.cursor()
         cur.execute(
-            "INSERT INTO tasks (request_id, task_type, parameters) VALUES(?, ?, ?);",
-            (self.request_id, self.task_type, jsons.dumps(self._parameters),))
+            "INSERT INTO task_objects (object) VALUES(?);",
+            (pickle.dumps(self),)
+        )
         self.task_id = cur.lastrowid
         connection.commit()
 
@@ -32,7 +33,7 @@ class Task(ABC):
     def finish_task(self):
         connection = get_connection()
         cur = connection.cursor()
-        cur.execute(f"UPDATE tasks SET finished = True WHERE id = ?;", (self.task_id, ))
+        cur.execute(f"UPDATE task_objects SET finished = True WHERE id = ?;", (self.task_id, ))
         connection.commit()
         self.finished = True
 
