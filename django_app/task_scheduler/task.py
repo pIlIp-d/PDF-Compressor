@@ -14,18 +14,17 @@ class Task:
         self._parameters = dict()
         for key, value in parameters.items():
             self._parameters[key] = value
-
-        self._add()
+        if self.task_id is None:
+            self._add()
 
     def _add(self):
-        if self.task_id is None:
-            connection = get_connection()
-            cur = connection.cursor()
-            cur.execute(
-                "INSERT INTO tasks (request_id, task_type, parameters) VALUES(?, ?, ?);",
-                (self.request_id, self.task_type, jsons.dumps(self._parameters),))
-            self.task_id = cur.lastrowid
-            connection.commit()
+        connection = get_connection()
+        cur = connection.cursor()
+        cur.execute(
+            "INSERT INTO tasks (request_id, task_type, parameters) VALUES(?, ?, ?);",
+            (self.request_id, self.task_type, jsons.dumps(self._parameters),))
+        self.task_id = cur.lastrowid
+        connection.commit()
 
     @abstractmethod
     def run(self): pass
