@@ -1,8 +1,5 @@
 import pickle
 from abc import abstractmethod, ABC
-
-import jsons
-
 from django_app.task_scheduler.db_con import get_connection
 
 
