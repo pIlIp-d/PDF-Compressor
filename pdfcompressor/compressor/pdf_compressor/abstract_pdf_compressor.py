@@ -66,6 +66,8 @@ class AbstractPdfCompressor(Compressor, ABC):
             ConsoleUtility.print_stats(sum(orig_sizes), end_size, "All Files")
             ConsoleUtility.print("\n")
 
-        if not is_merging:
+        if is_merging:
+            OsUtility.move_file(self._final_merge_file, destination_path)
+        else:
             for temp_destination, destination in zip(temporary_destination_file_list, destination_file_list):
                 OsUtility.move_file(temp_destination, destination)
