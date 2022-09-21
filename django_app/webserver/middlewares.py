@@ -8,8 +8,12 @@ class UserIdMiddleware:
 
     def __call__(self, request):
         # create new user_id if not exists in session or cookie
-        user_id = self.new_user_id() if 'user_id' not in request.session and "user_id" not in request.COOKIES \
-            else request.session["user_id"] or request.COOKIES["user_id"]
+        if 'user_id' in request.session:
+            user_id = request.session["user_id"]
+        elif "user_id" in request.COOKIES:
+            user_id = request.COOKIES["user_id"]
+        else:
+            user_id = self.new_user_id()
         # TODO expand to also allow User from django auth (-> multiple devices from a single user are possible)
 
         request.session['user_id'] = user_id
