@@ -24,9 +24,17 @@ class TaskScheduler:
 
     @classmethod
     def run_unfinished_tasks(cls):
-        open_tasks = [task for task in cls.get_tasks() if not task.finished]
-        for task in open_tasks:
-            task.run()
+        def ___load_task(query_row):
+            task_obj = pickle.loads(query_row["object"])
+            task_obj.task_id = query_row["id"]
+            return task_obj
+
+        cur = get_connection().cursor()
+        response = cur.execute("SELECT * FROM task_objects where finished=False;").fetchall()
+
+        for task in [___load_task(obj) for obj in response]:
+            if not task.finished:
+                task.run()
 
     @staticmethod
     def __get_timestamp(time_string):
@@ -39,14 +47,3 @@ class TaskScheduler:
         cur = get_connection().cursor()
         res = cur.execute("SELECT * FROM task_objects where finished=False;").fetchone()
         return False if res is None else len(res) >= 1
-
-    @classmethod
-    def get_tasks(cls) -> list:
-        def __load_task(query_row):
-            task = pickle.loads(query_row["object"])
-            task.task_id = query_row["id"]
-            return task
-
-        cur = get_connection().cursor()
-        response = cur.execute("SELECT * FROM task_objects where finished=False;").fetchall()
-        return [__load_task(obj) for obj in response]
