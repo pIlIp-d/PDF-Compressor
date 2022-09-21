@@ -1,16 +1,14 @@
 import pickle
 from datetime import datetime
-
-
-from .db_con import get_connection, fetch_all_as_dict
-
-QUIET_MODE = False
+from .db_con import get_connection
 
 
 class TaskScheduler:
     interval = None
+    quiet_mode = True
 
-    def __init__(self):
+    def __init__(self, quiet_mode: bool = True):
+        self.quiet_mode = quiet_mode
         # create db table if not exists
         connection = get_connection()
         cursor = connection.cursor()
@@ -34,9 +32,9 @@ class TaskScheduler:
     def __get_timestamp(time_string):
         return datetime.strptime(time_string, "%Y:%m:%d %h:%m:%s")
 
-    @staticmethod
-    def check_for_unfinished_tasks() -> bool:
-        if not QUIET_MODE:
+    @classmethod
+    def check_for_unfinished_tasks(cls) -> bool:
+        if not cls.quiet_mode:
             print("checked db at " + str(datetime.now()))
         cur = get_connection().cursor()
         res = cur.execute("SELECT * FROM task_objects where finished=False;").fetchone()

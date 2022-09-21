@@ -3,8 +3,9 @@ from time import sleep
 from django_app.task_scheduler.task_scheduler import TaskScheduler
 
 INTERVAL_TIME = 5
+QUIET_MODE = False
 
-# todo create socket that is called from task constructor instead if timer loop
+
 if __name__ == "__main__":
     task_scheduler = TaskScheduler()
     while True:
