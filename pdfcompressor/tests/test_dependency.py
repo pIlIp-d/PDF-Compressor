@@ -1,7 +1,6 @@
-import io
 import os
 import sys
-from unittest import TestCase, mock
+from unittest import TestCase
 from io import StringIO
 import jsons
 
