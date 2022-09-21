@@ -34,15 +34,14 @@ class TestDependency(TestCase):
             args.append("--simple-and-lossless")
 
         return_code, output_str, err_str = run_subprocess_and_get_output(args)
-        print(output_str)
         if assume_success or simple_and_lossless:
             self.assertTrue(os.path.exists(self.result_path))
             os.remove(self.result_path)
             self.assertEqual(0, return_code)
             if not assume_success:
-                self.assertFalse("Error:" in output_str)
+                self.assertEqual("", err_str)
         else:
-            self.assertTrue("Error:" in output_str)
+            self.assertNotEqual("", err_str)
         return output_str, err_str, return_code
 
     def __get_config(self):
@@ -128,7 +127,7 @@ class TestDependency(TestCase):
         return_code, output_str, err_str = run_subprocess_and_get_output(args)
         self.assertFalse(os.path.exists(self.result_path))
         self.assertNotEqual(0, return_code)
-        self.assertTrue("Error:" in output_str)
+        self.assertTrue("Error:" in err_str)
 
     def test_with_tesseract_path_is_empty(self):
         self.__change_to_empty_path("tesseract_path")
