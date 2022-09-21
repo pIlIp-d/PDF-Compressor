@@ -1,11 +1,11 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 import jsons
 
 from django_app.task_scheduler.db_con import get_connection
 
 
-class Task:
+class Task(ABC):
     def __init__(self, request_id: int, task_type: str, task_id: int = None, finished: bool = False, **parameters):
         self.request_id = request_id
         self.task_type = task_type
