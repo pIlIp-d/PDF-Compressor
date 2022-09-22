@@ -1,6 +1,5 @@
-import os
 from abc import ABC
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor
 from typing import TypeVar
 import inspect
 from functools import wraps
@@ -8,8 +7,6 @@ from functools import wraps
 # generic Type to assure only processors of type Processor are passed as parameters
 from pdfcompressor.processor.postprocessor import Postprocessor
 from pdfcompressor.processor.preprocessor import Preprocessor
-
-TProcessor = TypeVar("TProcessor", bound="Processor")
 
 
 class Processor(Postprocessor, Preprocessor, ABC):
@@ -35,15 +32,11 @@ class Processor(Postprocessor, Preprocessor, ABC):
         for processor in self._postprocessors:
             processor.postprocess(source_file, destination_file)
 
-    @staticmethod
-    def _custom_map_execute(method, args_list: list, cpu_count: int):
-        with ThreadPoolExecutor(max_workers=cpu_count) as executor:
-            tasks = []
+    @classmethod
+    def _custom_map_execute(cls, method, args_list: list, cpu_count: int):
+        with ProcessPoolExecutor(max_workers=cpu_count) as executor:
             for method_parameter in args_list:
-                tasks.append(executor.submit(method, **method_parameter))
-            # waits for all jobs to be completed
-            for _ in as_completed(tasks):
-                pass
+                executor.submit(method, **method_parameter)
 
     @staticmethod
     def pre_and_post_processed(f):
@@ -56,4 +49,5 @@ class Processor(Postprocessor, Preprocessor, ABC):
             if hasattr(self, 'postprocess') and inspect.ismethod(self.postprocess):
                 self.postprocess(args[0], args[1])
             return result
+
         return wrapper
