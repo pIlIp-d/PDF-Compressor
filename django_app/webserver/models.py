@@ -9,6 +9,7 @@ from .validators import check_file_extension, check_file_size, get_file_extensio
 
 
 def get_uploaded_file_path(instance, filename: str) -> str:
+    filename = filename.replace(" ", "_")
     path = os.path.join(
         ".", "uploaded_files",
         instance.processing_request.user_id,
