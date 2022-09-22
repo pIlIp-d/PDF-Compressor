@@ -2,17 +2,17 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from .views import main_view, download_view
 from ..api.urls import urlpatterns as api_urls
 from . import views
 
 app_name = 'webserver'
 
 urlpatterns = [
-    path('', views.render_main_view, name='main-view'),
-    path('pdf-compressor/', views.render_main_view, name='main-view'),
-    path('download/', views.render_download_view, name='download_view'),
-    path('test_view/', views.render_test_view, name='test_view'),
-    path('start_pdf_compression/', views.start_pdf_compression_and_show_download_view,
+    path('', main_view.render_main_view, name='main-view'),
+    path('pdf-compressor/', main_view.render_main_view, name='main-view'),
+    path('download/', download_view.render_download_view, name='download_view'),
+    path('start_pdf_compression/', download_view.start_pdf_compression_and_show_download_view,
          name='start_pdf_compression_and_show_download_view'),
     path('api/', include(api_urls)),
 ]
