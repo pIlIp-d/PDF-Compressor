@@ -57,9 +57,9 @@ class TestOsUtility(TestCase):
         shutil.rmtree(folder_dir)
 
         self.assertEqual(3, len(file_list))
-        self.assertTrue(file_list.__contains__(file1))
-        self.assertTrue(file_list.__contains__(file2))
-        self.assertTrue(file_list.__contains__(file3))
+        self.assertTrue(file1 in file_list)
+        self.assertTrue(file2 in file_list)
+        self.assertTrue(file3 in file_list)
 
     def test_get_file_list_invalid_path(self):
         self.assertRaises(
@@ -124,9 +124,9 @@ class TestOsUtility(TestCase):
         shutil.rmtree(folder_dir)
 
         self.assertEqual(3, len(file_list))
-        self.assertTrue(file_list.__contains__(file1))
-        self.assertTrue(file_list.__contains__(file2))
-        self.assertTrue(file_list.__contains__(file3))
+        self.assertTrue(file1 in file_list)
+        self.assertTrue(file2 in file_list)
+        self.assertTrue(file3 in file_list)
 
     def test_get_file_list_with_custom_ending(self):
         folder_dir = os.path.abspath(os.path.join(".", "TestData", "moreFilesFolder"))
@@ -143,7 +143,7 @@ class TestOsUtility(TestCase):
         shutil.rmtree(folder_dir)
 
         self.assertEqual(1, len(file_list))
-        self.assertTrue(file_list.__contains__(file3))
+        self.assertTrue(file3 in file_list)
 
     def test_get_file_list_with_dot_as_ending(self):
         folder_dir = os.path.join(".", "TestData", "moreFilesFolder")
@@ -272,7 +272,7 @@ class TestOsUtility(TestCase):
         self.assertEqual("TestFolder", OsUtility.get_filename(file))
 
     def test_get_filename_with_absolute_path_to_folder(self):
-        file = os.path.join(os.path.abspath("./TestData/TestFolder"))
+        file = os.path.join(os.path.abspath(os.path.join(".", "TestData", "TestFolder")))
         self.assertEqual("TestFolder", OsUtility.get_filename(file))
 
     def test_get_filename_with_invalid_path(self):
@@ -322,25 +322,38 @@ class TestOsUtility(TestCase):
         shutil.move(self.CONFIG_FILE + ".tmp", self.CONFIG_FILE)
 
     def test_os_utility_get_file_size_file_doesnt_exist(self):
-        self.fail("not implemented, yet")
+        self.assertEqual(0, OsUtility.get_file_size(os.path.join(".", "file_not_exists.pdf")))
 
     def test_os_utility_get_file_size_relative_path(self):
-        self.fail("not implemented, yet")
+        self.assertNotEqual(0, OsUtility.get_file_size(os.path.join(".", "TestData", "singlePagePdf.pdf")))
 
     def test_os_utility_get_file_size_absolute_path(self):
-        self.fail("not implemented, yet")
+        self.assertNotEqual(0, OsUtility.get_file_size(
+            os.path.abspath(os.path.join(".", "TestData", "singlePagePdf.pdf")))
+        )
 
     def test_os_utility_get_file_size_compare_results(self):
-        self.fail("not implemented, yet")
+        self.assertTrue(
+            OsUtility.get_file_size(os.path.join(".", "TestData", "singlePagePdf.pdf"))
+            <
+            OsUtility.get_file_size(os.path.join(".", "TestData", "multiPageTestData.pdf"))
+        )
 
     def test_os_utility_get_file_size_on_filled_folder(self):
-        self.fail("not implemented, yet")
+        self.assertEqual(0, OsUtility.get_file_size(os.path.join(".", "TestData")))
 
     def test_os_utility_get_file_size_on_empty_folder(self):
-        self.fail("not implemented, yet")
+        empty_dir = os.path.join(".", "TestData", "emptyFolder")
+        if not os.path.isdir(empty_dir):
+            os.mkdir(empty_dir)
+        self.assertEqual(0, OsUtility.get_file_size(empty_dir))
+        os.removedirs(empty_dir)
 
     def test_os_utility_get_file_size_on_not_existing_folder(self):
-        self.fail("not implemented, yet")
+        empty_dir = os.path.join(".", "TestData", "not_existing_folder")
+        if os.path.isdir(empty_dir):
+            os.removedirs(empty_dir)
+        self.assertEqual(0, OsUtility.get_file_size(empty_dir))
 
     @classmethod
     def tearDownClass(cls) -> None:
