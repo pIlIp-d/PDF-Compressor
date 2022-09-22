@@ -6,6 +6,7 @@ from pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImage
 from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
 from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
+from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -18,9 +19,10 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
             pngcrush_path: str,
             cpdf_squeeze_compressor: CPdfSqueezeCompressor,
             compression_mode: int,
-            default_pdf_dpi: int = 400
+            default_pdf_dpi: int = 400,
+            event_handlers: list[EventHandler] = list()
     ):
-        super().__init__()
+        super().__init__(event_handlers)
         self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path, pngcrush_path, compression_mode)
         self.__tessdata_prefix = None
         self.__tesseract_path = None

@@ -9,8 +9,6 @@
 
 import os
 
-from .compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
-from .processor.console_ui_processor import ConsoleUIProcessor
 from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from .utility import EventHandler
@@ -72,7 +70,11 @@ class PDFCompressor:
 
         # lossless compressor
         try:
-            self.__cpdf = CPdfSqueezeCompressor(config_paths.cpdfsqueeze_path, config_paths.wine_path)
+            self.__cpdf = CPdfSqueezeCompressor(
+                config_paths.cpdfsqueeze_path,
+                config_paths.wine_path,
+                event_handlers=event_handlers if self.__simple_and_lossless else list()
+            )
         except ValueError:
             ConsoleUtility.print_error("Error: Program cpdfsqueeze not found or configured inorrectly, "
                                        "skipped compression with cpdfsqueeze.")
@@ -88,7 +90,8 @@ class PDFCompressor:
             config_paths.pngcrush_path,
             cpdf,
             self.__compression_mode,
-            self.__default_pdf_dpi
+            self.__default_pdf_dpi,
+            self.__event_handlers
         )
 
         if not self.__no_ocr:
@@ -101,22 +104,12 @@ class PDFCompressor:
             )
         return pdf_crunch
 
-    def __add_processors(self, compressor: AbstractPdfCompressor):
-        console_ui_processor = ConsoleUIProcessor()
-        compressor.add_postprocessor(console_ui_processor)
-        for processor in self.__event_handlers:
-            compressor.add_preprocessor(processor)
-        for processor in self.__event_handlers:
-            compressor.add_postprocessor(processor)
-
     def compress(self) -> None:
         for event_handler in self.__event_handlers:
             event_handler.started_processing()
         if self.__simple_and_lossless:
-            self.__add_processors(self.__cpdf)
             self.__cpdf.compress(self.__source_path, self.__destination_path)
         else:
-            self.__add_processors(self.__pdf_crunch)
             self.__pdf_crunch.compress(self.__source_path, self.__destination_path)
         for event_handler in self.__event_handlers:
             event_handler.finished_all_files()

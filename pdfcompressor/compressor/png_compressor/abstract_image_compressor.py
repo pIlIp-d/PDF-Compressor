@@ -4,14 +4,20 @@ from abc import ABC
 from PIL import Image
 
 from ..compressor import Compressor
+from ...utility.EventHandler import EventHandler
 from ...utility.io_path_parser import IOPathParser
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
 
 class AbstractImageCompressor(Compressor, ABC):
-    def __init__(self, file_type_from: str = ".png", file_type_to: str = ".png"):
-        super().__init__()
+    def __init__(
+            self,
+            file_type_from: str = ".png",
+            file_type_to: str = ".png",
+            event_handlers: list[EventHandler] = list()
+    ):
+        super().__init__(event_handlers)
         self._file_type_from = file_type_from
         self._file_type_to = file_type_to
 
@@ -51,7 +57,13 @@ class AbstractImageCompressor(Compressor, ABC):
 
         orig_sizes = OsUtility.get_filesize_list(source_file_list)
 
+        for event_handler in self.event_handlers:
+            event_handler.started_processing()
+
         self.compress_file_list(source_file_list, destination_file_list)
 
         end_size = sum(OsUtility.get_filesize_list(destination_file_list))
         ConsoleUtility.print_stats(sum(orig_sizes), end_size, "Pages")
+
+        for event_handler in self.event_handlers:
+            event_handler.finished_all_files()

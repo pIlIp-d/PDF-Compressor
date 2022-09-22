@@ -1,7 +1,7 @@
 from PIL.Image import DecompressionBombError
 
 from pdfcompressor.compressor.converter.converter import Converter
-from pdfcompressor.compressor.converter.convert_exception import ConvertException
+from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -33,9 +33,10 @@ class ImagesToPdfConverter(Converter):
             force_ocr: bool = False,
             no_ocr: bool = False,
             tesseract_language: str = "deu",
-            tessdata_prefix: str = ""
+            tessdata_prefix: str = "",
+            event_handlers: list[EventHandler] = list()
     ):
-        super().__init__(origin_path, dest_path)
+        super().__init__(origin_path, dest_path, event_handlers)
         self.images = OsUtility.get_file_list(origin_path, ".png")
         self.images.sort()
         if force_ocr and no_ocr:

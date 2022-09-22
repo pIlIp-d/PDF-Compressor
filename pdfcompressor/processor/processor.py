@@ -1,20 +1,28 @@
 from abc import ABC
 from concurrent.futures import ProcessPoolExecutor
-from typing import TypeVar
 import inspect
 from functools import wraps
 
 # generic Type to assure only processors of type Processor are passed as parameters
 from pdfcompressor.processor.postprocessor import Postprocessor
 from pdfcompressor.processor.preprocessor import Preprocessor
+from pdfcompressor.utility.EventHandler import EventHandler
 
 
 class Processor(Postprocessor, Preprocessor, ABC):
-    def __init__(self):
+    def __init__(self, event_handlers: list[EventHandler]):
+        self.event_handlers = event_handlers
         self._preprocessors = []
         self._postprocessors = []
+        self._add_event_handler_processors()
 
-    def add_preprocessor(self, processor: Preprocessor):
+    def _add_event_handler_processors(self) -> None:
+        for event_handler in self.event_handlers:
+            self.add_preprocessor(event_handler)
+        for event_handler in self.event_handlers:
+            self.add_postprocessor(event_handler)
+
+    def add_preprocessor(self, processor: Preprocessor) -> None:
         self._preprocessors.append(processor)
 
     def add_postprocessor(self, processor: Postprocessor) -> None:

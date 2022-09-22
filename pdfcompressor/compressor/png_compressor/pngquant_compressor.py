@@ -3,6 +3,7 @@ import subprocess
 from subprocess import CalledProcessError
 
 from pdfcompressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
+from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -17,6 +18,7 @@ class PngQuantCompressor(AbstractImageCompressor):
             speed: int = 1,
             min_quality: int = 80,
             max_quality: int = 100,
+            event_handlers: list[EventHandler] = list()
     ):
         """
         :param speed 0:slowest and best quality, 10:fastest
@@ -24,7 +26,7 @@ class PngQuantCompressor(AbstractImageCompressor):
             Instructs pngquant to use the least amount of colors required to meet or exceed the max quality.
             If conversion results in quality below the min quality the image won't be saved
         """
-        super().__init__(".png", ".png")
+        super().__init__(".png", ".png", event_handlers)
         self.__pngquant_path = pngquant_path
 
         if not os.path.isfile(self.__pngquant_path):

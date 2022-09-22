@@ -3,6 +3,7 @@ import subprocess
 from subprocess import CalledProcessError
 
 from pdfcompressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
+from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -11,9 +12,10 @@ class PngcrushCompressor(AbstractImageCompressor):
 
     def __init__(
             self,
-            pngcrush_path: str
+            pngcrush_path: str,
+            event_handlers: list[EventHandler] = list()
     ):
-        super().__init__(".png", ".png")
+        super().__init__(".png", ".png", event_handlers)
         self.__pngcrush_path = pngcrush_path
 
         if not os.path.isfile(self.__pngcrush_path):
