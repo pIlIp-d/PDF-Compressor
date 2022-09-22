@@ -12,9 +12,9 @@ class OsUtility:
     @classmethod
     def get_file_list(cls, folder: str, ending: str = "") -> list:
         if not os.path.exists(folder):
-            raise FileNotFoundError
+            raise FileNotFoundError(folder)
         if os.path.isfile(folder):
-            raise ValueError
+            raise ValueError(folder)
         # get all the png files in temporary folder <=> all pdf pages
         files = []
         for r, _, f in os.walk(folder):
