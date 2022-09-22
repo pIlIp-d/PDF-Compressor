@@ -1,4 +1,5 @@
-import uuid
+import string
+from django.utils.crypto import get_random_string
 
 
 class UserIdMiddleware:
@@ -23,4 +24,4 @@ class UserIdMiddleware:
 
     @staticmethod
     def new_user_id() -> str:
-        return str(uuid.uuid1())
+        return get_random_string(50, allowed_chars=(string.ascii_letters + string.digits))
