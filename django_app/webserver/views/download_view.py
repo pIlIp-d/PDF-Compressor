@@ -1,28 +1,13 @@
-from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from .custom_models.string_utility import StringUtility
-from .forms import PdfCompressorForm
-from .models import ProcessedFile, ProcessingFilesRequest
-from ..api.views import wrong_method_error
-from ..task_scheduler.pdf_compression_task import PdfCompressionTask
+from django_app import settings
+from django_app.api.views import wrong_method_error
+from django_app.task_scheduler.pdf_compression_task import PdfCompressionTask
+from django_app.webserver.custom_models.string_utility import StringUtility
+from django_app.webserver.models import ProcessingFilesRequest, ProcessedFile
 
 FORCE_SILENT_PROCESSING = False
-
-
-# TODO tox, for basic functionality test after install (!= unitTesting)
-
-def render_main_view(request):
-    allowed_file_endings = [".pdf", ".png"]  # no ',' allowed in file ending
-    form = PdfCompressorForm()
-    context = {
-        "dir": "/",
-        "allowed_file_endings": ",".join(allowed_file_endings),
-        "form": form,
-        "user_id": request.session["user_id"],
-    }
-    return render(request, 'application/main.html', context)
 
 
 def render_download_view(request):
@@ -95,9 +80,3 @@ def start_pdf_compression_and_show_download_view(request):
     else:
         return wrong_method_error("POST")
     return redirect("../download/")
-
-
-def render_test_view(request):
-    p = ProcessingFilesRequest.get_or_create_new_request(request.session["user_id"], "abc", "path_extra")
-    print(p.get_local_relative_path(p.get_source_dir()))
-    return HttpResponse("nothing here")
