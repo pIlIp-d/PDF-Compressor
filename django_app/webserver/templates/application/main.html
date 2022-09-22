@@ -24,12 +24,12 @@
 
 <div id="forms_container">
     <!----- Dropzone -------------------------------------------------------------------------------------------------->
-    <form id="my-dropzone" action="api/upload_file/" method="post" class="dropzone">
+    <form id="my-dropzone" action="{{ dir }}api/upload_file/" method="post" class="dropzone">
         {% csrf_token %}
     </form>
 
     <!----- compression options --------------------------------------------------------------------------------------->
-    <form action="start_pdf_compression/" method="post" name="compression_options_form" id="compression_options_form">
+    <form action="{{ dir }}start_pdf_compression/" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
 
         <div class="form_element" id="id_merge_pdfs">
