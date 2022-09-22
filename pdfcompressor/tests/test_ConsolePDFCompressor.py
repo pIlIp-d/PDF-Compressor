@@ -52,6 +52,17 @@ class TestConsolePDFCompressor(TestCase):
         self.assertFalse(console_buffer.getvalue().__contains__(ConsoleUtility.RED))
         self.assertEqual(0, return_code)
 
+    def test_pdf_compressor_more_than_one_page(self):
+        result_path = os.path.join(".", "TestData", "TestFolder", "multiPageTestData_compressed.pdf")
+        self.remove_if_not_exists(result_path)
+        return_code = subprocess.call([
+            "python3", self.program_path,
+            "-p", os.path.join(os.path.realpath("."), "TestData", "TestFolder", "multiPageTestData.pdf")
+        ])
+        self.assertTrue(os.path.exists(result_path))
+        os.remove(result_path)
+        self.assertEqual(0, return_code)
+
     def test_pdf_compressor_valid_path_with_space(self):
         console_buffer = self.get_console_buffer()
         result_path = os.path.join(".", "TestData", "single Page Pdf_compressed.pdf")
