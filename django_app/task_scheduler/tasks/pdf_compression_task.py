@@ -1,4 +1,4 @@
-from django_app.task_scheduler.processing_task import ProcessingTask
+from django_app.task_scheduler.tasks.processing_task import ProcessingTask
 from pdfcompressor.pdfcompressor import PDFCompressor
 
 
