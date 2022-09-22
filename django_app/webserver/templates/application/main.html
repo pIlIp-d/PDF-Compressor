@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <script src="{{ dir }}static/dropzone/dropzone.js"></script>
+    <script src="{{ dir }}static/script/forms.js"></script>
+    <script src="{{ dir }}static/script/dropzone_forms.js"></script>
+    {% for script in extra_scripts %}
+        <script src="{{ dir }}static/script/{{ script }}"></script>
+    {% endfor %}
     <link rel="stylesheet" href="{{ dir }}static/dropzone/dropzone.css">
 
     <link rel="stylesheet" href="{{ dir }}static/style.css">
@@ -31,46 +36,7 @@
     <!----- compression options --------------------------------------------------------------------------------------->
     <form action="{{ dir }}{{ processing_action }}" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
-
-        <div class="form_element" id="id_merge_pdfs">
-            <span class="helptext">{{ form.merge_pdfs.help_text }}</span>
-            <span>{{ form.merge_pdfs.label }}</span>
-            {{ form.merge_pdfs }}
-        </div>
-        <div class="form_element" id="id_processing_file_extension">
-            <span class="helptext">{{ form.processing_file_extension.help_text }}</span>
-            <span>{{ form.processing_file_extension.label }}</span>
-            {{ form.processing_file_extension }}
-        </div>
-        <div class="form_element" id="id_simple_and_lossless">
-            <span class="helptext">{{ form.simple_and_lossless.help_text }}</span>
-            <span>{{ form.simple_and_lossless.label }}</span>
-            {{ form.simple_and_lossless }}
-        </div>
-        <div class="form_logic_container" id="not_lossless_container">
-            <div class="form_element" id="id_compression_mode">
-                <span class="helptext">{{ form.compression_mode.help_text }}</span>
-                <span>{{ form.compression_mode.label }}</span>
-                {{ form.compression_mode }}
-            </div>
-            <div class="form_element" id="id_default_pdf_dpi">
-                <span class="helptext">{{ form.default_pdf_dpi.help_text }}</span>
-                <span>{{ form.default_pdf_dpi.label }}</span>
-                {{ form.default_pdf_dpi }}
-            </div>
-            <div class="form_element" id="id_ocr_mode">
-                <span class="helptext">{{ form.ocr_mode.help_text }}</span>
-                <span>{{ form.ocr_mode.label }}</span>
-                {{ form.ocr_mode }}
-            </div>
-            <div class="form_logic_container" id="no_ocr_container">
-                <div class="form_element" id="id_tesseract_language">
-                    <span class="helptext">{{ form.tesseract_language.help_text }}</span>
-                    <span>{{ form.tesseract_language.label }}</span>
-                    {{ form.tesseract_language }}
-                </div>
-            </div>
-        </div>
+        {{ form_html }}
     </form>
 
 </div>
@@ -87,129 +53,4 @@
     Do you want to review the project? Visit <a href="https://github.com/pIlIp-d/PDF-Compressor/tree/dev">github.com/Croco-File-Crusher</a>
     to have a look at the Croco-File-Crusher.
 </footer>
-
-<script>
-
-    document.addEventListener("DOMContentLoaded", init);
-
-    function init() {
-        // add onchange functions for special form elements which deactivate other options when checked
-        let simple_and_lossless = document.getElementsByName("simple_and_lossless")[0];
-        simple_and_lossless.onchange = function () {
-            update_visibility_of_container("not_lossless_container", this.checked);
-        }
-        let ocr_mode = document.getElementsByName("ocr_mode")[0];
-        ocr_mode.onchange = function () {
-            update_visibility_of_container("no_ocr_container", this.value === "off");
-        };
-        // call them once to initiate css classes from default values
-        simple_and_lossless.onchange();
-        ocr_mode.onchange();
-    }
-
-    function update_visibility_of_container(container_id, disabled) {
-        let container = document.getElementById(container_id);
-        let DISABLED_CLASS = "disabled_container";
-        if (disabled) {
-            container.classList.add(DISABLED_CLASS);
-        } else {
-            container.classList.remove(DISABLED_CLASS);
-        }
-    }
-
-    let compress_button = document.getElementById("compress_button");
-    let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-
-    let dz = null;
-    Dropzone.options.maxFiles = 100;
-    Dropzone.options.myDropzone = {
-        // Prevents Dropzone from uploading dropped files immediately
-        autoProcessQueue: true,
-        init: function () {
-            dz = this;
-            let _this = this;
-            this.on("addedfile", function (file) {
-                if (!correct_file_ending(file.name)) {
-                    this.removeFile(file);
-                    showUnsupportedFileAnimation();
-                    return;
-                }
-                file.file_id = null;
-                let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
-                removeButton.addEventListener("click", function (e) {
-                    // Make sure the button click doesn't submit the form:
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Remove the file preview.
-                    _this.removeFile(file);
-
-                });
-                file.previewElement.appendChild(removeButton);
-            });
-            this.on("removedfile", function (file) {
-                if (file.file_id != null) {
-                    let queue_csrf_token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-                    let user_id = "{{ user_id }}";
-                    let removeFileRequest = new XMLHttpRequest();
-                    removeFileRequest.onreadystatechange = function () {
-                    };
-                    removeFileRequest.open(
-                        "GET",
-                        "{{ dir }}api/remove_file/?file_id=" + file.file_id + "&user_id=" + user_id + "&queue_csrf_token=" + queue_csrf_token,
-                        true
-                    );
-                    removeFileRequest.send();
-                }
-                if (_this.files.length === 0)
-                    deactivate_compression_button() // case: no element
-            });
-            this.on("queuecomplete", function () {
-                activate_compression_button();
-            });
-            this.on("success", function (file, responseText) {
-                file.file_id = responseText.file_id;
-            });
-
-        }
-    };
-
-    function activate_compression_button() {
-        compress_button.classList.remove("disabled");
-        compress_button.classList.add("enabled");
-        compress_button.disabled = false;
-        compress_button.addEventListener("click", submit_compression_options_form);
-    }
-
-    function deactivate_compression_button() {
-        compress_button.classList.remove("enabled");
-        compress_button.classList.add("disabled");
-        compress_button.disabled = true;
-        compress_button.removeEventListener("click", submit_compression_options_form);
-    }
-
-    function submit_compression_options_form() {
-        document.getElementById("compression_options_form").submit();
-    }
-
-    function correct_file_ending(filename) {
-        let allowed_file_ending = "{{ allowed_file_endings }}".split(',');
-        for (let ending in allowed_file_ending) {
-            if (ending != null && filename.endsWith(allowed_file_ending[ending])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Animations
-    function showUnsupportedFileAnimation() {
-        let dropzone = document.getElementById("my-dropzone");
-        dropzone.classList.add("wiggle");
-        setTimeout(function () {
-            dropzone.classList.remove("wiggle");
-        }, 1000); //At least the time the animation lasts
-    }
-
-</script>
-
 </body>
