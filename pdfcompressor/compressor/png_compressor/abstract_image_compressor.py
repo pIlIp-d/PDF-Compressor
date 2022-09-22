@@ -25,13 +25,6 @@ class AbstractImageCompressor(Compressor, ABC):
             # couldn't open and verify -> not a valid image
             return False
 
-    @staticmethod
-    def __get_temp_folder() -> str:
-        number = 0
-        while os.path.exists("./temp_" + str(number)):
-            number += 1
-        return os.path.abspath("./temp_" + str(number)) + os.path.sep
-
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
         self.compress_file_list_multi_threaded(
             source_files,
