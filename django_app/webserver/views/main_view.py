@@ -44,7 +44,6 @@ def render_png_compression_view(request):
         "user_id": request.session["user_id"],
         "extra_scripts": [],
         "form_html": loader.get_template('application/forms/png_compression_form.html').render({"form": form})
-
     }
     return render(request, 'application/main.html', context)
 

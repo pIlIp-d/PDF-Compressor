@@ -73,7 +73,6 @@ function submit_compression_options_form() {
 }
 
 function correct_file_ending(filename) {
-    let allowed_file_ending = "{{ allowed_file_endings }}".split(',');
     for (let ending in allowed_file_ending) {
         if (ending != null && filename.endsWith(allowed_file_ending[ending])) {
             return true;

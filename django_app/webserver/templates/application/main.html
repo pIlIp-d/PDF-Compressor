@@ -4,22 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <script src="{{ dir }}static/dropzone/dropzone.js"></script>
-    <script src="{{ dir }}static/script/forms.js"></script>
-    <script src="{{ dir }}static/script/dropzone_forms.js"></script>
-    {% for script in extra_scripts %}
-        <script src="{{ dir }}static/script/{{ script }}"></script>
-    {% endfor %}
     <link rel="stylesheet" href="{{ dir }}static/dropzone/dropzone.css">
+
 
     <link rel="stylesheet" href="{{ dir }}static/style.css">
     <link rel="stylesheet" href="{{ dir }}static/variables.css">
     <link rel="stylesheet" href="{{ dir }}static/helptext.css">
 
-
     <title>Croco-File-Crusher</title>
 </head>
 
 <body>
+<script>
+    let allowed_file_ending = "{{ allowed_file_endings }}".split(',');
+</script>
 
 <!------------------------------------------------Headline------------------------------------------------------------->
 <div id="header">
@@ -53,4 +51,11 @@
     Do you want to review the project? Visit <a href="https://github.com/pIlIp-d/PDF-Compressor/tree/dev">github.com/Croco-File-Crusher</a>
     to have a look at the Croco-File-Crusher.
 </footer>
+
+<script src="{{ dir }}static/script/forms.js"></script>
+<script src="{{ dir }}static/script/dropzone_form.js"></script>
+{% for script in extra_scripts %}
+    <script src="{{ dir }}static/script/{{ script }}"></script>
+{% endfor %}
+
 </body>
