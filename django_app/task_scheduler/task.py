@@ -28,6 +28,7 @@ class Task(ABC):
     def run(self): pass
 
     def finish_task(self):
+        print("Finished task " + str(self.task_id))
         connection = get_connection()
         cur = connection.cursor()
         cur.execute(f"UPDATE task_objects SET finished = True WHERE id = ?;", (self.task_id, ))
