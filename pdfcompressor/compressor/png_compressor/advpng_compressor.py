@@ -3,6 +3,7 @@ import subprocess
 from subprocess import CalledProcessError
 
 from .abstract_image_compressor import AbstractImageCompressor
+from ...utility.EventHandler import EventHandler
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
@@ -12,7 +13,8 @@ class AdvanceCompressor(AbstractImageCompressor):
             self,
             advpng_path: str,
             shrink_rate: int = 2,
-            iterations: int = 1
+            iterations: int = 1,
+            event_handlers: list[EventHandler] = list()
     ):
         """
         :param shrink_rate (from http://www.advancemame.it/doc-advpng)
@@ -34,7 +36,7 @@ class AdvanceCompressor(AbstractImageCompressor):
         :param iterations - amount of repetitions > 0
             more -> better compression but much slower
         """
-        super().__init__(".png", ".png")
+        super().__init__(".png", ".png", event_handlers)
         self.__advpng_path = advpng_path
         if not os.path.isfile(self.__advpng_path):
             raise FileNotFoundError(rf"advpng not found at '{self.__advpng_path}'")

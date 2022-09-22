@@ -12,9 +12,10 @@ class PdfToImageConverter(Converter):
             self,
             origin_path: str,
             dest_path: str,
-            dpi: int = 400
+            dpi: int = 400,
+            event_handlers: list[EventHandler] = list()
     ):
-        super().__init__(origin_path, dest_path)
+        super().__init__(origin_path, dest_path, event_handlers)
 
         if dpi < 0:
             raise ValueError("default dpi needs to be greater than 0")

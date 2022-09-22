@@ -2,6 +2,7 @@ import os
 import subprocess
 
 from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.console_utility import ConsoleUtility
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -12,7 +13,8 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
             cpdfsqueeze_path: str,
             wine_path_on_linux: str = "",
             user_password: str = None,
-            owner_password: str = None
+            owner_password: str = None,
+            event_handlers: list[EventHandler] = list()
     ):
         """
         :param cpdfsqueeze_path: absolute path to executable
@@ -22,7 +24,7 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
                 If it is active on Windows, it will be automatically disabled.
             False means it directly runs the executable file at the path.
         """
-        super().__init__()
+        super().__init__(event_handlers)
         self.__cpdfsqueeze_path = cpdfsqueeze_path
         self.__wine_path_on_linux = wine_path_on_linux
         if not os.path.exists(self.__wine_path_on_linux):

@@ -4,14 +4,15 @@ from abc import ABC
 import fitz
 
 from ...compressor.compressor import Compressor
+from ...utility.EventHandler import EventHandler
 from ...utility.io_path_parser import IOPathParser
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
 
 class AbstractPdfCompressor(Compressor, ABC):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, event_handlers: list[EventHandler] = list()):
+        super().__init__(event_handlers)
         self._final_merge_file = ""
 
     @staticmethod
@@ -50,6 +51,9 @@ class AbstractPdfCompressor(Compressor, ABC):
             destination_file_list = [destination_file_list[0] for _ in range(len(source_file_list))]
             temporary_destination_file_list = [temporary_destination_file_list[0] for _ in range(len(source_file_list))]
 
+        for event_handler in self.event_handlers:
+            event_handler.started_processing()
+
         self.compress_file_list(source_file_list, temporary_destination_file_list)
 
         if is_merging:
@@ -71,3 +75,6 @@ class AbstractPdfCompressor(Compressor, ABC):
         else:
             for temp_destination, destination in zip(temporary_destination_file_list, destination_file_list):
                 OsUtility.move_file(temp_destination, destination)
+
+        for event_handler in self.event_handlers:
+            event_handler.finished_all_files()
