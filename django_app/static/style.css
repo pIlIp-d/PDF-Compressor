@@ -49,6 +49,7 @@ label {
 
 #compress_button {
     font-size: x-large;
+    color: black;
     background: var(--accent-color);
     text-align: center;
     margin: 1rem auto auto;
