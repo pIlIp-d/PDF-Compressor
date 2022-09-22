@@ -17,7 +17,7 @@ from .utility.os_utility import OsUtility
 
 
 # TODO using **kwargs, read-only, password
-
+# TODO option reserve meta data
 
 class PDFCompressor:
 
