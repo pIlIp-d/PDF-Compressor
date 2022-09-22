@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from django_app.api.decorators import only_for_localhost
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
+from django_app.webserver.validators import get_file_extension
 
 
 @csrf_protect
@@ -97,7 +98,7 @@ def upload_file(request):
         uploaded_file = UploadedFile(
             uploaded_file=request.FILES.get('file'),
             processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, csrfmiddlewaretoken),
-            valid_file_endings=".pdf"
+            valid_file_endings=get_file_extension(request.FILES.get('file').name)
         )
         uploaded_file.save()
         file_id = uploaded_file.id

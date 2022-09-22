@@ -29,7 +29,7 @@
     </form>
 
     <!----- compression options --------------------------------------------------------------------------------------->
-    <form action="{{ dir }}start_pdf_compression/" method="post" name="compression_options_form" id="compression_options_form">
+    <form action="{{ dir }}{{ processing_action }}" method="post" name="compression_options_form" id="compression_options_form">
         {% csrf_token %}
 
         <div class="form_element" id="id_merge_pdfs">
