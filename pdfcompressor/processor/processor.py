@@ -17,10 +17,10 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def add_preprocessor(self, processor: Preprocessor):
         self._preprocessors.append(processor)
 
-    def add_postprocessor(self, processor: Postprocessor):
+    def add_postprocessor(self, processor: Postprocessor) -> None:
         self._postprocessors.append(processor)
 
-    def clear_processors(self):
+    def clear_processors(self) -> None:
         self._preprocessors = []
         self._postprocessors = []
 
@@ -33,7 +33,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
             processor.postprocess(source_file, destination_file)
 
     @classmethod
-    def _custom_map_execute(cls, method, args_list: list, cpu_count: int):
+    def _custom_map_execute(cls, method, args_list: list, cpu_count: int) -> None:
         with ProcessPoolExecutor(max_workers=cpu_count) as executor:
             for method_parameter in args_list:
                 executor.submit(method, **method_parameter)
