@@ -13,5 +13,5 @@ class CompressionPostprocessor(Postprocessor, ABC):
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         ConsoleUtility.print(
-            f"** - Compressed Page {OsUtility.get_filename(source_file)[5:]} with {self.__compressor_name}"
+            f"** - Compressed Page {int(OsUtility.get_filename(source_file)[5:]) + 1} with {self.__compressor_name}"
         )
