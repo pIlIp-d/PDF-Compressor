@@ -1,7 +1,7 @@
 from functools import reduce
 import os
 from abc import ABC
-from django_app.task_scheduler.task import Task
+from django_app.task_scheduler.tasks.task import Task
 from django_app.webserver.custom_models.process_stats_event_handler import ProcessStatsEventHandler
 
 
