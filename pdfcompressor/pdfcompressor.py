@@ -34,7 +34,7 @@ class PDFCompressor:
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
-            event_handler: list[EventHandler] = list()
+            event_handlers: list[EventHandler] = list()
     ):
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
@@ -44,7 +44,7 @@ class PDFCompressor:
         self.__tesseract_language = tesseract_language
         self.__compression_mode = compression_mode
         self.__default_pdf_dpi = default_pdf_dpi
-        self.__event_handlers = event_handler
+        self.__event_handlers = event_handlers
         self.__uses_default_destination = destination_path == "default"
 
         self.__source_path = rf"{os.path.abspath(source_path)}"
