@@ -27,7 +27,7 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         super().__init__(event_handlers)
         self.__cpdfsqueeze_path = cpdfsqueeze_path
         self.__wine_path_on_linux = wine_path_on_linux
-        if not os.path.exists(self.__wine_path_on_linux):
+        if os.name != "nt" and not os.path.exists(self.__wine_path_on_linux):
             raise ValueError(rf"wine_path couldn't be found. '{self.__wine_path_on_linux}'")
         if not os.path.exists(self.__cpdfsqueeze_path):
             raise ValueError(rf"cpdfsqueeze_path couldn't be found. '{self.__cpdfsqueeze_path}'")
