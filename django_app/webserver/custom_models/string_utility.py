@@ -15,7 +15,7 @@ class StringUtility:
 
     @classmethod
     def get_formatted_time(cls, t):
-        return t.strftime("%d.%m.%Y-%H:%M:%S")
+        return t.strftime("%d.%m.%Y-%H.%M.%S")
 
     @classmethod
     def get_filename_with_ending(cls, file_path: str) -> str:
