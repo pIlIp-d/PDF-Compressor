@@ -109,17 +109,13 @@ class ProcessingFilesRequest(models.Model):
 
     @classmethod
     def get_or_create_new_request(cls, user_id: str, queue_csrf_token: str, path_extra: str = ""):
-        processing_request = cls.__get_request(user_id, queue_csrf_token)
-        if processing_request is None:
-            processing_request = cls(
-                user_id=user_id,
-                csrf_token=queue_csrf_token,
-                path_extra=path_extra
-            )
-        elif path_extra != "":
-            processing_request.path_extra = path_extra
-
-        processing_request.save()
+        processing_request = cls.objects.get_or_create(
+            user_id=user_id,
+            csrf_token=queue_csrf_token,
+            defaults={"path_extra": path_extra}
+        )[0]
+        # TODO small files will add two requests, because they are uploaded too fast.
+        #  Create request on main_view display
         return processing_request
 
 
