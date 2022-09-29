@@ -84,8 +84,11 @@ function correct_file_ending(filename) {
 // Animations
 function showUnsupportedFileAnimation() {
     let dropzone = document.getElementById("my-dropzone");
-    dropzone.classList.add("wiggle");
+    let wiggle_class = "wiggle";
+    if (dropzone.classList.contains(wiggle_class))
+        dropzone.classList.remove(wiggle_class);
+    dropzone.classList.add(wiggle_class);
     setTimeout(function () {
-        dropzone.classList.remove("wiggle");
+        dropzone.classList.remove(wiggle_class);
     }, 1000); //At least the time the animation lasts
 }
