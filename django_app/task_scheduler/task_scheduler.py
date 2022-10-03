@@ -41,7 +41,8 @@ class TaskScheduler:
 
         for task in [___load_task(obj) for obj in response]:
             if not task.finished:
-                task.run_task_scheduler()
+                print(task)
+                task.run()
 
     @staticmethod
     def __get_timestamp(time_string):
