@@ -1,6 +1,13 @@
 import pickle
+import threading
+import time
+from asyncio import sleep
 from datetime import datetime
+
 from .db_con import get_connection
+
+INTERVAL_TIME = 5
+QUIET_MODE = False
 
 
 class TaskScheduler:
@@ -34,7 +41,7 @@ class TaskScheduler:
 
         for task in [___load_task(obj) for obj in response]:
             if not task.finished:
-                task.run()
+                task.run_task_scheduler()
 
     @staticmethod
     def __get_timestamp(time_string):
@@ -47,3 +54,19 @@ class TaskScheduler:
         cur = get_connection().cursor()
         res = cur.execute("SELECT * FROM task_objects where finished=False;").fetchone()
         return False if res is None else len(res) >= 1
+
+
+class TaskSchedulerDeamon(threading.Thread):
+    @classmethod
+    def start_async(cls):
+        reader = TaskSchedulerDeamon()
+        reader.deamon = True
+        reader.start()
+
+    def run(self):
+        task_scheduler = TaskScheduler()
+        print("started TaskScheduler.")
+        while True:
+            if task_scheduler.check_for_unfinished_tasks():
+                task_scheduler.run_unfinished_tasks()
+            time.sleep(INTERVAL_TIME)
