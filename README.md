@@ -67,9 +67,13 @@ apt install wine -y
 
 ----
 ### 4. Install Python Packages
+```bash
+cd <project-directory>
+pip install -r requirements.txt
 ```
-# cd <project-directory>
-`pip install -r requirements.txt`
+or for specific python version 3.10
+```bash
+python3.10 -m pip install -r requirements.txt
 ```
 ---
 ### 5. Configure Dependency Paths
