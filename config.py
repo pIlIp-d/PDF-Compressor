@@ -74,7 +74,6 @@ def main():
         )
         tessdata_prefix = ""
 
-    print("Config finished and saved to config.json")
     with open("./config.json", "w") as config_file:
         config_string = "{" + rf'''
         "advpng_path" : "{advpng_path}",
@@ -86,7 +85,7 @@ def main():
         "wine_path" : "{wine_path}"
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
-
+    print("Config finished and saved to config.json")
 
 if __name__ == "__main__":
     main()
