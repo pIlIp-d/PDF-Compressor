@@ -5,8 +5,8 @@ from time import sleep
 import jsons
 import requests
 
-from django_app.settings import ROOT_URL
 from django_app.webserver.custom_models.string_utility import StringUtility
+from manage import ADDRESS, PORT, METHOD
 from pdfcompressor.utility.EventHandler import EventHandler
 from pdfcompressor.utility.os_utility import OsUtility
 
@@ -26,7 +26,7 @@ class ProcessStatsEventHandler(EventHandler):
     @staticmethod
     def __make_request(request_string: str, args):
         for i in range(3):  # retry 3 times on failure
-            status = requests.get(ROOT_URL + "/api" + request_string, args)
+            status = requests.get(f"{METHOD}://{ADDRESS}:{PORT}/api" + request_string, args)
             if status != 200:
                 sleep(1)
             else:
