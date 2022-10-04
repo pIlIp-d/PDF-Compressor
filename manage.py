@@ -3,8 +3,18 @@
 import os
 import sys
 
+PORT = "8080"
+ADDRESS = "0.0.0.0"
+METHOD = "http"
+
+def configure():
+    from django.core.management.commands.runserver import Command as server
+    server.default_addr = ADDRESS
+    server.default_port = PORT
+
 
 def main():
+    configure()
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
     try:
