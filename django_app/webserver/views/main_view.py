@@ -1,9 +1,7 @@
 from functools import reduce
 
-from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
-from django.views import View
 
 from django_app.webserver.forms import image_convert_form
 from django_app.webserver.forms.image_convert_form import ImageConvertForm
@@ -62,7 +60,7 @@ def get_processing_view(
         "processing_action": processing_action,
         "allowed_file_endings": ",".join(allowed_file_endings),  # no ',' allowed in file ending
         "user_id": request.session["user_id"],
-        "extra_scripts": ",".join(extra_scripts),
+        "extra_scripts": extra_scripts,
         "form_html": form_html
     }
     return render(request, 'application/main.html', context)
