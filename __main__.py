@@ -3,7 +3,6 @@ import os.path
 import shutil
 
 from pdfcompressor.pdfcompressor import PDFCompressor
-from pdfcompressor.utility.os_utility import OsUtility
 
 
 def get_args():
