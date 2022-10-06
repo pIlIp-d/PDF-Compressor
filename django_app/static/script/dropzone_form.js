@@ -30,13 +30,13 @@ Dropzone.options.myDropzone = {
         this.on("removedfile", function (file) {
             if (file.file_id != null) {
                 let queue_csrf_token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-                let user_id = "{{ user_id }}";
+                let user_id = USER_ID;
                 let removeFileRequest = new XMLHttpRequest();
                 removeFileRequest.onreadystatechange = function () {
                 };
                 removeFileRequest.open(
                     "GET",
-                    "{{ dir }}api/remove_file/?file_id=" + file.file_id + "&user_id=" + user_id + "&queue_csrf_token=" + queue_csrf_token,
+                    ROOT_DIR + "api/remove_file/?file_id=" + file.file_id + "&user_id=" + user_id + "&queue_csrf_token=" + queue_csrf_token + "&file_origin=uploaded",
                     true
                 );
                 removeFileRequest.send();
