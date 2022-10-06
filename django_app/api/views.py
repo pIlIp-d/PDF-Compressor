@@ -7,20 +7,8 @@ from django_app.api.decorators import only_for_localhost
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 from django_app.webserver.validators import get_file_extension
 
-
-@csrf_protect
-def get_download_path_of_processed_file(request):
-    queue_csrf_token = request.GET.get("queue_csrf_token")
-    if request.method == 'GET' and queue_csrf_token is not None:
-        ProcessedFile.get_all_processing_files(request.session["user_id"])
-
-        download_file_path = "path"
-        # TODO get file path
-        return JsonResponse({
-            "status": 200,
-            "download_file_path": download_file_path
-        }, status=200)
-    return wrong_method_error("GET")
+# TODO favicon.ico
+# TODO move valid_file_endings from UploadedFile -> request Table
 
 
 @csrf_protect
@@ -28,32 +16,6 @@ def get_all_files(request):
     if request.method == "GET":
         files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
         return JsonResponse({"status": 200, "files": files_json}, status=200)
-    return wrong_method_error("GET")
-
-
-# TODO remove
-def processing_of_queue_is_finished(request):
-    """
-        :param request.GET.queue_csrf_token - csrf_token that was used for the file upload
-        :returns json.Finished - boolean True if all files from 'queue_csrf_token' and current user_id are processed
-    """
-    if request.method == 'GET':
-        queue_csrf_token = request.POST.get("queue_csrf_token")
-        boolean_list_of_finished_for_current_queue = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(
-            ProcessingFilesRequest.get_request_id(
-                user_id=request.session["user_id"],
-                queue_csrf_token=queue_csrf_token
-            )
-        ).values_list('finished', flat=True)
-        processing_of_files_is_finished = reduce(
-            lambda prev_result, current: prev_result and current, boolean_list_of_finished_for_current_queue, True
-        )
-        return JsonResponse({
-            "status": 200,
-            "finished": processing_of_files_is_finished,
-            "queue_csrf_token": queue_csrf_token
-        }, status=200)
-
     return wrong_method_error("GET")
 
 
@@ -68,7 +30,7 @@ def parameter_missing_error(parameter_name: str):
 
 # TODO /api/rename_file
 
-@csrf_protect
+@csrf_protect  # TODO csrf_protect doesn't work, yet
 def remove_file(request):
     if request.method == "GET":
         file = None
@@ -80,6 +42,8 @@ def remove_file(request):
             file = ProcessedFile.objects.filter(
                 id=request.GET.get("file_id")
             ).first()
+        else:
+            return JsonResponse({"status": 412, "error": "Parameter file_origin is required."}, status=412)
 
         print(file)
         if file is not None and file.processing_request.user_id == request.session["user_id"]:
