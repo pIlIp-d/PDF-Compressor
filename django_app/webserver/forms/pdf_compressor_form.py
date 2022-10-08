@@ -15,7 +15,7 @@ class PdfCompressorForm(forms.Form):
     )
     simple_and_lossless = forms.BooleanField(
         label='Simple and lossless:',
-        initial=False,
+        initial=True,
         help_text="TODO"
     )
     compression_mode = forms.TypedChoiceField(
