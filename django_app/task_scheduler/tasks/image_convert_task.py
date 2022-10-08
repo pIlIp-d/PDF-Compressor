@@ -8,7 +8,7 @@ from pdfcompressor.utility.os_utility import OsUtility
 
 class ImageConvertClass(ProcessingTask):
     def run(self):
-        event_handlers = [super()._get_process_stats_event_handler()]
+        event_handlers = super()._get_process_stats_event_handler()
         source_path = self._parameters.pop("source_path")
         destination_path = self._parameters.pop("destination_path")
         new_file_ending = self._parameters.pop("result_file_types")
