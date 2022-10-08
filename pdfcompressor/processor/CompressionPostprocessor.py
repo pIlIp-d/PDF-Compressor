@@ -1,3 +1,4 @@
+import re
 from abc import ABC
 
 from pdfcompressor.processor.postprocessor import Postprocessor
@@ -12,6 +13,8 @@ class CompressionPostprocessor(Postprocessor, ABC):
         self.__compressor_name = compressor_name
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
+        # page_number is the first number in the filename
+        page_nuber = re.search(r'\d+', OsUtility.get_filename(source_file))[0]
         ConsoleUtility.print(
-            f"** - Compressed Page {int(OsUtility.get_filename(source_file)[5:]) + 1} with {self.__compressor_name}"
+            f"** - Compressed Page {page_nuber} with {self.__compressor_name}"
         )
