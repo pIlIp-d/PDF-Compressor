@@ -40,7 +40,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
 class ProcessingFilesRequest(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
     user_id = models.CharField(max_length=64)
-    csrf_token = models.CharField(max_length=32)
+    request_id = models.CharField(max_length=64)
     date_of_request = models.DateTimeField(auto_now_add=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
