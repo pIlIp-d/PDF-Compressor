@@ -17,7 +17,10 @@ from .utility.os_utility import OsUtility
 
 
 # TODO using **kwargs, read-only, password
-# TODO option reserve meta data
+# TODO option reserve/strip meta data
+# TODO option bookmarks
+# TODO mime Type check instead of file ending only
+
 
 class PDFCompressor:
 
