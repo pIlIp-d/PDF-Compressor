@@ -6,7 +6,7 @@ from pdfcompressor.utility.os_utility import OsUtility
 class PngCompressionTask(ProcessingTask):
 
     def run(self):
-        event_handler = [super()._get_process_stats_event_handler()]
+        event_handler = super()._get_process_stats_event_handler()
         source_path = self._parameters.pop("source_path")
         destination_path = self._parameters.pop("destination_path")
         config = OsUtility.get_config()
