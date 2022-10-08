@@ -79,44 +79,24 @@ class ProcessingFilesRequest(models.Model):
         )
 
     @classmethod
-    def __get_request(cls, user_id: str, queue_csrf_token: str):
-        return cls.objects.filter(
-            user_id=user_id,
-            csrf_token=queue_csrf_token
-        ).first()
-
-    @classmethod
-    def get_uploaded_file_list_of_current_request(cls, request_id: int):
+    def get_uploaded_file_list_of_current_request(cls, request):
         return UploadedFile.objects.filter(
-            processing_request=cls.get_request_by_id(request_id)
+            processing_request=request
         )
 
     @classmethod
-    def get_processed_file_list_of_current_request(cls, request_id: int):
-        return ProcessedFile.objects.filter(
-            processing_request=cls.get_request_by_id(request_id)
-        )
-
-    @classmethod
-    def get_request_id(cls, user_id: str, queue_csrf_token: str) -> int:
-        return cls.get_or_create_new_request(user_id, queue_csrf_token).id or -1
-
-    @classmethod
-    def get_request_by_id(cls, request_id: int):
+    def get_request_by_id(cls, processing_files_request_id: int):
         return cls.objects.filter(
-            id=request_id
+            id=processing_files_request_id
         ).first()
 
     @classmethod
-    def get_or_create_new_request(cls, user_id: str, queue_csrf_token: str, path_extra: str = ""):
-        processing_request = cls.objects.get_or_create(
+    def get_or_create_new_request(cls, user_id: str, request_id: str, path_extra: str = ""):
+        return cls.objects.get_or_create(
             user_id=user_id,
-            csrf_token=queue_csrf_token,
+            request_id=request_id,
             defaults={"path_extra": path_extra}
         )[0]
-        # TODO small files will add two requests, because they are uploaded too fast.
-        #  Create request on main_view display
-        return processing_request
 
 
 class ProcessedFile(models.Model):
@@ -140,13 +120,6 @@ class ProcessedFile(models.Model):
 
     class Meta:
         verbose_name_plural = 'Processed files'
-
-    @classmethod
-    def add_processed_file_by_id(cls, processed_file_path: str, processing_request_id: int):
-        return cls.add_processed_file(
-            processed_file_path,
-            ProcessingFilesRequest.get_request_by_id(processing_request_id)
-        )
 
     @classmethod
     def add_processed_file(cls, processed_file_path: str, processing_request: ProcessingFilesRequest):
