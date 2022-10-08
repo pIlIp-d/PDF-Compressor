@@ -8,6 +8,7 @@
 # ===================================================================
 
 import os
+from enum import Enum
 
 from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
@@ -16,10 +17,16 @@ from .utility.console_utility import ConsoleUtility
 from .utility.os_utility import OsUtility
 
 
-# TODO using **kwargs, read-only, password
-# TODO option reserve/strip meta data
-# TODO option bookmarks
-# TODO mime Type check instead of file ending only
+class PdfCompressorOptionHelp(Enum):
+    source_path = ""
+    destination_path = ""
+    force_ocr = ""
+    no_ocr = ""
+    quiet = ""
+    tesseract_language = ""
+    simple_and_lossless = ""
+    default_pdf_dpi = ""
+    event_handlers = ""
 
 
 class PDFCompressor:

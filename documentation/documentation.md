@@ -30,7 +30,11 @@ can be added to the queue by instantiating a Task subclass from any Thread.
 required parameters can be found in Task parent class.
 It works by creating a db entry in tasks.db tasks table, which is then executed by the task_scheduler.
 
-``
-``
-``
-``
+# TODOs
+* /media folder memory management (capacity per user etc)
+* add remove all files button (per User)
+* using **kwargs, read-only, password
+* option reserve/strip meta data
+* option bookmarks
+* mime Type check instead of file ending only
+
