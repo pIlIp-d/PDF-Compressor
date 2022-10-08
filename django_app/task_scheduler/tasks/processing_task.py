@@ -3,6 +3,7 @@ import os
 from abc import ABC
 from django_app.task_scheduler.tasks.task import Task
 from django_app.webserver.custom_models.process_stats_event_handler import ProcessStatsEventHandler
+from django_app.webserver.custom_models.zip_all_files_event_handler import ZipAllFilesEventHandler
 
 
 class ProcessingTask(Task, ABC):
@@ -14,18 +15,20 @@ class ProcessingTask(Task, ABC):
         parameters["processed_file_paths"] = processed_file_paths
         super().__init__(request_id, task_id, finished, **parameters)
 
-    def _get_process_stats_event_handler(self) -> ProcessStatsEventHandler:
-        def ___count_files_in_dir(dir_path):
-            return reduce(lambda a, b: a + 1 if b.is_file() else a, os.scandir(dir_path), 0)
-
+    def _get_process_stats_event_handler(self) -> list[ProcessStatsEventHandler]:
         # remove extra args from parameters
         amount_of_input_files = self._parameters["amount_of_input_files"]
         processed_file_paths = self._parameters["processed_file_paths"]
         self._parameters = {key: value for key, value in self._parameters.items() if
                             key not in ("amount_of_input_files", "processed_file_paths")}
 
-        return ProcessStatsEventHandler(
-            amount_of_input_files,
-            processed_file_paths,
-            self.request_id
-        )
+        return [
+            ZipAllFilesEventHandler(
+                processed_file_paths[0]
+            ),
+            ProcessStatsEventHandler(
+                amount_of_input_files,
+                processed_file_paths,
+                self.request_id
+            )
+        ]
