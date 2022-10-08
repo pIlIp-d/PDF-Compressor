@@ -23,18 +23,18 @@ def start_pdf_compression_and_show_download_view(request):
     if request.method == 'POST':
         processing_request = ProcessingFilesRequest.get_or_create_new_request(
             request.session["user_id"],
-            request.POST.get("csrfmiddlewaretoken"),
+            request.POST.get("request_id"),
             request.POST.get("processing_file_extension")
         )
 
         if processing_request.finished:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
-        file_list = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request.id)
+        file_list = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request)
         if len(file_list) < 1:
             return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
         # add zip-file path
-        zip_file = ProcessedFile.add_processed_file_by_id("", processing_request.id)
+        zip_file = ProcessedFile.add_processed_file("", processing_request)
         current_time = zip_file.date_of_upload
 
         # override processed_file_path
@@ -46,9 +46,9 @@ def start_pdf_compression_and_show_download_view(request):
         destination_path = StringUtility.get_local_relative_path(processing_request.get_destination_dir())
         if request.POST.get("merge_pdfs") == "on":
             # add merge pdf-file path
-            processed_file = ProcessedFile.add_processed_file_by_id(
+            processed_file = ProcessedFile.add_processed_file(
                 processing_request.get_merged_destination_path(zip_file.date_of_upload, ".pdf"),
-                processing_request.id
+                processing_request
             )
             processed_files_list.append(processed_file)
             # change destination path to get merged result
@@ -56,9 +56,9 @@ def start_pdf_compression_and_show_download_view(request):
         else:
             # add all results
             for file in file_list:
-                processed_file = ProcessedFile.add_processed_file_by_id(
+                processed_file = ProcessedFile.add_processed_file(
                     processing_request.get_destination_path(file.uploaded_file.name),
-                    processing_request.id
+                    processing_request
                 )
                 processed_file.save()
                 processed_files_list.append(processed_file)
@@ -93,12 +93,12 @@ def start_png_compression_and_show_download_view(request):
 
         if processing_request.finished:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
-        file_list = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request.id)
+        file_list = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request)
         if len(file_list) < 1:
             return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
         # add zip-file path
-        zip_file = ProcessedFile.add_processed_file_by_id("", processing_request.id)
+        zip_file = ProcessedFile.add_processed_file("", processing_request)
         current_time = zip_file.date_of_upload
 
         # override processed_file_path
@@ -111,9 +111,9 @@ def start_png_compression_and_show_download_view(request):
 
         # add all results
         for file in file_list:
-            processed_file = ProcessedFile.add_processed_file_by_id(
+            processed_file = ProcessedFile.add_processed_file(
                 processing_request.get_destination_path(file.uploaded_file.name),
-                processing_request.id
+                processing_request
             )
             processed_file.save()
             processed_files_list.append(processed_file)

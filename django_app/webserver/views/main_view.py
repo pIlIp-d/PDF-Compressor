@@ -61,6 +61,7 @@ def get_processing_view(
         "allowed_file_endings": ",".join(allowed_file_endings),  # no ',' allowed in file ending
         "user_id": request.session["user_id"],
         "extra_scripts": extra_scripts,
-        "form_html": form_html
+        "form_html": form_html,
+        "request_id": request.session["request_id"]
     }
     return render(request, 'application/main.html', context)

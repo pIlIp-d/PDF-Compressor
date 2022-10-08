@@ -1,5 +1,3 @@
-from functools import reduce
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 
@@ -58,10 +56,10 @@ def remove_file(request):
 def upload_file(request):
     if request.method == 'POST':
         user_id = request.session['user_id']
-        csrfmiddlewaretoken = request.POST.get("csrfmiddlewaretoken")
+        request_id = request.POST.get('request_id')
         uploaded_file = UploadedFile(
             uploaded_file=request.FILES.get('file'),
-            processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, csrfmiddlewaretoken),
+            processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
             valid_file_endings=get_file_extension(request.FILES.get('file').name)
         )
         uploaded_file.save()
