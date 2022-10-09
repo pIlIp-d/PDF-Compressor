@@ -22,7 +22,7 @@ def custom_form_renderer(form: Form) -> str:
     html = ""
     for form_element in form:
         html += f"""
-        <div class="form_element" id="id_{ form_element.name }">
+        <div class="form_element" id="id_{ form_element.html_name }">
             <span class="helptext">{ form_element.help_text }</span>
             <span>{ form_element.label }</span>
             { form_element }
