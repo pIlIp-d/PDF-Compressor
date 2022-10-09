@@ -26,9 +26,9 @@ def start_pdf_compression_and_show_download_view(request):
             request.POST.get("request_id"),
             request.POST.get("processing_file_extension")
         )
-
-        if processing_request.finished:
+        if processing_request.finished or processing_request.started:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
+
         file_list = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request)
         if len(file_list) < 1:
             return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
