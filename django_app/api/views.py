@@ -1,9 +1,12 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 
+from django_app import settings
 from django_app.api.decorators import only_for_localhost
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 from django_app.webserver.validators import get_file_extension
+from plugins.pdf_compressor.plugin_config import Plugin
+
 
 # TODO favicon.ico
 # TODO move valid_file_endings from UploadedFile -> request Table
@@ -24,6 +27,10 @@ def wrong_method_error(*allowed_methods):
 
 def parameter_missing_error(parameter_name: str):
     return JsonResponse({"status": 400, "error": f"Parameter '{parameter_name}' is required!"}, status=412)
+
+
+def invalid_parameter_error(parameter_name: str):
+    return JsonResponse({"status": 400, "error": f"Invalid value for parameter '{parameter_name}"}, status=412)
 
 
 # TODO /api/rename_file
@@ -110,5 +117,104 @@ def started_request_processing(request):
             return JsonResponse({"status": 200}, status=200)
         else:
             return parameter_missing_error("request_id")
+    else:
+        return wrong_method_error("GET")
+
+
+def get_intersection_of_file_endings_from_different_input_filetypes(
+        list_of_file_types_per_file_grouped_by_plugin: list[dict]) -> dict:
+    if len(list_of_file_types_per_file_grouped_by_plugin) == 0:
+        return dict()
+
+    plugin_intersections = set.intersection(
+        *[set(types_of_file.keys()) for types_of_file in list_of_file_types_per_file_grouped_by_plugin]
+    )
+    list_of_value_intersections_of_plugin_per_file = [
+        {
+            plugin: file[plugin]
+            for plugin in file.keys()
+            if plugin in plugin_intersections
+        } for file in list_of_file_types_per_file_grouped_by_plugin
+    ]
+    return {
+        plugin: list(set.intersection(*[
+            set(file_endings[plugin])
+            for file_endings in list_of_value_intersections_of_plugin_per_file
+            if len(file_endings[plugin]) > 0
+        ])) for plugin in list_of_value_intersections_of_plugin_per_file[0].keys()
+    }
+
+
+# TODO move to proper test file
+def test_get_intersections():
+    result = get_intersection_of_file_endings_from_different_input_filetypes(
+        [
+            {"plugin1": [1, 3, 4, 5, 6, 7, 8, 9], "Plugin3": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+             "plugin2": [1, 2, 3, 4, 5, 6, 7, 8, 9]},
+            {"Plugin7": [1, 2, 3, 4, 5, 6, 7, 8, 9], "plugin2": [1, 2, 3, 4, 5, 6, 9],
+             "plugin1": [1, 2, 3, 4, 5, 6, 7, 8, 9]},
+            {"Plugin7": [1, 2, 3, 4, 5, 6, 7, 8, 9], "plugin2": [1, 2, 3, 4, 5, 6, 7, 8],
+             "plugin1": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+             "Plugin8": [1, 2, 3, 4, 5, 6, 7, 8, 9]}
+        ]
+    )
+    assert result == {'plugin1': {1, 3, 4, 5, 6, 7, 8, 9}, 'plugin2': {1, 2, 3, 4, 5, 6}}
+
+
+def get_form_html_for_web_view(request):
+    if request.method != "GET":
+        return wrong_method_error("GET")
+    elif "plugin" not in request.GET:
+        return parameter_missing_error("plugin")
+    elif "destination_file_type" not in request.GET:
+        return parameter_missing_error("destination_file_type")
+    elif request.GET.get("plugin") not in [p.name for p in settings.PROCESSOR_PLUGINS]:
+        return invalid_parameter_error("plugin")
+    try:
+        destination_file_type = request.GET.get("destination_file_type")
+        plugin = Plugin.get_processing_plugin_by_name(request.GET.get("plugin"))
+        print(plugin.get_destination_types())
+        if destination_file_type not in plugin.get_destination_types():
+            raise ValueError("No support for the given Value. Plugin:", plugin.name, "Value:", destination_file_type)
+        form_html, form_script = plugin.get_form_html_and_script(destination_file_type)
+        return JsonResponse({
+            "status": 200,
+            "form_html": form_html,
+            "form_script": form_script,
+            "allowed_file_endings": plugin.get_input_file_types()
+        }, status=200)
+    except ValueError:
+        return invalid_parameter_error("destination_file_type")
+
+
+def get_possible_destination_file_types(request):
+    if request.method == "GET":
+        from_file_types = []
+        if "request_id" in request.GET:
+            request_id = request.GET.get("request_id")
+            request = ProcessingFilesRequest.get_or_create_new_request(
+                user_id=request.session.get("user_id"),
+                request_id=request_id
+            )
+            files_of_request = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(request)
+            from_file_types = [
+                get_file_extension(file.uploaded_file.name)[1:] for file in files_of_request
+            ]
+        if len(from_file_types) == 0:
+            from_file_types = [None]
+
+        list_of_file_types_per_file = list()
+        for from_file_type in from_file_types:
+            list_of_file_types = dict()
+            for plugin in settings.PROCESSOR_PLUGINS:
+                list_of_file_types[plugin.name] = plugin.get_destination_types(from_file_type)
+            list_of_file_types_per_file.append(list_of_file_types)
+            # TODO also allow multi steps convert -> shortest path inside graph
+        return JsonResponse({
+            "status": 200,
+            "list_of_file_types_per_file": list_of_file_types_per_file,
+            "possible_file_types": get_intersection_of_file_endings_from_different_input_filetypes(
+                list_of_file_types_per_file)
+        }, status=200)
     else:
         return wrong_method_error("GET")
