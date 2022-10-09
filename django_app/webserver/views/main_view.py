@@ -1,5 +1,6 @@
 from functools import reduce
 
+from django.forms import Form
 from django.shortcuts import render
 from django.template import loader
 
@@ -17,10 +18,23 @@ def get_directory_for_html(request) -> str:
     )
 
 
+def custom_form_renderer(form: Form) -> str:
+    html = ""
+    for form_element in form:
+        html += f"""
+        <div class="form_element" id="id_{ form_element.name }">
+            <span class="helptext">{ form_element.help_text }</span>
+            <span>{ form_element.label }</span>
+            { form_element }
+        </div>
+        """
+    return html
+
+
 def render_main_view(request):
     return get_processing_view(
         request,
-        loader.get_template('application/forms/pdf_compression_form.html').render({"form": PdfCompressorForm()}),
+        PdfCompressorForm(),
         "start_pdf_compression/",
         [".pdf"],
         ["pdf_compression.js"],
@@ -30,7 +44,7 @@ def render_main_view(request):
 def render_png_compression_view(request):
     return get_processing_view(
         request,
-        loader.get_template('application/forms/png_compression_form.html').render({"form": PngCompressorForm()}),
+        PngCompressorForm(),
         "start_png_compression/",
         [".png"]
     )
@@ -39,7 +53,7 @@ def render_png_compression_view(request):
 def render_image_convert_view(request):
     return get_processing_view(
         request,
-        loader.get_template('application/forms/image_convert_form.html').render({"form": ImageConvertForm()}),
+        ImageConvertForm(),
         "start_png_compression/",  # TODO
         image_convert_form.allowed_file_endings
     )
@@ -47,7 +61,7 @@ def render_image_convert_view(request):
 
 def get_processing_view(
         request,
-        form_html: str,
+        form_html: Form,
         processing_action: str,
         allowed_file_endings: list,
         extra_scripts=None
@@ -61,7 +75,7 @@ def get_processing_view(
         "allowed_file_endings": ",".join(allowed_file_endings),  # no ',' allowed in file ending
         "user_id": request.session["user_id"],
         "extra_scripts": extra_scripts,
-        "form_html": form_html,
+        "form_html": custom_form_renderer(form_html),
         "request_id": request.session["request_id"]
     }
     return render(request, 'application/main.html', context)
