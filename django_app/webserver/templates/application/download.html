@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ dir }}static/style.css">
+    <link rel="stylesheet" href="{{ dir }}static/download.css">
+    <link rel="stylesheet" href="{{ dir }}static/variables.css">
+    <link rel="stylesheet" href="{{ dir }}static/helptext.css">
+
+    <title>Croco-File-Crusher</title>
+</head>
+
 <body>
 <script>
     function download(path, filename) {
@@ -16,7 +26,13 @@
     }
 
     function deleteFile(file_id, file_origin) {
-        make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, true, function () {update_files();});
+        make_request("GET", "{{ dir }}api/remove_file?file_id=" + file_id + "&file_origin=" + file_origin, true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    update_files();
+                }
+            }
+        );
     }
 
 </script>
@@ -139,24 +155,8 @@
         }
     }
 
-    function make_request(method, url, async = true, response_handler = null, post_data = null) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = response_handler;
-        xhttp.open(method, url, async);
-        if (post_data != null) xhttp.send(post_data);
-        else xhttp.send();
-    }
-
 </script>
+<script src="{{ dir }}static/script/script.js"></script>
 </body>
 
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ dir }}static/style.css">
-    <link rel="stylesheet" href="{{ dir }}static/download.css">
-    <link rel="stylesheet" href="{{ dir }}static/variables.css">
-    <link rel="stylesheet" href="{{ dir }}static/helptext.css">
-
-    <title>Croco-File-Crusher</title>
-</head>
 </html>
