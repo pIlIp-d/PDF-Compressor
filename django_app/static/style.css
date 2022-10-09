@@ -98,10 +98,10 @@ button:disabled, button[disabled] {
     background-color: darkgrey;
     cursor: not-allowed;
 }
+
 #compress_button:disabled, #compress_button[disabled] {
     border: 1px solid #999999;
     color: #fff;
-    padding: 10px;
 }
 
 /* wiggle animation starts when class wiggle is added*/
@@ -130,4 +130,18 @@ button:disabled, button[disabled] {
     cursor: not-allowed;
     opacity: 0.5;
 
+}
+
+/* disabled container for form */
+.disabled_container{
+    pointer-events:none;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+/* make nested container look the same as the other */
+.disabled_container .disabled_container{
+    opacity: 1.5;
+}
+.disabled_container option {
+    color: #000;
 }
