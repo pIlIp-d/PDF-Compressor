@@ -2,7 +2,7 @@ from django import forms
 
 
 class PdfCompressorForm(forms.Form):
-    merge_pdfs = forms.BooleanField(
+    merge_files = forms.BooleanField(
         label='Merge files into a single PDF.',
         initial=False,
         help_text="TODO"
