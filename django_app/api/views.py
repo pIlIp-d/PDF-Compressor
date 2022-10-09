@@ -7,7 +7,7 @@ from django_app.webserver.validators import get_file_extension
 
 # TODO favicon.ico
 # TODO move valid_file_endings from UploadedFile -> request Table
-
+# TODO decorator for method type
 
 @csrf_protect
 def get_all_files(request):
