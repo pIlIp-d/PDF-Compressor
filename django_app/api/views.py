@@ -18,7 +18,7 @@ def get_all_files(request):
 
 
 def wrong_method_error(*allowed_methods):
-    method_hint = "".join("Try using " if i == 1 else "or" + allowed_methods[i] for i in range(len(allowed_methods)))
+    method_hint = "".join(("Try using " if i == 0 else "or") + allowed_methods[i] for i in range(len(allowed_methods)))
     return JsonResponse({"status": 405, "error": "Method Not Allowed. " + method_hint}, status=405)
 
 
