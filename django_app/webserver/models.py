@@ -93,11 +93,10 @@ class ProcessingFilesRequest(models.Model):
         ).first()
 
     @classmethod
-    def get_or_create_new_request(cls, user_id: str, request_id: str, path_extra: str = ""):
-        return cls.objects.update_or_create(
+    def get_or_create_new_request(cls, user_id: str, request_id: str):
+        return cls.objects.get_or_create(
             user_id=user_id,
-            request_id=request_id,
-            defaults={"path_extra": path_extra}
+            request_id=request_id
         )[0]
 
 
