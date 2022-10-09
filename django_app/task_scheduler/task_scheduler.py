@@ -9,6 +9,8 @@ from .db_con import get_connection
 INTERVAL_TIME = 5
 QUIET_MODE = False
 
+# TODO rename -> TaskExecutorDeamon
+
 
 class TaskScheduler:
     interval = None
@@ -33,7 +35,7 @@ class TaskScheduler:
     def run_unfinished_tasks(cls):
         def ___load_task(query_row):
             task_obj = pickle.loads(query_row["object"])
-            task_obj.task_id = query_row["id"]
+            task_obj._task_id = query_row["id"]
             return task_obj
 
         cur = get_connection().cursor()
