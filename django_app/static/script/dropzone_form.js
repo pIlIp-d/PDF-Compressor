@@ -2,6 +2,7 @@ let compress_button = document.getElementById("compress_button");
 let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
 let dz = null;
+Dropzone.queueFinished = false;
 Dropzone.options.maxFiles = 100;
 Dropzone.options.myDropzone = {
     // Prevents Dropzone from uploading dropped files immediately
@@ -15,6 +16,7 @@ Dropzone.options.myDropzone = {
                 showUnsupportedFileAnimation();
                 return;
             }
+            Dropzone.queueFinished = false;
             file.file_id = null;
             let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
             removeButton.addEventListener("click", function (e) {
@@ -41,11 +43,15 @@ Dropzone.options.myDropzone = {
                 );
                 removeFileRequest.send();
             }
-            if (_this.files.length === 0)
-                deactivate_compression_button() // case: no element
+            deactivate_compression_button();
         });
         this.on("queuecomplete", function () {
-            activate_compression_button();
+            Dropzone.queueFinished = true;
+            if (_this.files.length !== 0) {
+                update_file_type_select(
+                    activate_compression_button
+                );
+            }
         });
         this.on("success", function (file, responseText) {
             file.file_id = responseText.file_id;
@@ -53,6 +59,98 @@ Dropzone.options.myDropzone = {
 
     }
 };
+// TODO clean up
+document.addEventListener("DOMContentLoaded", select_init);
+
+let select = document.getElementById("destination_type_select");
+let current_form = "null";
+
+function set_form_content(form_html) {
+    document.getElementById("form_content").innerHTML = form_html;
+}
+
+function set_form_script(script_string){
+    let script = document.createElement("script");
+    script.innerHTML = script_string;
+    document.getElementById("form_content").appendChild(script);
+    initialize_form_hierarchy();
+}
+
+function select_init() {
+    update_file_type_select();
+    select.addEventListener("change", function () {
+        let selected_option = this.value;
+        current_form = selected_option;
+        if (selected_option === "null") {
+            set_form_content("Choose something.");
+            deactivate_compression_button();
+            allowed_file_endings = [];
+        } else {
+            // changed to another processor
+            make_request(
+                "GET",
+                ROOT_DIR + "api/get_form_html_for_web_view/?plugin=" + selected_option.split(":")[0] + "&destination_file_type=" + selected_option.split(": ")[1],
+                true,
+                function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        let json_response = JSON.parse(this.response);
+                        if ("form_html" in json_response)
+                            set_form_content(json_response.form_html)
+                        if ("form_script" in json_response)
+                            set_form_script(json_response.form_script)
+                        if ("allowed_file_endings" in json_response)
+                            allowed_file_endings = json_response.allowed_file_endings
+                    }
+                }
+            );
+        }
+    });
+    // run change event once for initialization
+    select.dispatchEvent(new Event('change'));
+}
+
+function update_file_type_select(extra_execution = null) {
+    // TODO keep selection if possible
+    make_request(
+        "GET",
+        ROOT_DIR + "api/get_possible_destination_file_types?request_id=" + REQUEST_ID,
+        true,
+        function () {
+            if (this.readyState === 4 && this.status === 200) {
+                let json_response = JSON.parse(this.response);
+
+                function add_options(options) {
+                    for (let o in select.options)
+                        select.options.remove(select.options[o]);
+                    select.options.add(new Option("Choose a Result File Type", null));
+                    // TODO allow 'display_name: processing', and have a separate value with the real plugin name
+                    for (let i in options) {
+                        for (let file_ending_index in options[i]) {
+                            select.options.add(new Option(
+                                i + ": " + options[i][file_ending_index]
+                            ));
+                        }
+                    }
+                    for (let i in select.options)
+                        if (current_form === select.options[i].value)
+                            select.value = current_form;
+                }
+                if ("possible_file_types" in json_response)
+                    add_options(json_response.possible_file_types);
+                if (Dropzone.queueFinished && select.value !== "null")
+                    activate_compression_button();
+
+                if (select.options.length <= 1) {
+                    console.log("SHOW MESSAGE");
+                    deactivate_compression_button();
+                    set_form_content("No Processing option for the current combination of files found.");
+                } else if (extra_execution instanceof Function)
+                    extra_execution();
+
+            }
+        }
+    )
+}
 
 function activate_compression_button() {
     compress_button.classList.remove("disabled");
@@ -73,8 +171,10 @@ function submit_compression_options_form() {
 }
 
 function correct_file_ending(filename) {
-    for (let ending in allowed_file_ending) {
-        if (ending != null && filename.endsWith(allowed_file_ending[ending])) {
+    if (allowed_file_endings.length === 0)
+        return true
+    for (let ending in allowed_file_endings) {
+        if (ending != null && filename.endsWith(allowed_file_endings[ending])) {
             return true;
         }
     }

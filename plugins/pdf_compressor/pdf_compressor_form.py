@@ -1,7 +1,9 @@
 from django import forms
 
+from plugins.pdf_compressor.plugin_config import PluginForm
 
-class PdfCompressorForm(forms.Form):
+
+class PdfCompressorForm(PluginForm):
     merge_files = forms.BooleanField(
         label='Merge files into a single PDF.',
         initial=False,
@@ -61,3 +63,24 @@ class PdfCompressorForm(forms.Form):
         coerce=str,
         help_text='Choose the language, that tesseract should use to create the OCR.'
     )
+
+    def get_hierarchy(self) -> dict:
+        # deactivate child options if they are made irrelevant by a certain configuration
+        return {
+            "simple_and_lossless": {
+                "type": "bool",
+                "children": [
+                    "compression_mode",
+                    "default_pdf_dpi",
+                    "ocr_mode",
+                    "tesseract_language"
+                ]
+            },
+            "ocr_mode": {
+                "type": "choice",
+                "values_for_deactivation": ["off"],
+                "children": [
+                    "tesseract_language"
+                ]
+            }
+        }  # TODO document a combi type
