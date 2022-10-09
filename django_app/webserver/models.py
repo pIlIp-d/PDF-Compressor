@@ -67,7 +67,9 @@ class ProcessingFilesRequest(models.Model):
 
     def get_merged_destination_path(self, datetime: strftime, file_ending_including_dot: str):
         return os.path.join(
-            self.get_destination_dir(), self.get_merged_destination_filename(datetime) + file_ending_including_dot)
+            self.get_destination_dir(),
+            self.get_merged_destination_filename(datetime) + file_ending_including_dot
+        )
 
     def get_zip_destination_path(self, datetime: strftime):
         return self.get_merged_destination_path(datetime, ".zip")
@@ -92,7 +94,7 @@ class ProcessingFilesRequest(models.Model):
 
     @classmethod
     def get_or_create_new_request(cls, user_id: str, request_id: str, path_extra: str = ""):
-        return cls.objects.get_or_create(
+        return cls.objects.update_or_create(
             user_id=user_id,
             request_id=request_id,
             defaults={"path_extra": path_extra}
