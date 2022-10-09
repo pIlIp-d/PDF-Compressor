@@ -9,5 +9,7 @@ urlpatterns = [
     path('started_request_processing/', views.started_request_processing, name='started_request_processing'),
     path('finish_file/', views.finish_file, name='finish-file'),
     path('finish_request/', views.finish_request, name='finish-request'),
-    path('get_all_files/', views.get_all_files, name="get-all-files")
+    path('get_all_files/', views.get_all_files, name="get-all-files"),
+    path('get_possible_destination_file_types/', views.get_possible_destination_file_types),
+    path('get_form_html_for_web_view/', views.get_form_html_for_web_view)
 ]
