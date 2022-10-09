@@ -1,6 +1,6 @@
 from django import forms
 
-from plugins.pdf_compressor.plugin_config import PluginForm
+from django_app.plugin_system.plugin_form import PluginForm
 
 
 class PdfCompressorForm(PluginForm):
