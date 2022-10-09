@@ -6,7 +6,6 @@
     <script src="{{ dir }}static/dropzone/dropzone.js"></script>
     <link rel="stylesheet" href="{{ dir }}static/dropzone/dropzone.css">
 
-
     <link rel="stylesheet" href="{{ dir }}static/style.css">
     <link rel="stylesheet" href="{{ dir }}static/variables.css">
     <link rel="stylesheet" href="{{ dir }}static/helptext.css">
@@ -16,9 +15,10 @@
 
 <body>
 <script>
-    let allowed_file_ending = "{{ allowed_file_endings }}".split(',');
+    let allowed_file_endings = [];
     let ROOT_DIR = "{{ dir }}";
     let USER_ID = "{{ user_id }}";
+    let REQUEST_ID = "{{ request_id }}";
 </script>
 
 <!------------------------------------------------Headline------------------------------------------------------------->
@@ -35,11 +35,15 @@
     </form>
 
     <!----- compression options --------------------------------------------------------------------------------------->
-    <form action="{{ dir }}{{ processing_action }}" method="post" name="compression_options_form"
+    <form action="{{ dir }}start_processing_and_show_download_view/" method="post" name="compression_options_form"
           id="compression_options_form">
         {% csrf_token %}
+        <label for="destination_type_select">-></label>
+        <select name="destination_type_select" id="destination_type_select">
+            <option value="null">Choose a Result File Type</option>
+        </select>
         <input type="hidden" name="request_id" value="{{ request_id }}"/>
-        {{ form_html | safe }}
+        <div id="form_content"></div>
     </form>
 
 </div>
@@ -57,11 +61,10 @@
     to have a look at the Croco-File-Crusher.
 </footer>
 
+<script src="{{ dir }}static/script/script.js"></script>
 <script src="{{ dir }}static/script/forms.js"></script>
 <script src="{{ dir }}static/script/changeable.js"></script>
 <script src="{{ dir }}static/script/dropzone_form.js"></script>
-{% for script in extra_scripts %}
-    <script src="{{ dir }}static/script/{{ script }}"></script>
-{% endfor %}
+
 
 </body>
