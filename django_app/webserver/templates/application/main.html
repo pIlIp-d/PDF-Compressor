@@ -39,7 +39,7 @@
           id="compression_options_form">
         {% csrf_token %}
         <input type="hidden" name="request_id" value="{{ request_id }}"/>
-        {{ form_html }}
+        {{ form_html | safe }}
     </form>
 
 </div>
