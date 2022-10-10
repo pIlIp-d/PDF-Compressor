@@ -4,8 +4,8 @@ from unittest import TestCase
 from io import StringIO
 import jsons
 
-from plugins.pdfcompressor.tests.TestCaseUtility import run_subprocess_and_get_output
-from plugins.pdfcompressor.utility.os_utility import OsUtility
+from plugins.crunch_compressor.tests.TestCaseUtility import run_subprocess_and_get_output
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class TestDependency(TestCase):

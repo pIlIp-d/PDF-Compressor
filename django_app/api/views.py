@@ -5,7 +5,7 @@ from django_app import settings
 from django_app.api.decorators import only_for_localhost
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 from django_app.webserver.validators import get_file_extension
-from plugins.pdfcompressor.plugin_config import Plugin
+from plugins.crunch_compressor.plugin_config import Plugin
 
 
 # TODO favicon.ico

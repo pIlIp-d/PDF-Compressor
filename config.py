@@ -1,6 +1,6 @@
 import os
 
-from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 
 
 def check_existence(path, error_message) -> str:
@@ -16,7 +16,7 @@ def check_existence(path, error_message) -> str:
 
 def main():
     compressor_lib_path = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "plugins/pdfcompressor", "compressor", "compressor_lib"
+        os.path.dirname(__file__), "plugins/crunch_compressor", "compressor", "compressor_lib"
     ))
 
     cpdfsqueeze_path = check_existence(

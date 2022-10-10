@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import jsons
 
-from plugins.pdfcompressor.utility.os_utility import OsUtility
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class TestOsUtility(TestCase):

@@ -6,8 +6,8 @@ import time
 from io import StringIO
 from unittest import TestCase
 
-from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
-from plugins.pdfcompressor.utility.os_utility import OsUtility
+from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class TestConsolePDFCompressor(TestCase):
