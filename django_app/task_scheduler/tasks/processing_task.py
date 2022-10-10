@@ -1,10 +1,10 @@
 from abc import ABC
 from django_app.task_scheduler.tasks.task import Task
-from django_app.task_scheduler.EventHandler.process_stats_event_handler import ProcessStatsEventHandler
+from django_app.task_scheduler.event_handler.process_stats_event_handler import ProcessStatsEventHandler
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.string_utility import StringUtility
-from django_app.task_scheduler.EventHandler.zip_all_files_event_handler import ZipAllFilesEventHandler
+from django_app.task_scheduler.event_handler.zip_all_files_event_handler import ZipAllFilesEventHandler
 
 
 class ProcessingTask(Task, ABC):
