@@ -1,10 +1,8 @@
 import os
 from time import strftime
 
-from django.core.files.uploadedfile import UploadedFile
 from django.db import models
 
-from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.string_utility import StringUtility
 
 
@@ -22,10 +20,6 @@ class ProcessingFilesRequest(models.Model):
 
     class Meta:
         verbose_name_plural = 'Processing Files Requests'
-
-    def file_count(self):
-        return len(UploadedFile.objects.filter(processing_request=self)) \
-               + len(ProcessedFile.objects.filter(processing_request=self))
 
     def get_source_dir(self):
         return os.path.join("uploaded_files", str(self.user_id), str(self.id))
@@ -49,12 +43,6 @@ class ProcessingFilesRequest(models.Model):
         return os.path.join(
             self.get_destination_dir(),
             source_file[len(self.get_source_dir()) + 1:]  # get only the filename
-        )
-
-    @classmethod
-    def get_uploaded_file_list_of_current_request(cls, request):
-        return UploadedFile.objects.filter(
-            processing_request=request
         )
 
     @classmethod

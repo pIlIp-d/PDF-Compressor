@@ -4,8 +4,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from django_app.api.views import wrong_method_error
-from django_app.webserver.models import ProcessingFilesRequest, ProcessedFile
 from django_app.plugin_system.plugin import Plugin
+from django_app.webserver.models.processed_file import ProcessedFile
+from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
+from django_app.webserver.models.uploaded_file import UploadedFile
 
 FORCE_SILENT_PROCESSING = False
 
@@ -51,7 +53,7 @@ def start_processing_and_show_download_view(request):
         if processing_request.finished or processing_request.started:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
 
-        input_file_list = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request)
+        input_file_list = UploadedFile.get_uploaded_file_list_of_current_request(processing_request)
         if len(input_file_list) < 1:
             return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 

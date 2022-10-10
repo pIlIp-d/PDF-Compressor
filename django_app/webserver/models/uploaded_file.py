@@ -50,5 +50,11 @@ class UploadedFile(models.Model):
         self.uploaded_file.delete()
         super(UploadedFile, self).delete(using, keep_parents)
 
+    @classmethod
+    def get_uploaded_file_list_of_current_request(cls, request):
+        return cls.objects.filter(
+            processing_request=request
+        )
+
     class Meta:
         verbose_name_plural = 'Uploaded files'

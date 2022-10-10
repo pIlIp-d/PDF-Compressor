@@ -23,7 +23,7 @@ class ZipAllFilesEventHandler(EventHandler):
 
         # move file into media folder
         shutil.move(
-            os.path.join("../../webserver/custom_models", filename_without_file_ending + ".zip"),
+            os.path.join(".", filename_without_file_ending + ".zip"),
             StringUtility.get_local_absolute_path(
                 os.path.join(destination_directory, filename_without_file_ending + ".zip"))
         )

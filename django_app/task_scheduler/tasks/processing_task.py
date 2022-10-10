@@ -1,9 +1,10 @@
 from abc import ABC
 from django_app.task_scheduler.tasks.task import Task
 from django_app.task_scheduler.EventHandler.process_stats_event_handler import ProcessStatsEventHandler
+from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
+from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.string_utility import StringUtility
 from django_app.task_scheduler.EventHandler.zip_all_files_event_handler import ZipAllFilesEventHandler
-from django_app.webserver.models import ProcessingFilesRequest
 
 
 class ProcessingTask(Task, ABC):
@@ -22,7 +23,7 @@ class ProcessingTask(Task, ABC):
                 "merge_files") else processing_request.get_destination_dir()
         )
         self.__amount_of_input_files = len(
-            ProcessingFilesRequest.get_uploaded_file_list_of_current_request(processing_request)
+            UploadedFile.get_uploaded_file_list_of_current_request(processing_request)
         )
         self.__processed_file_paths = processed_file_paths
 

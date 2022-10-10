@@ -1,9 +1,9 @@
 import os
 
-from django.core.files.uploadedfile import UploadedFile
 from django.db import models
 
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
+from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.string_utility import StringUtility
 
 
@@ -19,10 +19,14 @@ class ProcessedFile(models.Model):
         return str(self.pk) + ": " + str(self.processed_file_path)
 
     def delete(self, using=None, keep_parents=False):
+        def file_count():
+            return len(UploadedFile.objects.filter(processing_request=self.processing_request)) \
+                   + len(ProcessedFile.objects.filter(processing_request=self.processing_request))
+
         file = StringUtility.get_local_absolute_path(self.processed_file_path)
         if os.path.isfile(file):
             os.remove(file)
-        if self.processing_request.file_count() <= 1:
+        if file_count() <= 1:
             self.processing_request.delete()
         super(ProcessedFile, self).delete(using, keep_parents)
 
