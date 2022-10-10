@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 
 from django_app.api.views import wrong_method_error
 from django_app.webserver.models import ProcessingFilesRequest, ProcessedFile
-from plugins.crunch_compressor.plugin_config import Plugin
+from django_app.plugin_system.plugin import Plugin
 
 FORCE_SILENT_PROCESSING = False
 
