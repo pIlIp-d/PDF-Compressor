@@ -53,7 +53,6 @@ def remove_file(request):
         else:
             return JsonResponse({"status": 412, "error": "Parameter file_origin is required."}, status=412)
 
-        print(file)
         if file is not None and file.processing_request.user_id == request.session["user_id"]:
             file.delete()
         else:
@@ -113,7 +112,6 @@ def finish_request(request):
 def started_request_processing(request):
     if request.method == "GET":
         if "request_id" in request.GET:
-            print(request.GET.get("request_id"))
             processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
             processing_request.started = True
             processing_request.save()
@@ -178,7 +176,6 @@ def get_form_html_for_web_view(request):
     try:
         destination_file_type = request.GET.get("destination_file_type")
         plugin = Plugin.get_processing_plugin_by_name(request.GET.get("plugin"))
-        print(plugin.get_destination_types())
         if destination_file_type not in plugin.get_destination_types():
             raise ValueError("No support for the given Value. Plugin:", plugin.name, "Value:", destination_file_type)
         form_html, form_script = plugin.get_form_html_and_script(destination_file_type)

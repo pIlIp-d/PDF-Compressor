@@ -38,8 +38,7 @@ class Plugin(ABC):
             module = importlib.import_module(module_path)
             imported_class = getattr(module, path[-1])
             return imported_class
-        except BaseException as be:
-            print(be)
+        except BaseException:
             raise ImportError("Plugin configuration caused error while loading %s. Plugin: '%s'" %
                              (import_path, self.name))
 
