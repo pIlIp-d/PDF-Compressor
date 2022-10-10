@@ -198,7 +198,20 @@ per parent there are required fields
 
 # Event Handler Class
 
-TODO
+every tasks should trigger certain events, that can be used by the program to determine progress or to apply different processing like zipping or console logging
+
+```python
+class EventHandler(...):
+    # is called before your processing task starts
+    def started_processing(self): pass
+    # is called after all processing has been finished and the result files exist in the destination directory
+    def finished_all_files(self): pass
+    # call before each processing of a file
+    def preprocess(self, source_file: str, destination_file: str) -> None: pass
+    # call after each processing of a file has been finished with source_file as the unchanged starting file
+    # and destination_file the processed file
+    def postprocess(self, source_file: str, destination_file: str) -> None: pass
+```
 
 # TODOs
 
