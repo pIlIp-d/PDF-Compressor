@@ -4,3 +4,4 @@ from .models import UploadedFile
 # Register your models here.
 
 admin.site.register(UploadedFile)
+# TODO register the other models
