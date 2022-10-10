@@ -22,7 +22,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     # a file is present already
     filename_number = 1
     file_ending = get_file_extension(path)
-    while os.path.isfile(StringUtility.get_local_relative_path(path)):
+    while os.path.isfile(StringUtility.get_local_absolute_path(path)):
         path_without_file_ending = path[:-len(file_ending)]
 
         # path is already numbered .path/filename_00.xxx
@@ -112,7 +112,7 @@ class ProcessedFile(models.Model):
         return str(self.pk) + ": " + str(self.processed_file_path)
 
     def delete(self, using=None, keep_parents=False):
-        file = StringUtility.get_local_relative_path(self.processed_file_path)
+        file = StringUtility.get_local_absolute_path(self.processed_file_path)
         if os.path.isfile(file):
             os.remove(file)
         if self.processing_request.file_count() <= 1:
@@ -144,8 +144,8 @@ class ProcessedFile(models.Model):
                 "date_of_upload": StringUtility.get_formatted_time(file_obj.date_of_upload),
                 "file_origin": file_origin,
                 "size": "%.2fmb" % (
-                    0 if not finished or not os.path.isfile(StringUtility.get_local_relative_path(filename_path))
-                    else os.path.getsize(StringUtility.get_local_relative_path(filename_path)) / 1000000)
+                    0 if not finished or not os.path.isfile(StringUtility.get_local_absolute_path(filename_path))
+                    else os.path.getsize(StringUtility.get_local_absolute_path(filename_path)) / 1000000)
             }
 
         def ___get_source_files(processing_request):

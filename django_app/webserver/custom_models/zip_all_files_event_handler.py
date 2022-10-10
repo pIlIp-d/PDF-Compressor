@@ -18,12 +18,12 @@ class ZipAllFilesEventHandler(EventHandler):
         shutil.make_archive(
             filename_without_file_ending,
             compression_format,
-            StringUtility.get_local_relative_path(destination_directory)
+            StringUtility.get_local_absolute_path(destination_directory)
         )
 
         # move file into media folder
         shutil.move(
             os.path.join(".", filename_without_file_ending + ".zip"),
-            StringUtility.get_local_relative_path(
+            StringUtility.get_local_absolute_path(
                 os.path.join(destination_directory, filename_without_file_ending + ".zip"))
         )
