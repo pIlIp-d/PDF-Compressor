@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 
-import plugins.pdf_compressor.plugin_config
+import plugins.pdfcompressor.plugin_config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,5 +132,5 @@ MEDIA_ROOT = BASE_DIR / 'django_app' / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PROCESSOR_PLUGINS = {
-    plugins.pdf_compressor.plugin_config.PdfCompressorPlugin("pdf_compressor"),
+    plugins.pdfcompressor.plugin_config.PdfCompressorPlugin("pdf_compressor"),
 }

@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 
 from django_app.api.views import wrong_method_error
 from django_app.webserver.models import ProcessingFilesRequest, ProcessedFile
-from plugins.pdf_compressor.plugin_config import Plugin
+from plugins.pdfcompressor.plugin_config import Plugin
 
 FORCE_SILENT_PROCESSING = False
 
