@@ -9,12 +9,6 @@ class PdfCompressorForm(PluginForm):
         initial=False,
         help_text="TODO"
     )
-    processing_file_extension = forms.RegexField(
-        regex="",  # TODO regex for allowed chars
-        initial="compressed",
-        label='Processing File Extension:',
-        help_text='TODO'
-    )
     simple_and_lossless = forms.BooleanField(
         label='Simple and lossless:',
         initial=True,
@@ -90,12 +84,6 @@ class PdfCompressorForm(PluginForm):
 
 
 class PngCompressorForm(PluginForm):
-    processing_file_extension = forms.RegexField(
-        regex="",  # TODO regex for allowed chars
-        initial="compressed",
-        label='Processing File Extension:',
-        help_text='TODO'
-    )
     compression_mode = forms.TypedChoiceField(
         choices=(
             (1, '1: Extreme'),
