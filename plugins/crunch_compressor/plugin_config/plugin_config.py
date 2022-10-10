@@ -6,8 +6,8 @@ class PdfCompressorPlugin(Plugin):
         super().__init__(
             name=name,
             from_file_types=["pdf"],
-            form="plugins.pdfcompressor.plugin_config.pdf_compressor_form.PdfCompressorForm",
-            task="plugins.pdfcompressor.plugin_config.pdf_compression_task.PdfCompressionTask"
+            form="plugins.crunch_compressor.plugin_config.pdf_compressor_form.PdfCompressorForm",
+            task="plugins.crunch_compressor.plugin_config.pdf_compression_task.PdfCompressionTask"
         )
 
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
@@ -22,8 +22,8 @@ class PngCompressorPlugin(Plugin):
         super().__init__(
             name=name,
             from_file_types=["png"],
-            form="plugins.pdfcompressor.plugin_config.pdf_compressor_form.PngCompressorForm",
-            task="plugins.pdfcompressor.plugin_config.pdf_compression_task.PngCompressionTask"
+            form="plugins.crunch_compressor.plugin_config.pdf_compressor_form.PngCompressorForm",
+            task="plugins.crunch_compressor.plugin_config.pdf_compression_task.PngCompressionTask"
         )
 
     def get_destination_types(self, from_file_type: str = None) -> list[str]:

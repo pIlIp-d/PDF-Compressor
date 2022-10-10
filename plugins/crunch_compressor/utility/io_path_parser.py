@@ -1,5 +1,5 @@
 import os
-from plugins.pdfcompressor.utility.os_utility import OsUtility
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 # test paths with this class -> improves performance of tests extremely
 
 

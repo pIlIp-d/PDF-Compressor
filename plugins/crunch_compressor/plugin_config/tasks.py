@@ -1,6 +1,6 @@
 from django_app import settings
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from plugins.pdfcompressor.pdfcompressor import PDFCompressor
+from plugins.crunch_compressor.pdfcompressor import PDFCompressor
 
 
 class PdfCompressionTask(ProcessingTask):

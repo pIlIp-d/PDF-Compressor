@@ -1,9 +1,9 @@
 import re
 from abc import ABC
 
-from plugins.pdfcompressor.processor.postprocessor import Postprocessor
-from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
-from plugins.pdfcompressor.utility.os_utility import OsUtility
+from plugins.crunch_compressor.processor.postprocessor import Postprocessor
+from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class CompressionPostprocessor(Postprocessor, ABC):

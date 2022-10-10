@@ -1,9 +1,9 @@
 from PIL.Image import DecompressionBombError
 
-from plugins.pdfcompressor.compressor.converter.converter import Converter
-from plugins.pdfcompressor.utility.EventHandler import EventHandler
-from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
-from plugins.pdfcompressor.utility.os_utility import OsUtility
+from plugins.crunch_compressor.compressor.converter.converter import Converter
+from plugins.crunch_compressor.utility.EventHandler import EventHandler
+from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 # package name PyMuPdf
 import fitz  # also imports convert() method
