@@ -22,8 +22,8 @@ class PngCompressorPlugin(Plugin):
         super().__init__(
             name=name,
             from_file_types=["png"],
-            form="plugins.crunch_compressor.plugin_config.pdf_compressor_form.PngCompressorForm",
-            task="plugins.crunch_compressor.plugin_config.pdf_compression_task.PngCompressionTask"
+            form="plugins.crunch_compressor.plugin_config.forms.PngCompressorForm",
+            task="plugins.crunch_compressor.plugin_config.tasks.PngCompressorTask"
         )
 
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
