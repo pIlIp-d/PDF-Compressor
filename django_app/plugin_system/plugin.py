@@ -40,7 +40,7 @@ class Plugin(ABC):
             return imported_class
         except BaseException as be:
             print(be)
-            raise ValueError("Plugin configuration caused error while loading %s. Plugin: '%s'" %
+            raise ImportError("Plugin configuration caused error while loading %s. Plugin: '%s'" %
                              (import_path, self.name))
 
     def _get_form_class(self):
@@ -54,7 +54,7 @@ class Plugin(ABC):
         for plugin in settings.PROCESSOR_PLUGINS:
             if plugin.name == name:
                 return plugin
-        raise ValueError("Plugin not Found. Plugin: " + name)
+        raise ImportError("Plugin not Found. Plugin: " + name)
 
     def get_input_file_types(self):
         return self._from_file_types
