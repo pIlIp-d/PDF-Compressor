@@ -1,3 +1,5 @@
+from plugins.crunch_compressor.compressor.converter.converter import Converter
+from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 
 import os
