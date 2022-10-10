@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class ImageConvertClass(ProcessingTask):

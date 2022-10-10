@@ -59,7 +59,7 @@ class PDFCompressor:
         self.__destination_path = \
             destination_path if self.__uses_default_destination else rf"{os.path.abspath(destination_path)}"
 
-        pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+        pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../..")
         os.chdir(pdf_dir)
 
         if not os.path.exists(self.__source_path):

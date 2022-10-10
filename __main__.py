@@ -2,7 +2,7 @@ import argparse
 import os.path
 import shutil
 
-from pdfcompressor.pdfcompressor import PDFCompressor
+from plugins.pdfcompressor.pdfcompressor import PDFCompressor
 
 
 def get_args():

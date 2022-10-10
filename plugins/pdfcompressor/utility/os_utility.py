@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import jsons
 
-from pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
 
 
 class OsUtility:

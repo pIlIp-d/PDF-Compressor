@@ -4,9 +4,9 @@ import inspect
 from functools import wraps
 
 # generic Type to assure only processors of type Processor are passed as parameters
-from pdfcompressor.processor.postprocessor import Postprocessor
-from pdfcompressor.processor.preprocessor import Preprocessor
-from pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.processor.postprocessor import Postprocessor
+from plugins.pdfcompressor.processor.preprocessor import Preprocessor
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
 
 
 class Processor(Postprocessor, Preprocessor, ABC):

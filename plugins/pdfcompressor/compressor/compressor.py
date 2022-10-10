@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from pdfcompressor.processor.processor import Processor
+from plugins.pdfcompressor.processor.processor import Processor
 
 
 class Compressor(Processor, ABC):

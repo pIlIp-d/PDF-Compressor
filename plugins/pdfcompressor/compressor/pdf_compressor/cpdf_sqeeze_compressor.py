@@ -1,10 +1,10 @@
 import os
 import subprocess
 
-from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
-from pdfcompressor.utility.EventHandler import EventHandler
-from pdfcompressor.utility.console_utility import ConsoleUtility
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class CPdfSqueezeCompressor(AbstractPdfCompressor):
