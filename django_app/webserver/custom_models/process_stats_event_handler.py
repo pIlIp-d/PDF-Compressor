@@ -4,8 +4,8 @@ import jsons
 import requests
 
 from manage import ADDRESS, PORT, METHOD
-from pdfcompressor.utility.EventHandler import EventHandler
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class ProcessStatsEventHandler(EventHandler):

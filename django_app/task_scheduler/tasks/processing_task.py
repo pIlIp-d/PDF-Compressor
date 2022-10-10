@@ -15,9 +15,9 @@ class ProcessingTask(Task, ABC):
     ):
         super().__init__(processing_request.id)
         self._request_parameters = request_parameters
-        self.__source_path = StringUtility.get_local_absolute_path(processing_request.get_source_dir())
+        self._source_path = StringUtility.get_local_absolute_path(processing_request.get_source_dir())
         # destination is either merged file or directory
-        self.__destination_path = StringUtility.get_local_absolute_path(
+        self._destination_path = StringUtility.get_local_absolute_path(
             processed_file_paths[-1] if request_parameters.get(
                 "merge_files") else processing_request.get_destination_dir()
         )

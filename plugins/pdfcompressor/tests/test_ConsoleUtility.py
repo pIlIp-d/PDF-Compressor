@@ -2,7 +2,7 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
-from pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
 
 # TODO update testTables
 

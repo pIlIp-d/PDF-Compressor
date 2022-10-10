@@ -1,5 +1,5 @@
-from pdfcompressor.processor.postprocessor import Postprocessor
-from pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.processor.postprocessor import Postprocessor
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
 
 
 class ConsoleProgressPostprocessor(Postprocessor):

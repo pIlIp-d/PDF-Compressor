@@ -1,8 +1,8 @@
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
 from django_app.webserver.custom_models.string_utility import StringUtility
 from django_app.webserver.models import ProcessingFilesRequest
-from pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class PngCompressionTask(ProcessingTask):

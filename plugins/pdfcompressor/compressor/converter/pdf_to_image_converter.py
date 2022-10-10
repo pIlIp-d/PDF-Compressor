@@ -1,5 +1,4 @@
-from pdfcompressor.compressor.converter.converter import *
-from pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
 
 import os
 

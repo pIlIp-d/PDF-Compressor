@@ -1,7 +1,7 @@
 import os
 import shutil
 from django_app.webserver.custom_models.string_utility import StringUtility
-from pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
 
 
 class ZipAllFilesEventHandler(EventHandler):

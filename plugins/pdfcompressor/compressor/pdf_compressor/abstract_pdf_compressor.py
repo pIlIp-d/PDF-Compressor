@@ -17,7 +17,7 @@ class AbstractPdfCompressor(Compressor, ABC):
 
     @staticmethod
     def _get_temp_file(filename: str):
-        return os.path.abspath(os.path.join(".", "temporary_files", OsUtility.get_filename(filename) + "_temp.pdf"))
+        return os.path.abspath(os.path.join("", "temporary_files", OsUtility.get_filename(filename) + "_temp.pdf"))
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         if self._final_merge_file != "":

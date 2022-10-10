@@ -1,14 +1,14 @@
 import os
 import shutil
 
-from pdfcompressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
-from pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
-from pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
-from pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
-from pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
-from pdfcompressor.utility.EventHandler import EventHandler
-from pdfcompressor.utility.console_utility import ConsoleUtility
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
+from plugins.pdfcompressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
+from plugins.pdfcompressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from plugins.pdfcompressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
+from plugins.pdfcompressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class PDFCrunchCompressor(AbstractPdfCompressor):

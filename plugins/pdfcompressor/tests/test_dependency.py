@@ -4,16 +4,16 @@ from unittest import TestCase
 from io import StringIO
 import jsons
 
-from pdfcompressor.tests.TestCaseUtility import run_subprocess_and_get_output
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.tests.TestCaseUtility import run_subprocess_and_get_output
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class TestDependency(TestCase):
-    config_file = "../../config.json"
+    config_file = "../../../config.json"
 
-    program_path: str = os.path.abspath('../..')
-    source_path = os.path.join(".", "TestData", "singlePagePdf.pdf")
-    result_path = os.path.join(".", "TestData", "singlePagePdf_compressed.pdf")
+    program_path: str = os.path.abspath('../../..')
+    source_path = os.path.join("", "TestData", "singlePagePdf.pdf")
+    result_path = os.path.join("", "TestData", "singlePagePdf_compressed.pdf")
 
     @staticmethod
     def get_console_buffer() -> StringIO:

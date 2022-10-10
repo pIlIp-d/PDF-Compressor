@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import os
 
-from pdfcompressor.processor.processor import Processor
-from pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.processor.processor import Processor
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
 
 
 class Converter(Processor, ABC):

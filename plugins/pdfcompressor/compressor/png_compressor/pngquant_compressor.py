@@ -2,10 +2,10 @@ import os
 import subprocess
 from subprocess import CalledProcessError
 
-from pdfcompressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
-from pdfcompressor.utility.EventHandler import EventHandler
-from pdfcompressor.utility.console_utility import ConsoleUtility
-from pdfcompressor.utility.os_utility import OsUtility
+from plugins.pdfcompressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
+from plugins.pdfcompressor.utility.EventHandler import EventHandler
+from plugins.pdfcompressor.utility.console_utility import ConsoleUtility
+from plugins.pdfcompressor.utility.os_utility import OsUtility
 
 
 class PngQuantCompressor(AbstractImageCompressor):
