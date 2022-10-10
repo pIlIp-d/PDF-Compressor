@@ -1,3 +1,5 @@
+from functools import reduce
+
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
@@ -6,6 +8,23 @@ from django_app.webserver.models import ProcessingFilesRequest, ProcessedFile
 from plugins.pdf_compressor.plugin_config import Plugin
 
 FORCE_SILENT_PROCESSING = False
+
+
+def get_directory_for_html(request) -> str:
+    return reduce(
+        lambda dir_string, _: ".." + dir_string,
+        range(len(request.META['PATH_INFO'].split("/")) - 2),
+        "/"
+    )
+
+
+def render_main_view(request):
+    context = {
+        "dir": get_directory_for_html(request),
+        "user_id": request.session["user_id"],
+        "request_id": request.session["request_id"]
+    }
+    return render(request, 'application/main.html', context)
 
 
 def render_download_view(request):
