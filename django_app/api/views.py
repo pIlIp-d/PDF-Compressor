@@ -38,6 +38,7 @@ def invalid_parameter_error(parameter_name: str):
 def internal_server_error(error_string: str):
     return JsonResponse({"status": 500, "error": error_string}, status=500)
 
+
 # TODO /api/rename_file
 
 @csrf_protect  # TODO csrf_protect doesn't work, yet
@@ -187,9 +188,13 @@ def get_form_html_for_web_view(request):
             "form_script": form_script,
             "allowed_file_endings": plugin.get_input_file_types()
         }, status=200)
-    except ValueError:
+    except ValueError as e1:
+        if settings.DEBUG:
+            print(e1)
         return invalid_parameter_error("destination_file_type")
     except ImportError as error:
+        if settings.DEBUG:
+            print(error)
         return internal_server_error(str(error))
 
 
