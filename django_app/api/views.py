@@ -3,9 +3,9 @@ from django.views.decorators.csrf import csrf_protect
 
 from django_app import settings
 from django_app.api.decorators import only_for_localhost
+from django_app.plugin_system.plugin import Plugin
 from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
 from django_app.webserver.validators import get_file_extension
-from plugins.crunch_compressor.plugin_config import Plugin
 
 
 # TODO favicon.ico
@@ -26,12 +26,15 @@ def wrong_method_error(*allowed_methods):
 
 
 def parameter_missing_error(parameter_name: str):
-    return JsonResponse({"status": 400, "error": f"Parameter '{parameter_name}' is required!"}, status=412)
+    return JsonResponse({"status": 412, "error": f"Parameter '{parameter_name}' is required!"}, status=412)
 
 
 def invalid_parameter_error(parameter_name: str):
-    return JsonResponse({"status": 400, "error": f"Invalid value for parameter '{parameter_name}"}, status=412)
+    return JsonResponse({"status": 412, "error": f"Invalid value for parameter '{parameter_name}"}, status=412)
 
+
+def internal_server_error(error_string: str):
+    return JsonResponse({"status": 500, "error": error_string}, status=500)
 
 # TODO /api/rename_file
 
@@ -136,13 +139,15 @@ def get_intersection_of_file_endings_from_different_input_filetypes(
             if plugin in plugin_intersections
         } for file in list_of_file_types_per_file_grouped_by_plugin
     ]
-    return {
-        plugin: list(set.intersection(*[
-            set(file_endings[plugin])
-            for file_endings in list_of_value_intersections_of_plugin_per_file
-            if len(file_endings[plugin]) > 0
-        ])) for plugin in list_of_value_intersections_of_plugin_per_file[0].keys()
-    }
+    intersections = dict()
+    for plugin in list_of_value_intersections_of_plugin_per_file[0].keys():
+        buffer = list()
+        for file_endings in list_of_value_intersections_of_plugin_per_file:
+            if len(file_endings[plugin]) > 0:
+                buffer.append(set(file_endings[plugin]))
+        if len(buffer) > 0:
+            intersections[plugin] = list(set.intersection(*buffer))
+    return intersections
 
 
 # TODO move to proper test file
@@ -185,6 +190,8 @@ def get_form_html_for_web_view(request):
         }, status=200)
     except ValueError:
         return invalid_parameter_error("destination_file_type")
+    except ImportError as error:
+        return internal_server_error(str(error))
 
 
 def get_possible_destination_file_types(request):
