@@ -7,6 +7,8 @@ import jsons
 
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), "..", "config.json")
+
 
 class OsUtility:
     @classmethod
@@ -73,7 +75,7 @@ class OsUtility:
         return os.stat(file_path).st_size
 
     @classmethod
-    def get_config(cls, config_file: str = "./config.json"):
+    def get_config(cls, config_file: str = CONFIG_FILE):
         config_path = os.path.abspath(config_file)
         if not os.path.isfile(config_path):
             raise FileNotFoundError("config file not found")
@@ -90,4 +92,5 @@ class OsUtility:
 
         with open(config_path, "r") as config_file:
             obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
+        print(Config(**obj).cpdfsqueeze_path)
         return Config(**obj)

@@ -16,7 +16,7 @@ def check_existence(path, error_message) -> str:
 
 def main():
     compressor_lib_path = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "plugins/crunch_compressor", "compressor", "compressor_lib"
+        os.path.dirname(__file__), "compressor", "compressor_lib"
     ))
 
     cpdfsqueeze_path = check_existence(
@@ -74,7 +74,7 @@ def main():
         )
         tessdata_prefix = ""
 
-    with open("./config.json", "w") as config_file:
+    with open("config.json", "w") as config_file:
         config_string = "{" + rf'''
         "advpng_path" : "{advpng_path}",
         "pngquant_path" : "{pngquant_path}",
@@ -86,6 +86,7 @@ def main():
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
     print("Config finished and saved to config.json")
+
 
 if __name__ == "__main__":
     main()
