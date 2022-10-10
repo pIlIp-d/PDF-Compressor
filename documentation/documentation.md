@@ -203,6 +203,8 @@ TODO
 # TODOs
 
 * /media folder memory management (capacity per user etc)
+* GarbageCollector (regular cleanup of old Tasks, /media folder, /temporary_files folder)
+  * deletes request, if it has no files
 * add remove all files button (per User)
 * using **kwargs, read-only, password
 * option reserve/strip meta data
@@ -211,4 +213,4 @@ TODO
 * POST value validating with django forms (inside ProcessingTasks)
 * download view delete button per request (deletes corresponding request, tasks and files)
 * POST value validating with django forms
-* add regular cleanup of old Tasks
+* 
