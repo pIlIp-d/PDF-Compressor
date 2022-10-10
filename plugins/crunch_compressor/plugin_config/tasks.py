@@ -32,7 +32,7 @@ class PngCompressionTask(ProcessingTask):
             pngcrush_path=config.pngcrush_path,
             compression_mode=int(self._request_parameters.get("compression_mode")),
             event_handlers=event_handler
-        ).compress_file_list(
-            source_files=self._source_path,
-            destination_files=self._destination_path
+        ).compress(
+            source_path=self._source_path,
+            destination_path=self._destination_path
         )
