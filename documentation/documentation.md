@@ -101,7 +101,6 @@ class ExampleTask(ProcessingTask):
         #  see event_handler documentation, so that you trigger all necessary events
         #  optionally follow `settings.DEBUG` for your quiet mode/ print suppressing
         ###################
-        self.finish_task()
 ```
 
 ## Plugin Form
