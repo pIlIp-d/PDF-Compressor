@@ -9,9 +9,8 @@ from django_app import settings
 class Plugin(ABC):
     COMPRESSION_TYPE = "compression"
 
-    def __init__(self, name: str, from_file_types: list, form: str, task: str, processor_class: str):
+    def __init__(self, name: str, from_file_types: list, form: str, task: str):
         self.name = name
-        self.processor_class = processor_class
         self._task = task
         self._form = form
         self._from_file_types = from_file_types
@@ -71,16 +70,19 @@ class Plugin(ABC):
                        """
 
         def ___get_javascript(__hierarchy):
+            # initialize_form_hierarchy is called after the form is loaded
             config_script = "function initialize_form_hierarchy(){"
             # add javascript for hierarchy configuration
             for form_container in __hierarchy.keys():
                 if __hierarchy.get(form_container).get("type") == "bool":
+                    hide_state = "" if __hierarchy.get(form_container).get("hide_state") == "True" else "!"
                     config_script += """
                                 let %s = document.getElementById("id_%s")
                                 %s.onchange = function () {
-                                    update_visibility_of_container("not_%s", this.checked);
+                                    update_visibility_of_container("not_%s", %sthis.checked);
                                 }; %s.onchange();""" \
-                                     % (form_container, form_container, form_container, form_container, form_container)
+                                     % (form_container, form_container, form_container, form_container, hide_state,
+                                        form_container)
                 elif __hierarchy.get(form_container).get("type") == "choice":
                     string_list = json.dumps(__hierarchy.get(form_container).get("values_for_deactivation"))
                     config_script += """
@@ -112,4 +114,3 @@ class Plugin(ABC):
 
         html += f"<input type='hidden' name='destination_file_type' value='{destination_file_type}'>"
         return html, ___get_javascript(hierarchy)
-

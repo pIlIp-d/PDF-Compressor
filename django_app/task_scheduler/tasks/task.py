@@ -4,10 +4,10 @@ from django_app.task_scheduler.db_con import get_connection
 
 
 class Task(ABC):
-    def __init__(self, request_id: int, task_id: int = None, finished: bool = False):
+    def __init__(self, request_id: int):
         self._request_id = request_id
-        self._task_id = task_id
-        self.finished = finished
+        self._task_id = None
+        self.finished = False
 
     def create(self):
         connection = get_connection()

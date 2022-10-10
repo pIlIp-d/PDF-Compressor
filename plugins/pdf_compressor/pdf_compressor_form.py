@@ -69,6 +69,7 @@ class PdfCompressorForm(PluginForm):
         return {
             "simple_and_lossless": {
                 "type": "bool",
+                "hide_state": "True",
                 "children": [
                     "compression_mode",
                     "default_pdf_dpi",
@@ -83,4 +84,6 @@ class PdfCompressorForm(PluginForm):
                     "tesseract_language"
                 ]
             }
-        }  # TODO document a combi type
+        }
+        # TODO document/implement a combi type
+        # TODO document/implement an option to have multiple hierarchies per field

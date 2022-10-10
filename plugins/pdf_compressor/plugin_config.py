@@ -7,8 +7,7 @@ class PdfCompressorPlugin(Plugin):
             name=name,
             from_file_types=["pdf", "png"],
             form="plugins.pdf_compressor.pdf_compressor_form.PdfCompressorForm",
-            task="plugins.pdf_compressor.pdf_compression_task.PdfCompressionTask",
-            processor_class="pdfcompressor.pdfcompressor.PDFCrunchCompressor"
+            task="plugins.pdf_compressor.pdf_compression_task.PdfCompressionTask"
         )
 
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
