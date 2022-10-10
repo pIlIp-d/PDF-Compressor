@@ -4,7 +4,9 @@ from django.views.decorators.csrf import csrf_protect
 from django_app import settings
 from django_app.api.decorators import only_for_localhost
 from django_app.plugin_system.plugin import Plugin
-from django_app.webserver.models import UploadedFile, ProcessingFilesRequest, ProcessedFile
+from django_app.webserver.models.processed_file import ProcessedFile
+from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
+from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.validators import get_file_extension
 
 
@@ -200,7 +202,7 @@ def get_possible_destination_file_types(request):
                 user_id=request.session.get("user_id"),
                 request_id=request_id
             )
-            files_of_request = ProcessingFilesRequest.get_uploaded_file_list_of_current_request(request)
+            files_of_request = UploadedFile.get_uploaded_file_list_of_current_request(request)
             from_file_types = [
                 get_file_extension(file.uploaded_file.name)[1:] for file in files_of_request
             ]

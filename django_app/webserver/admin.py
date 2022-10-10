@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import UploadedFile
+
+from django_app.webserver.models.uploaded_file import UploadedFile
 
 # Register your models here.
 
