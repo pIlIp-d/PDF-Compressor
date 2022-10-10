@@ -13,8 +13,8 @@ class PngCompressionTask(ProcessingTask):
             processed_file_paths: list
     ):
         super().__init__(processing_request, processed_file_paths)
-        self.__source_path = StringUtility.get_local_relative_path(processing_request.get_source_dir())
-        self.__destination_path = StringUtility.get_local_relative_path(processing_request.get_destination_dir())
+        self.__source_path = StringUtility.get_local_absolute_path(processing_request.get_source_dir())
+        self.__destination_path = StringUtility.get_local_absolute_path(processing_request.get_destination_dir())
         self.__compression_mode = int(request_parameters.get("compression_mode"))
 
     def run(self):

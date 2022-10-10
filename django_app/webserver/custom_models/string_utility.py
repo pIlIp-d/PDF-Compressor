@@ -10,8 +10,8 @@ class StringUtility:
         return f"{path_extra}_files_{request_id}_{cls.get_formatted_time(datetime)}"
 
     @classmethod
-    def get_local_relative_path(cls, download_path):
-        return os.path.join(MEDIA_FOLDER_PATH, download_path)
+    def get_local_absolute_path(cls, download_path):
+        return os.path.abspath(os.path.join(MEDIA_FOLDER_PATH, download_path))
 
     @classmethod
     def get_formatted_time(cls, t):
