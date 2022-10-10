@@ -59,11 +59,10 @@ class TaskScheduler:
         return False if res is None else len(res) >= 1
 
 
-class TaskSchedulerDeamon(threading.Thread):
+class TaskSchedulerDaemon(threading.Thread):
     @classmethod
     def start_async(cls):
-        reader = TaskSchedulerDeamon()
-        reader.deamon = True
+        reader = TaskSchedulerDaemon(daemon=True)
         reader.start()
 
     def run(self):
