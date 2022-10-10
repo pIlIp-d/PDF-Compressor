@@ -4,7 +4,7 @@ from time import strftime
 
 from django.db import models
 
-from .custom_models.string_utility import StringUtility
+from django_app.webserver.string_utility import StringUtility
 from .validators import check_file_extension, check_file_size, get_file_extension
 
 

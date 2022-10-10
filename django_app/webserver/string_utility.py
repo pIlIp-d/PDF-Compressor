@@ -1,7 +1,7 @@
 # no django imports allowed inside this file, because it is used by task_scheduler.py
 import os
 
-MEDIA_FOLDER_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "media")
+MEDIA_FOLDER_PATH = os.path.join(os.path.dirname(__file__), "", "..", "media")
 
 
 class StringUtility:

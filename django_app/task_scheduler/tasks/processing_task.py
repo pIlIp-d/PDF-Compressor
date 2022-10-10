@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from django_app.task_scheduler.tasks.task import Task
-from django_app.webserver.custom_models.process_stats_event_handler import ProcessStatsEventHandler
-from django_app.webserver.custom_models.string_utility import StringUtility
-from django_app.webserver.custom_models.zip_all_files_event_handler import ZipAllFilesEventHandler
+from django_app.task_scheduler.EventHandler.process_stats_event_handler import ProcessStatsEventHandler
+from django_app.webserver.string_utility import StringUtility
+from django_app.task_scheduler.EventHandler.zip_all_files_event_handler import ZipAllFilesEventHandler
 from django_app.webserver.models import ProcessingFilesRequest
 
 

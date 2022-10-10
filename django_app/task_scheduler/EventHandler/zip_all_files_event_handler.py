@@ -1,6 +1,6 @@
 import os
 import shutil
-from django_app.webserver.custom_models.string_utility import StringUtility
+from django_app.webserver.string_utility import StringUtility
 from plugins.crunch_compressor.utility.EventHandler import EventHandler
 
 
