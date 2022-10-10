@@ -1,6 +1,8 @@
 from django_app import settings
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
+from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
 from plugins.crunch_compressor.pdfcompressor import PDFCompressor
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class PdfCompressionTask(ProcessingTask):
@@ -18,4 +20,19 @@ class PdfCompressionTask(ProcessingTask):
             default_pdf_dpi=int(self._request_parameters.get("default_pdf_dpi")),
             event_handlers=event_handler
         ).compress()
-        self.finish_task()
+
+
+class PngCompressionTask(ProcessingTask):
+    def run(self):
+        event_handler = super()._get_process_stats_event_handler()
+        config = OsUtility.get_config()
+        PNGCrunchCompressor(
+            pngquant_path=config.pngquant_path,
+            advpng_path=config.advpng_path,
+            pngcrush_path=config.pngcrush_path,
+            compression_mode=int(self._request_parameters.get("compression_mode")),
+            event_handlers=event_handler
+        ).compress_file_list(
+            source_files=self._source_path,
+            destination_files=self._destination_path
+        )
