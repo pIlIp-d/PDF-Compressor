@@ -9,7 +9,7 @@ from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class TestDependency(TestCase):
-    config_file = "../../../config.json"
+    config_file = "../config.json"
 
     program_path: str = os.path.abspath('../../..')
     source_path = os.path.join("", "TestData", "singlePagePdf.pdf")
