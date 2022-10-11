@@ -51,8 +51,8 @@ class AdvanceCompressor(AbstractPngCompressor):
         self.__advpng_options = " ".join(("--recompress", f"-{shrink_rate}", f"-i {iterations}"))
 
     def preprocess(self, source_file: str, destination_file: str) -> None:
-        OsUtility.copy_file(source_file, destination_file)
         super().preprocess(source_file, destination_file)
+        OsUtility.copy_file(source_file, destination_file)
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         if not self._is_valid_image(destination_file) or OsUtility.get_file_size(source_file) < OsUtility.get_file_size(
