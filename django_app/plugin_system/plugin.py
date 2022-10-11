@@ -44,7 +44,7 @@ class Plugin(ABC):
             raise ImportError("Plugin configuration caused error while loading %s. Plugin: '%s'" %
                              (import_path, self.name))
 
-    def _get_form_class(self):
+    def get_form_class(self):
         return self._import_by_string_path(self._form)
 
     def get_task(self):
@@ -97,7 +97,7 @@ class Plugin(ABC):
             return config_script + "}"
 
         html = ""
-        form = self._get_form_class()()
+        form = self.get_form_class()()
         hierarchy = form.get_hierarchy()
         for form_element in form:
             open_hierarchy_containers = 0
