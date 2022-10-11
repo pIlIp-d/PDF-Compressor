@@ -226,4 +226,9 @@ class EventHandler(...):
 * POST value validating with django forms (inside ProcessingTasks)
 * download view delete button per request (deletes corresponding request, tasks and files)
 * POST value validating with django forms
-* 
+* unittest with file_ending not all small chars
+* unittest with more than 1, 10, 100 sites
+
+# Plugin Ideas
+* make compression plugin for pdf with password using cpdf
+* combinations of PSD files
