@@ -2,13 +2,13 @@ import os
 import subprocess
 from subprocess import CalledProcessError
 
-from plugins.crunch_compressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
+from plugins.crunch_compressor.compressor.png_compressor.abstract_png_compressor import AbstractPngCompressor
 from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
-class PngQuantCompressor(AbstractImageCompressor):
+class PngQuantCompressor(AbstractPngCompressor):
     __FILE_SIZE_INCREASED_ERROR: int = 98
     __IMAGE_QUALITY_BELOW_LIMIT_ERROR: int = 99
 
@@ -26,7 +26,7 @@ class PngQuantCompressor(AbstractImageCompressor):
             Instructs pngquant to use the least amount of colors required to meet or exceed the max quality.
             If conversion results in quality below the min quality the image won't be saved
         """
-        super().__init__(".png", ".png", event_handlers)
+        super().__init__(event_handlers)
         self.__pngquant_path = pngquant_path
 
         if not os.path.isfile(self.__pngquant_path):

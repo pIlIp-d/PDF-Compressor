@@ -2,13 +2,13 @@ import os
 import subprocess
 from subprocess import CalledProcessError
 
-from .abstract_image_compressor import AbstractImageCompressor
+from .abstract_png_compressor import AbstractPngCompressor
 from ...utility.EventHandler import EventHandler
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
 
-class AdvanceCompressor(AbstractImageCompressor):
+class AdvanceCompressor(AbstractPngCompressor):
     def __init__(
             self,
             advpng_path: str,
@@ -36,7 +36,7 @@ class AdvanceCompressor(AbstractImageCompressor):
         :param iterations - amount of repetitions > 0
             more -> better compression but much slower
         """
-        super().__init__(".png", ".png", event_handlers)
+        super().__init__(event_handlers)
         self.__advpng_path = advpng_path
         if not os.path.isfile(self.__advpng_path):
             raise FileNotFoundError(rf"advpng not found at '{self.__advpng_path}'")
