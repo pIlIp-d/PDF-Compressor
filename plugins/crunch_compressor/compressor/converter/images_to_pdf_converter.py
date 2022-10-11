@@ -1,9 +1,7 @@
 from PIL.Image import DecompressionBombError
 
-from plugins.crunch_compressor.compressor.converter.converter import Converter
-from plugins.crunch_compressor.utility.EventHandler import EventHandler
+from django_app.plugin_system.processing_classes.converter import Converter
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
-from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 # package name PyMuPdf
 import fitz  # also imports convert() method
@@ -22,41 +20,36 @@ except:
     PY_TESS_AVAILABLE = False
 
 
-class ImagesToPdfConverter(Converter):
-    pytesseract_path: str
+# TODO consoleUI processor
 
+
+class ImagesToPdfConverter(Converter):
+
+    # TODO to see supported formats run 'python3.10 -m PIL'. needed are 'save' and 'open'
     def __init__(
             self,
-            origin_path: str,
-            dest_path: str,
             pytesseract_path: str = None,
             force_ocr: bool = False,
             no_ocr: bool = False,
             tesseract_language: str = "deu",
             tessdata_prefix: str = "",
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None
     ):
-        super().__init__(origin_path, dest_path, event_handlers)
-        self.images = OsUtility.get_file_list(origin_path, ".png")
-        self.images.sort()
+        super().__init__(event_handlers, "", "pdf", True, True)
         if force_ocr and no_ocr:
             raise ValueError("force_ocr and no_ocr can't be used together")
-
-        self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE
+        self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE and pytesseract_path is not None
         self.no_ocr = no_ocr
         self.tesseract_language = tesseract_language
         self.tessdata_prefix = rf"{tessdata_prefix}"
+        self.pytesseract_path = pytesseract_path
 
         try:
-            if pytesseract_path is not None:
-                self.pytesseract_path = pytesseract_path
-            else:
-                raise ValueError()
-            self.init_pytesseract()
+            self.__init_pytesseract()
         except ValueError:
             self.force_ocr = False
 
-    def init_pytesseract(self) -> None:
+    def __init_pytesseract(self) -> None:
         # either initiates pytesseract or deactivate ocr if not possible
         try:
             if not os.path.isfile(self.pytesseract_path):
@@ -77,48 +70,33 @@ class ImagesToPdfConverter(Converter):
                 self.force_ocr = False
             raise ValueError("Tesseract (-> no OCR on pdfs)")
 
-    def convert(self) -> None:
-        # merging pngs to pdf and create OCR
-        ConsoleUtility.print("\n--merging compressed images into new pdf and creating OCR--")
-
-        # convert images sequential (is significantly faster than parallel)
-        for img, image_id in zip(self.images, range(len(self.images))):
-            self.convert_image_to_pdf(img, image_id)
-
-        # create folder for destination file if necessary
-        if self.dest_path.endswith(".pdf"):
-            os.makedirs(os.path.dirname(self.dest_path), exist_ok=True)
-        else:
-            os.makedirs(self.dest_path, exist_ok=True)
-
-        # free storage by deleting png
-        for image in self.images:
-            os.remove(image)
-
+    def _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
         # merge page files into final destination
         with fitz.open() as pdf:
-            for file in self.images:
+            for file in file_list:
                 pdf.insert_pdf(fitz.open(file + ".pdf"))
-            pdf.save(self.dest_path)
+            pdf.save(merged_result_file)
+        # TODO move print to extra Processor
+        # TODO maybe add event 'merged'
         ConsoleUtility.print("finished merge")
 
-    def convert_image_to_pdf(self, img_path, page_id):
+    def process_file(self, source_file: str, destination_file: str) -> None:
+        # create destination directory if not already exists
+        os.makedirs(os.path.dirname(destination_file), exist_ok=True)
         try:
             if not self.force_ocr or self.no_ocr:
                 raise ValueError("skipping tesseract")
 
             result = pytesseract.image_to_pdf_or_hocr(
-                Image.open(img_path), lang=self.tesseract_language,
+                Image.open(source_file), lang=self.tesseract_language,
                 extension="pdf",
                 config=self.tessdata_prefix
             )
-            with open(img_path + ".pdf", "wb") as f:
-                f.write(result)
         except DecompressionBombError as e:
             raise e
-        except ValueError:  # if ocr/tesseract fails
-            with open(img_path + ".pdf", "wb") as f:
-                f.write(convert(img_path))
+        except ValueError:  # if ocr/tesseract fails or is skipped on purpose
+            result = convert(source_file)
             ConsoleUtility.print_error("No OCR applied.")
-        # print statistics
-        ConsoleUtility.print(f"** - Finished Page {page_id + 1}/{len(self.images)}")
+
+        with open(destination_file, "wb") as f:
+            f.write(result)

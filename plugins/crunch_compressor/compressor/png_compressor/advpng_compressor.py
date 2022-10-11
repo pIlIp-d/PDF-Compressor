@@ -3,7 +3,6 @@ import subprocess
 from subprocess import CalledProcessError
 
 from .abstract_png_compressor import AbstractPngCompressor
-from ...utility.EventHandler import EventHandler
 from ...utility.console_utility import ConsoleUtility
 from ...utility.os_utility import OsUtility
 
@@ -14,10 +13,11 @@ class AdvanceCompressor(AbstractPngCompressor):
             advpng_path: str,
             shrink_rate: int = 2,
             iterations: int = 1,
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None
     ):
         """
-        :param shrink_rate (from http://www.advancemame.it/doc-advpng)
+        Png Compressor via advpng
+        :param shrink_rate (from 'https://www.advancemame.it/doc-advpng')
             -0, --shrink-store
                 Disable the compression. The file is only stored and not compressed.
                 The file is always rewritten also if it's bigger.
@@ -36,7 +36,7 @@ class AdvanceCompressor(AbstractPngCompressor):
         :param iterations - amount of repetitions > 0
             more -> better compression but much slower
         """
-        super().__init__(event_handlers)
+        super().__init__(event_handlers, True)
         self.__advpng_path = advpng_path
         if not os.path.isfile(self.__advpng_path):
             raise FileNotFoundError(rf"advpng not found at '{self.__advpng_path}'")
@@ -61,7 +61,7 @@ class AdvanceCompressor(AbstractPngCompressor):
 
         super().postprocess(source_file, destination_file)
 
-    def compress_file(self, source_file: str, destination_file: str) -> None:
+    def process_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
         if not self._is_valid_image(source_file):
             raise ValueError(rf"'{source_file}' does not appear to be a valid path to a PNG file")

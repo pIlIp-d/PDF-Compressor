@@ -3,7 +3,6 @@ import subprocess
 
 from django_app import settings
 from plugins.crunch_compressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
-from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 from plugins.crunch_compressor.utility.os_utility import OsUtility
 
@@ -15,17 +14,18 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
             wine_path_on_linux: str = "",
             user_password: str = None,
             owner_password: str = None,
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None
     ):
         """
+        Pdf Compression via cpdf
         :param cpdfsqueeze_path: absolute path to executable
-        :param use_wine_on_linux:
+        :param wine_path_on_linux:
             True means it runs the command via wine.
                 Only should be active when using linux or unix.
                 If it is active on Windows, it will be automatically disabled.
             False means it directly runs the executable file at the path.
         """
-        super().__init__(event_handlers)
+        super().__init__(event_handlers, True)
         self.__cpdfsqueeze_path = cpdfsqueeze_path
         self.__wine_path_on_linux = wine_path_on_linux
         if os.name != "nt" and not os.path.exists(self.__wine_path_on_linux):
@@ -39,15 +39,12 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         if owner_password is not None:
             self.extra_args += " -opw " + owner_password
 
-    def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        self.compress_file_list_multi_threaded(source_files, destination_files, os.cpu_count())
-
-    def compress_file(self, source_file: str, destination_file: str) -> None:
+    def process_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
         if not os.path.exists(source_file) or not destination_file.endswith(".pdf"):
             raise ValueError("Only pdf files are accepted")
 
-        command = self.__wine_path_on_linux +" " + self.__cpdfsqueeze_path
+        command = self.__wine_path_on_linux + " " + self.__cpdfsqueeze_path
         # path arguments "from" "to"
         command += rf' "{source_file}" "{destination_file}"{self.extra_args}'
         try:
