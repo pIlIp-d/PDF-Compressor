@@ -1,5 +1,4 @@
-from plugins.crunch_compressor.compressor.converter.converter import Converter
-from plugins.crunch_compressor.utility.EventHandler import EventHandler
+from django_app.plugin_system.processing_classes.converter import Converter
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 
 import os
@@ -13,10 +12,9 @@ class PdfToImageConverter(Converter):
 
     def __init__(
             self,
-            origin_path: str,
-            dest_path: str,
+            file_type_to: str,
             dpi: int = 400,
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None
     ):
         if file_type_to.lower() not in self.SUPPORTED_FILETYPES:
             raise ValueError(f"{file_type_to} is not supported.")
@@ -25,14 +23,16 @@ class PdfToImageConverter(Converter):
             raise ValueError("default dpi needs to be greater than 0")
         self.__dpi = dpi
 
-    def convert(self) -> None:
-        os.makedirs(self.dest_path, exist_ok=True)
+    def process_file(self, source_file: str, destination_file: str) -> None:
+        # create destination directory if not already exists
+        os.makedirs(destination_file, exist_ok=True)
+
         ConsoleUtility.print("--splitting pdf into images--")
 
         # open pdf and split it into rgb-pixel maps -> png
-        doc = fitz.open(self.origin_path)
+        doc = fitz.open(source_file)
         for page in doc:
             ConsoleUtility.print(f"** - Finished Page {page.number + 1}/{len(doc)}")
             pix = page.get_pixmap(dpi=self.__dpi)
             page_number = str(page.number) if page.number >= 10 else "0" + str(page.number)
-            pix.save(os.path.join(self.dest_path, 'page_%s.png' % page_number))
+            pix.save(os.path.join(destination_file, 'page_%s.%s' % (page_number, self._file_type_to)))

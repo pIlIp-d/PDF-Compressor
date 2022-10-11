@@ -3,9 +3,7 @@ import subprocess
 from subprocess import CalledProcessError
 
 from plugins.crunch_compressor.compressor.png_compressor.abstract_png_compressor import AbstractPngCompressor
-from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
-from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class PngcrushCompressor(AbstractPngCompressor):
@@ -13,9 +11,9 @@ class PngcrushCompressor(AbstractPngCompressor):
     def __init__(
             self,
             pngcrush_path: str,
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None
     ):
-        super().__init__(event_handlers)
+        super().__init__(event_handlers, True)
         self.__pngcrush_path = pngcrush_path
 
         if not os.path.isfile(self.__pngcrush_path):
@@ -25,9 +23,7 @@ class PngcrushCompressor(AbstractPngCompressor):
         self.__pngquant_options = "-rem alla -rem text -reduce"  # -brute"
         # TODO add option brute when compression mode is high
 
-        super().postprocess(source_file, destination_file)
-
-    def compress_file(self, source_file: str, destination_file: str) -> None:
+    def process_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
 
         if not self._is_valid_image(source_file):

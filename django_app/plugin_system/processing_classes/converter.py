@@ -11,6 +11,7 @@ class Converter(Processor, ABC):
             file_type_from: str,
             file_type_to: str,
             can_merge: bool = False,
+            run_multi_threaded: bool = True,
             processed_part: str = "All Files"
     ):
         super().__init__(
@@ -19,5 +20,6 @@ class Converter(Processor, ABC):
             file_type_to,
             "_converted",  # predefine file appendix
             can_merge,
+            run_multi_threaded,
             processed_part
         )

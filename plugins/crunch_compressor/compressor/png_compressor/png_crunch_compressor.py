@@ -3,7 +3,6 @@ from .advpng_compressor import AdvanceCompressor
 from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
 from ...processor.CompressionPostprocessor import CompressionPostprocessor
-from ...utility.EventHandler import EventHandler
 from ...utility.console_utility import ConsoleUtility
 
 
@@ -14,9 +13,9 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             advpng_path: str,
             pngcrush_path: str,
             compression_mode: int = 3,
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None
     ):
-        super().__init__(event_handlers)
+        super().__init__(event_handlers, False)
 
         if compression_mode <= 0 or compression_mode >= 6:
             raise ValueError("Compression mode must be in range 1-5")
@@ -63,23 +62,23 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             ConsoleUtility.print_error("Error: Program pngcrush not found, skipped compression with pngcrush.")
             self.__pngcrush = None
 
-    def compress_file(self, source_file: str, destination_file: str) -> None:
+    def process_file(self, source_file: str, destination_file: str) -> None:
         self.preprocess(source_file, destination_file)
 
         # run single file compress
         if self.__pngquant is not None:
-            self.__pngquant.compress_file(source_file, destination_file)
+            self.__pngquant.process_file(source_file, destination_file)
         if self.__advcomp is not None:
-            self.__advcomp.compress_file(destination_file, destination_file)
+            self.__advcomp.process_file(destination_file, destination_file)
         if self.__pngcrush is not None:
-            self.__pngcrush.compress_file(source_file, destination_file)
+            self.__pngcrush.process_file(source_file, destination_file)
         self.postprocess(source_file, destination_file)
 
-    def compress_file_list(self, source_files: list, destination_files: list) -> None:
+    def process_file_list(self, source_files: list, destination_files: list) -> None:
         # run optimized compress
         if self.__pngquant is not None:
-            self.__pngquant.compress_file_list(source_files, destination_files)
+            self.__pngquant.process_file_list_multi_threaded(source_files, destination_files)
         if self.__advcomp is not None:
-            self.__advcomp.compress_file_list(source_files, destination_files)
+            self.__advcomp.process_file_list_multi_threaded(source_files, destination_files)
         if self.__pngcrush is not None:
-            self.__pngcrush.compress_file_list(source_files, destination_files)
+            self.__pngcrush.process_file_list_multi_threaded(source_files, destination_files)

@@ -3,8 +3,8 @@ from abc import ABC
 
 from PIL import Image
 
-from ..compressor import Compressor
-from ...utility.EventHandler import EventHandler
+from django_app.plugin_system.processing_classes.compressor import Compressor
+from ...utility.os_utility import OsUtility
 
 
 class AbstractImageCompressor(Compressor, ABC):
@@ -12,13 +12,15 @@ class AbstractImageCompressor(Compressor, ABC):
             self,
             file_type_from: str = "png",
             file_type_to: str = "png",
-            event_handlers: list[EventHandler] = list()
+            event_handlers=None,
+            run_multi_threaded: bool = True
     ):
         super().__init__(
             event_handlers=event_handlers,
             file_type_from=file_type_from,
             file_type_to=file_type_to,
-            processed_part="Pages",
+            processed_part="Pages",  # TODO make parameter
+            run_multi_threaded=run_multi_threaded
         )
 
     @staticmethod
@@ -32,7 +34,7 @@ class AbstractImageCompressor(Compressor, ABC):
             return False
 
     def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        self.compress_file_list_multi_threaded(
+        self.process_file_list_multi_threaded(
             source_files,
             destination_files,
             # use all cores, but after 8 it splits bigger tasks -> only 4 each
