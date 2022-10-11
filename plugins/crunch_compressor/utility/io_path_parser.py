@@ -1,6 +1,6 @@
 import os
 from plugins.crunch_compressor.utility.os_utility import OsUtility
-# test paths with this class -> improves performance of tests extremely
+# TODO unittest paths with this class -> improves performance of tests extremely
 
 
 class IOPathParser:
@@ -13,15 +13,22 @@ class IOPathParser:
             self,
             input_path: str,
             output_path: str = "default",
-            file_ending_source: str = "pdf",
-            file_ending_dest: str = "pdf",
+            file_ending_source: str = "",
+            file_ending_dest: str = "",
             default_name_postfix: str = "_new"
     ):
+        """
+        :param file_ending_source: if empty and input_path is a directory
+               all files in the source directory are accepted, which may ends in error while processing,
+               when it contains unsupported file types
+        """
         self.__input_path = os.path.abspath(input_path)
         self.__default_output = output_path == "default"
         self.__output_path = os.path.abspath(output_path)
-        self.__file_ending_source = file_ending_source
-        self.__file_ending_dest = file_ending_dest
+        self.__file_ending_source = file_ending_source.lower()
+        if file_ending_dest == "":
+            raise ValueError("file_ending_dest can't be empty. ")
+        self.__file_ending_dest = file_ending_dest.lower()
         self.__default_name_postfix = default_name_postfix
         self.__input_file_list = []
         self.__output_file_list = []
@@ -56,7 +63,8 @@ class IOPathParser:
                 )
 
     def __parse_from_input_file(self):
-        input_path_without_file_ending = self.__input_path[:-(1+len(self.__file_ending_source))]  # file ending plus '.'
+        # file ending plus '.'
+        input_path_without_file_ending = OsUtility.get_path_without_file_ending(self.__input_path) + "."
 
         if self.__default_output:
             output_path = input_path_without_file_ending + self.__default_name_postfix + self.__file_ending_dest
