@@ -126,10 +126,16 @@ def started_request_processing(request):
 
 
 def get_intersection_of_file_endings_from_different_input_filetypes(
-        list_of_file_types_per_file_grouped_by_plugin: list[dict]) -> dict:
+        list_of_file_types_per_file_grouped_by_plugin: list[dict]
+) -> dict:
+    """
+    :param list_of_file_types_per_file_grouped_by_plugin:
+    :example [{"plugin_name":["1","2","3"]},{"plugin_name":["1","2","4"], "another_plugin":["1","2"]}]
+    :return: intersection of plugins and their values, in this example: {"plugin_name":["1","2"]}
+    """
     if len(list_of_file_types_per_file_grouped_by_plugin) == 0:
         return dict()
-
+    # get intersecting plugins from all list entries
     plugin_intersections = set.intersection(
         *[set(types_of_file.keys()) for types_of_file in list_of_file_types_per_file_grouped_by_plugin]
     )
