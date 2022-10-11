@@ -18,7 +18,6 @@ class Compressor(Processor, ABC):
             can_merge: bool = False,
             processed_part: str = "All Files"
     ):
-        event_handlers.insert(0, self)
         super().__init__(event_handlers)
         self._file_type_from = file_type_from
         self._file_type_to = file_type_to
