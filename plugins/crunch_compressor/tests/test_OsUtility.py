@@ -355,6 +355,11 @@ class TestOsUtility(TestCase):
             os.removedirs(empty_dir)
         self.assertEqual(0, OsUtility.get_file_size(empty_dir))
 
+    def test_get_path_without_file_ending(self):
+        file_without = os.path.join(".", "directory", "file")
+        file_with = file_without + ".txt"
+        self.assertEqual(file_without, OsUtility.get_path_without_file_ending(file_with))
+
     @classmethod
     def tearDownClass(cls) -> None:
         # reset if get_config() test has failed
