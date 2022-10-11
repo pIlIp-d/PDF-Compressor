@@ -1,5 +1,5 @@
-from ..processor.postprocessor import Postprocessor
-from ..processor.preprocessor import Preprocessor
+from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
+from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
 from ..utility.console_utility import ConsoleUtility
 from ..utility.os_utility import OsUtility
 

@@ -1,7 +1,7 @@
 import re
 from abc import ABC
 
-from plugins.crunch_compressor.processor.postprocessor import Postprocessor
+from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 from plugins.crunch_compressor.utility.os_utility import OsUtility
 
