@@ -3,7 +3,6 @@ from concurrent.futures import ProcessPoolExecutor
 import inspect
 from functools import wraps
 
-# generic Type to assure only processors of type Processor are passed as parameters
 from plugins.crunch_compressor.processor.postprocessor import Postprocessor
 from plugins.crunch_compressor.processor.preprocessor import Preprocessor
 from plugins.crunch_compressor.utility.EventHandler import EventHandler
@@ -27,10 +26,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
     def add_postprocessor(self, processor: Postprocessor) -> None:
         self._postprocessors.append(processor)
-
-    def clear_processors(self) -> None:
-        self._preprocessors = []
-        self._postprocessors = []
 
     def preprocess(self, source_file: str, destination_file: str) -> None:
         for processor in self._preprocessors:
