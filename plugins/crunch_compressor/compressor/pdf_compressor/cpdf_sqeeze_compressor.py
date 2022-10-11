@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+from django_app import settings
 from plugins.crunch_compressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
 from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
@@ -51,7 +52,9 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         command += rf' "{source_file}" "{destination_file}"{self.extra_args}'
         try:
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-        except Exception:
+        except Exception as e:
+            if settings.DEBUG:
+                print(e)
             ConsoleUtility.print_error("[!] Compression Failed during CPdfSqueezeCompressor stage.")
             OsUtility.move_file(source_file, destination_file)
         self.postprocess(source_file, destination_file)

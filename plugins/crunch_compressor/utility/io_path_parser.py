@@ -13,8 +13,8 @@ class IOPathParser:
             self,
             input_path: str,
             output_path: str = "default",
-            file_ending_source: str = ".pdf",
-            file_ending_dest: str = ".pdf",
+            file_ending_source: str = "pdf",
+            file_ending_dest: str = "pdf",
             default_name_postfix: str = "_new"
     ):
         self.__input_path = os.path.abspath(input_path)
@@ -52,11 +52,11 @@ class IOPathParser:
         else:
             for file in self.__input_file_list:
                 self.__output_file_list.append(
-                    os.path.join(self.__output_path, OsUtility.get_filename(file) + self.__file_ending_dest)
+                    os.path.join(self.__output_path, OsUtility.get_filename(file) + "." + self.__file_ending_dest)
                 )
 
     def __parse_from_input_file(self):
-        input_path_without_file_ending = self.__input_path[:-len(self.__file_ending_source)]
+        input_path_without_file_ending = self.__input_path[:-(1+len(self.__file_ending_source))]  # file ending plus '.'
 
         if self.__default_output:
             output_path = input_path_without_file_ending + self.__default_name_postfix + self.__file_ending_dest

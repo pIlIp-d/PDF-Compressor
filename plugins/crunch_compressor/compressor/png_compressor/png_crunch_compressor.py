@@ -1,4 +1,4 @@
-from .abstract_image_compressor import AbstractImageCompressor
+from .abstract_png_compressor import AbstractPngCompressor
 from .advpng_compressor import AdvanceCompressor
 from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
@@ -7,7 +7,7 @@ from ...utility.EventHandler import EventHandler
 from ...utility.console_utility import ConsoleUtility
 
 
-class PNGCrunchCompressor(AbstractImageCompressor):
+class PNGCrunchCompressor(AbstractPngCompressor):
     def __init__(
             self,
             pngquant_path: str,
@@ -16,7 +16,7 @@ class PNGCrunchCompressor(AbstractImageCompressor):
             compression_mode: int = 3,
             event_handlers: list[EventHandler] = list()
     ):
-        super().__init__(".png", ".png", event_handlers)
+        super().__init__(event_handlers)
 
         if compression_mode <= 0 or compression_mode >= 6:
             raise ValueError("Compression mode must be in range 1-5")

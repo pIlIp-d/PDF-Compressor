@@ -2,20 +2,20 @@ import os
 import subprocess
 from subprocess import CalledProcessError
 
-from plugins.crunch_compressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
+from plugins.crunch_compressor.compressor.png_compressor.abstract_png_compressor import AbstractPngCompressor
 from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
 from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
-class PngcrushCompressor(AbstractImageCompressor):
+class PngcrushCompressor(AbstractPngCompressor):
 
     def __init__(
             self,
             pngcrush_path: str,
             event_handlers: list[EventHandler] = list()
     ):
-        super().__init__(".png", ".png", event_handlers)
+        super().__init__(event_handlers)
         self.__pngcrush_path = pngcrush_path
 
         if not os.path.isfile(self.__pngcrush_path):
