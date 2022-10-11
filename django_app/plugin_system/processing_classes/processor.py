@@ -20,8 +20,11 @@ class Processor(Postprocessor, Preprocessor, ABC):
             file_type_to: str,
             processed_files_appendix: str = "_processed",
             can_merge: bool = False,
+            run_multi_threaded: bool = True,
             processed_part: str = "All Files"
     ):
+        if event_handlers is None:
+            event_handlers = list()
         self.event_handlers = event_handlers
         self._preprocessors = []
         self._postprocessors = []
@@ -32,6 +35,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         self._file_type_from = file_type_from
         self._file_type_to = file_type_to
         self._final_merge_file = None
+        self.run_multi_threaded = run_multi_threaded
 
     def _add_event_handler_processors(self) -> None:
         for event_handler in self.event_handlers:
@@ -63,11 +67,16 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def process_file(self, source_file: str, destination_file: str) -> None:
         pass
 
-    @abstractmethod
     def process_file_list(self, source_files: list, destination_files: list) -> None:
-        pass
+        for source_file, destination_file in zip(source_files, destination_files):
+            self.process_file(source_file, destination_file)
 
-    def process_file_list_multi_threaded(self, source_files: list, destination_files: list, cpu_count: int) -> None:
+    def process_file_list_multi_threaded(
+            self,
+            source_files: list,
+            destination_files: list,
+            cpu_count: int = os.cpu_count()
+    ) -> None:
         args_list = [{"source_file": source, "destination_file": destination}
                      for source, destination in zip(source_files, destination_files)]
         self._custom_map_execute(self.process_file, args_list, cpu_count)
@@ -84,7 +93,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         :param file_list: files that are merged and removed afterwards
         :param merged_result_file: result file containing a merged version of the file_list
         """
-        raise NotImplementedError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
+        raise ValueError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
 
     def process(self, source_path, destination_path):
         # reset after each run
@@ -118,7 +127,11 @@ class Processor(Postprocessor, Preprocessor, ABC):
         for event_handler in self.event_handlers:
             event_handler.started_processing()
 
-        self.process_file_list(source_file_list, temporary_destination_file_list)
+        # run processing
+        if self.run_multi_threaded:
+            self.process_file_list_multi_threaded(source_file_list, temporary_destination_file_list)
+        else:
+            self.process_file_list(source_file_list, temporary_destination_file_list)
 
         if is_merging:
             # move merge result to destination
