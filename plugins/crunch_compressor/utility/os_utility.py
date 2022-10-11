@@ -55,6 +55,10 @@ class OsUtility:
         shutil.copy(from_file, to_file)
 
     @classmethod
+    def get_path_without_file_ending(cls, path):
+        return os.path.join(os.path.dirname(path), OsUtility.get_filename(path))
+
+    @classmethod
     def get_filename(cls, full_path_to_file: str, file_ending_format: str = r"\.[^.]*$") -> str:
         filename_with_ending = os.path.basename(full_path_to_file)
         return re.split(file_ending_format, filename_with_ending)[0]
