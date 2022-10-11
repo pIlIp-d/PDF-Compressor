@@ -22,22 +22,8 @@ class PngcrushCompressor(AbstractPngCompressor):
             raise FileNotFoundError(rf"pngcrush not found at '{self.__pngcrush_path}'")
 
         self.__system_extra = "powershell.exe" if os.name == 'nt' else ""
-        self.__pngquant_options = "-rem alla -rem text -reduce" # -brute"
-
-    def postprocess(self, source_file: str, destination_file: str) -> None:
-        crunch_destination = source_file[:-4] + '-comp.png'
-        original_size = OsUtility.get_file_size(source_file)
-        result_size = OsUtility.get_file_size(crunch_destination)
-
-        # compression worked -> copy file to final destination
-        if self._is_valid_image(crunch_destination) and original_size > result_size:
-            OsUtility.copy_file(crunch_destination, destination_file)
-        # error in output file -> copy source file to destination
-        else:
-            OsUtility.copy_file(source_file, destination_file)
-
-        if os.path.exists(crunch_destination):
-            os.remove(crunch_destination)
+        self.__pngquant_options = "-rem alla -rem text -reduce"  # -brute"
+        # TODO add option brute when compression mode is high
 
         super().postprocess(source_file, destination_file)
 
@@ -52,6 +38,10 @@ class PngcrushCompressor(AbstractPngCompressor):
 
         try:
             subprocess.check_output(pngcrush_command, stderr=subprocess.STDOUT, shell=True)
+            result_file = source_file[:-4] + '-comp.png'
+            self._compare_and_use_better_option(source_file, result_file, destination_file)
+            if os.path.exists(result_file):
+                os.remove(result_file)
         except CalledProcessError as cpe:
             ConsoleUtility.print_error(str(cpe))
             ConsoleUtility.print_error("processing failed at the pngcrush stage. (IGNORE)\n")
