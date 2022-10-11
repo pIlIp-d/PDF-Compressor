@@ -1,7 +1,6 @@
 import pickle
 import threading
 import time
-from asyncio import sleep
 from datetime import datetime
 
 from .db_con import get_connection
