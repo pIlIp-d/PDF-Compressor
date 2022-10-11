@@ -9,6 +9,8 @@ import fitz
 
 
 class PdfToImageConverter(Converter):
+    SUPPORTED_FILETYPES = ["png", "pnm", "pgm", "pbm", "ppm", "pam", "psd", "ps"]  # TODO test all possible types
+
     def __init__(
             self,
             origin_path: str,
@@ -16,8 +18,9 @@ class PdfToImageConverter(Converter):
             dpi: int = 400,
             event_handlers: list[EventHandler] = list()
     ):
-        super().__init__(origin_path, dest_path, event_handlers)
-
+        if file_type_to.lower() not in self.SUPPORTED_FILETYPES:
+            raise ValueError(f"{file_type_to} is not supported.")
+        super().__init__(event_handlers, "pdf", file_type_to, False, True)
         if dpi < 0:
             raise ValueError("default dpi needs to be greater than 0")
         self.__dpi = dpi
