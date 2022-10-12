@@ -1,3 +1,4 @@
+import mimetypes
 from functools import reduce
 
 from django.http import JsonResponse
@@ -8,6 +9,7 @@ from django_app.plugin_system.plugin import Plugin
 from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 FORCE_SILENT_PROCESSING = False
 
@@ -45,12 +47,7 @@ def start_processing_and_show_download_view(request):
         )
         destination_type_select = request.POST.get("destination_type_select")
         plugin = Plugin.get_processing_plugin_by_name(destination_type_select.split(":")[0])
-        destination_file_ending = Plugin.COMPRESSION_TYPE if destination_type_select.split(": ")[1] else \
-            destination_type_select.split(": ")[1]
-
-        processing_request.path_extra = request.POST.get("processing_file_extension")
-        processing_request.save()
-
+        destination_file_ending = mimetypes.guess_extension(destination_type_select.split(": ")[1])
         if processing_request.finished or processing_request.started:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
 
@@ -68,7 +65,7 @@ def start_processing_and_show_download_view(request):
 
         processed_files_list = [zip_file]
         if request.POST.get("merge_files") == "on":
-            # add merge pdf-file path
+            # add merge file path
             processed_file = ProcessedFile.add_processed_file(
                 processing_request.get_merged_destination_path(
                     zip_file.date_of_upload,
@@ -81,7 +78,9 @@ def start_processing_and_show_download_view(request):
             # add all results
             for file in input_file_list:
                 processed_file = ProcessedFile.add_processed_file(
-                    processing_request.get_destination_path(file.uploaded_file.name),
+                    processing_request.get_destination_path(
+                        OsUtility.get_path_without_file_ending(file.uploaded_file.name) + destination_file_ending
+                    ),
                     processing_request
                 )
                 processed_file.save()
