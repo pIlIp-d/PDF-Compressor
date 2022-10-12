@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 
-from plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin
+from plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
+    ImageToPdfConvertPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -134,4 +135,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PROCESSOR_PLUGINS = {
     PdfCompressorPlugin("pdf_compressor"),
     PngCompressorPlugin("png_compressor"),
+    ImageToPdfConvertPlugin("png_to_pdf_converter"),
 }

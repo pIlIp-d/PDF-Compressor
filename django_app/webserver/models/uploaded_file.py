@@ -1,3 +1,4 @@
+import mimetypes
 import os
 
 from django.db import models
@@ -49,6 +50,9 @@ class UploadedFile(models.Model):
     def delete(self, using=None, keep_parents=False):
         self.uploaded_file.delete()
         super(UploadedFile, self).delete(using, keep_parents)
+
+    def get_mime_type(self):
+        return mimetypes.guess_type(StringUtility.get_local_absolute_path(self.uploaded_file.name))[0]
 
     @classmethod
     def get_uploaded_file_list_of_current_request(cls, request):
