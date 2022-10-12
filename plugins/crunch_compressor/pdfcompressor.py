@@ -18,15 +18,17 @@ from .utility.os_utility import OsUtility
 
 
 class PdfCompressorOptionHelp(Enum):
-    source_path = ""
-    destination_path = ""
-    force_ocr = ""
-    no_ocr = ""
-    quiet = ""
-    tesseract_language = ""
-    simple_and_lossless = ""
-    default_pdf_dpi = ""
-    event_handlers = ""
+    source_path = "Path to pdf file or to folder containing pdf files"
+    destination_path = "Compressed file Output Path. Default: 'filename_compressed.pdf' or 'compressed/...' for folders"
+    compression_mode = "compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=5"
+    force_ocr = "When turned on allows output file to be larger than input file, to force ocr. " \
+                "Default: off and only smaller output files are saved.'"
+    no_ocr = "Don't create OCR on pdf."
+    quiet = "Don't print to console. Doesn't apply to Exceptions."
+    tesseract_language = "Language to create OCR with."
+    simple_and_lossless = "Simple and lossless compression is non-invasive and skips the image converting." \
+                          "Not as effective but simple and faster."
+    default_pdf_dpi = "DPI to use in conversion from pdf to images. Default=350."
 
 
 class PDFCompressor:
@@ -118,9 +120,9 @@ class PDFCompressor:
         for event_handler in self.__event_handlers:
             event_handler.started_processing()
         if self.__simple_and_lossless:
-            self.__cpdf.compress(self.__source_path, self.__destination_path)
+            self.__cpdf.process(self.__source_path, self.__destination_path)
         else:
-            self.__pdf_crunch.compress(self.__source_path, self.__destination_path)
+            self.__pdf_crunch.process(self.__source_path, self.__destination_path)
         for event_handler in self.__event_handlers:
             event_handler.finished_all_files()
 
