@@ -222,13 +222,17 @@ class EventHandler(...):
 * using **kwargs, read-only, password
 * option reserve/strip meta data
 * option bookmarks
-* mime Type check instead of file ending only
+* [!] mime Type check instead of file ending only (with 'python-magic' package)
 * POST value validating with django forms (inside ProcessingTasks)
 * download view delete button per request (deletes corresponding request, tasks and files)
 * POST value validating with django forms
 * unittest with file_ending not all small chars
 * unittest with more than 1, 10, 100 sites
 
+* check options via imagemagick tool
+
 # Plugin Ideas
 * make compression plugin for pdf with password using cpdf
 * combinations of PSD files
+* OpenCV implementations
+* 
