@@ -72,10 +72,15 @@ class ImagesToPdfConverter(Converter):
 
     def _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
         # merge page files into final destination
-        with fitz.open() as pdf:
-            for file in file_list:
-                pdf.insert_pdf(fitz.open(file + ".pdf"))
-            pdf.save(merged_result_file)
+        merger = fitz.open()
+        for file in file_list:
+            if os.path.exists(merged_result_file):
+                with fitz.open(merged_result_file) as f:
+                    merger.insert_pdf(f)
+            with fitz.open(file) as f:
+                merger.insert_pdf(f)
+            os.remove(file)
+        merger.save(merged_result_file)
         # TODO move print to extra Processor
         # TODO maybe add event 'merged'
         ConsoleUtility.print("finished merge")
