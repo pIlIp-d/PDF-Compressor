@@ -44,7 +44,6 @@ def internal_server_error(error_string: str):
 @csrf_protect  # TODO csrf_protect doesn't work, yet
 def remove_file(request):
     if request.method == "GET":
-        file = None
         if request.GET.get("file_origin") == "uploaded":
             file = UploadedFile.objects.filter(
                 id=request.GET.get("file_id")
@@ -215,8 +214,9 @@ def get_possible_destination_file_types(request):
             )
             files_of_request = UploadedFile.get_uploaded_file_list_of_current_request(request)
             from_file_types = [
-                get_file_extension(file.uploaded_file.name)[1:] for file in files_of_request
+                file.get_mime_type() for file in files_of_request
             ]
+            print(from_file_types)
         if len(from_file_types) == 0:
             from_file_types = [None]
 

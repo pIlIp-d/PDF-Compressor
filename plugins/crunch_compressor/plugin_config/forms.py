@@ -80,7 +80,6 @@ class PdfCompressorForm(PluginForm):
             }
         }
         # TODO document/implement a combi type
-        # TODO document/implement an option to have multiple hierarchies per field
 
 
 class PngCompressorForm(PluginForm):
@@ -97,3 +96,38 @@ class PngCompressorForm(PluginForm):
         coerce=str,
         help_text='TODO'
     )
+
+
+class ImageToPdfConvertForm(PluginForm):
+    ocr_mode = forms.TypedChoiceField(
+        choices=(
+            ('auto', 'Auto'),
+            ('on', 'On (force)'),
+            ('off', 'Off'),
+        ),
+        initial="auto",
+        label='OCR Mode:',
+        coerce=str,
+        help_text='TODO'
+    )
+    tesseract_language = forms.TypedChoiceField(
+        choices=(
+            ("eng", 'English'),
+            ("deu", 'Deutsch'),
+        ),
+        initial="eng",
+        label='Tesseract Language:',
+        coerce=str,
+        help_text='Choose the language, that tesseract should use to create the OCR.'
+    )
+
+    def get_hierarchy(self) -> dict:
+        return {
+            "ocr_mode": {
+                "type": "choice",
+                "values_for_deactivation": ["off"],
+                "children": [
+                    "tesseract_language"
+                ]
+            }
+        }
