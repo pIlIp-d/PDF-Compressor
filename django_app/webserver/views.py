@@ -24,7 +24,8 @@ def render_main_view(request):
     context = {
         "dir": get_directory_for_html(request),
         "user_id": request.session["user_id"],
-        "request_id": request.session["request_id"]
+        "request_id": request.session["request_id"],
+        "plugin": request.GET.get("plugin") or "null"
     }
     return render(request, 'application/main.html', context)
 
