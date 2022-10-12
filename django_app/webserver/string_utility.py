@@ -6,8 +6,8 @@ MEDIA_FOLDER_PATH = os.path.join(os.path.dirname(__file__), "", "..", "media")
 
 class StringUtility:
     @classmethod
-    def get_merged_destination_filename(cls, path_extra: str, request_id: str, datetime):
-        return f"{path_extra}_files_{request_id}_{cls.get_formatted_time(datetime)}"
+    def get_merged_destination_filename(cls, request_id: str, datetime):
+        return f"processed_files_{request_id}_{cls.get_formatted_time(datetime)}"
 
     @classmethod
     def get_local_absolute_path(cls, download_path):
