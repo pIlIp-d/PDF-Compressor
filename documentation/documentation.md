@@ -63,7 +63,7 @@ class ExamplePlugin(Plugin):
     def __init__(self, name: str):
         super().__init__(
             name=name,
-            from_file_types=["pdf", "png", "jpg", "jpeg"],
+            from_file_types=["image/png"],
             form="plugins.example_plugin.example_plugin__form.PdfCompressorForm",
             task="plugins.example_plugin.example_plugin_task.PdfCompressionTask"
         )
@@ -71,12 +71,8 @@ class ExamplePlugin(Plugin):
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
         # super call required
         result = super().get_destination_types(from_file_type)
-        if from_file_type == "png":
-            result.append("svg")
-        elif from_file_type == "pdf":
-            result.append("jpg")
-        elif from_file_type == "jpg" or from_file_type == "jpeg":
-            result.append("png")
+        if from_file_type == "image/png":
+            result.append("image/svg")
         return result
 
     # optionally implement own get_form_html_and_script()
@@ -230,9 +226,11 @@ class EventHandler(...):
 * unittest with more than 1, 10, 100 sites
 
 * check options via imagemagick tool
+* Online Admin view for Files, Requests etc, maybe some config stuff (like time how long files are saved etc)
+
+https://mimetype.io/all-types/
 
 # Plugin Ideas
 * make compression plugin for pdf with password using cpdf
 * combinations of PSD files
 * OpenCV implementations
-* 
