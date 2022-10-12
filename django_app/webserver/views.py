@@ -47,7 +47,7 @@ def start_processing_and_show_download_view(request):
         )
         destination_type_select = request.POST.get("destination_type_select")
         plugin = Plugin.get_processing_plugin_by_name(destination_type_select.split(":")[0])
-        destination_file_ending = mimetypes.guess_extension(destination_type_select.split(": ")[1])
+        processing_result_type = destination_type_select.split(": ")[1]
         if processing_request.finished or processing_request.started:
             return JsonResponse({"status": 429, "error": "You already send this request."}, status=429)
 
@@ -62,6 +62,9 @@ def start_processing_and_show_download_view(request):
         # override processed_file_path
         zip_file.processed_file_path = processing_request.get_merged_destination_path(current_time, ".zip")
         zip_file.save()
+
+        destination_file_ending = input_file_list[0].uploaded_file.name.split(".")[-1] if processing_result_type == Plugin.COMPRESSION_TYPE else mimetypes.guess_extension(
+            processing_result_type)
 
         processed_files_list = [zip_file]
         if request.POST.get("merge_files") == "on":
