@@ -97,7 +97,7 @@ if __name__ == '__main__':
             i = input("Do you want to cleanup the temporary Files created in the process? (Y/N)")
             if i.lower() == "y":
                 # remove all directories ending with _tmp
-                directories = [f.path for f in os.scandir(".") if f.is_dir() and "_tmp" in f.path]
+                directories = [f.path for f in os.scandir("../..") if f.is_dir() and "_tmp" in f.path]
                 directories.append("./temporary_files")
                 for d in directories:
                     if os.path.exists(d):
