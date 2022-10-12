@@ -32,6 +32,7 @@ class IOPathParser:
         self.__default_name_postfix = default_name_postfix
         self.__input_file_list = []
         self.__output_file_list = []
+        self.__is_merger = False
 
         if self.__is_dir(input_path):
             self.__parse_from_input_folder()
@@ -54,13 +55,13 @@ class IOPathParser:
         if self.__default_output:
             self.__output_path = self.__input_path + self.__default_name_postfix
 
-        if self.__is_file(self.__output_path, self.__file_ending_dest):
-            self.__output_file_list.append(self.__output_path)
-        else:
-            for file in self.__input_file_list:
-                self.__output_file_list.append(
-                    os.path.join(self.__output_path, OsUtility.get_filename(file) + "." + self.__file_ending_dest)
-                )
+        if len(self.__input_file_list) > 1 and self.__is_file(self.__output_path, self.__file_ending_dest):
+            self.__is_merger = True
+
+        for file in self.__input_file_list:
+            self.__output_file_list.append(
+                os.path.join(self.__output_path, OsUtility.get_filename(file) + "." + self.__file_ending_dest)
+            )
 
     def __parse_from_input_file(self):
         # file ending plus '.'
@@ -83,4 +84,4 @@ class IOPathParser:
         return self.__output_file_list
 
     def is_merging(self) -> bool:
-        return len(self.__input_file_list) > len(self.__output_file_list) == 1
+        return self.__is_merger
