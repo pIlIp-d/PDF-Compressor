@@ -9,11 +9,12 @@ from django_app import settings
 class Plugin(ABC):
     COMPRESSION_TYPE = "compression"
 
-    def __init__(self, name: str, from_file_types: list, form: str, task: str):
+    def __init__(self, name: str, from_file_types: list, form: str, task: str, merger: bool = False):
         self.name = name
         self._task = task
         self._form = form
         self._from_file_types = from_file_types
+        self._merger = merger
 
     def get_destination_types(self, from_file_type: str):
         def ___deduplicate(l: list) -> list:
@@ -62,13 +63,14 @@ class Plugin(ABC):
 
     def get_form_html_and_script(self, destination_file_type: str) -> tuple[str, str]:
         def ___get_container(__form_element):
-            return f"""
-                       <div class="form_element">
-                           <span class="helptext">{__form_element.help_text}</span>
+            container_str = '<div class="form_element">'
+            if __form_element.help_text != "":
+                container_str += f'<span class="helptext">{__form_element.help_text}</span>'
+            container_str += f"""                          
                            <span>{__form_element.label}</span>
                            {__form_element}
-                       </div>
-                       """
+                       </div>"""
+            return container_str
 
         def ___get_javascript(__hierarchy):
             # initialize_form_hierarchy is called after the form is loaded
@@ -112,6 +114,7 @@ class Plugin(ABC):
             # close open hierarchy containers
             for i in range(open_hierarchy_containers):
                 html += "</div>"
-
+        if self._merger:
+            html += "<input type='hidden' name='merge_files' value='on'>"
         html += f"<input type='hidden' name='destination_file_type' value='{destination_file_type}'>"
         return html, ___get_javascript(hierarchy)
