@@ -13,7 +13,6 @@ class ProcessingFilesRequest(models.Model):
     date_of_request = models.DateTimeField(auto_now_add=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
-    path_extra = models.TextField(default="")
 
     def __str__(self):
         return "Object(ProcessingFilesRequest): " + str(self.pk)
@@ -25,10 +24,10 @@ class ProcessingFilesRequest(models.Model):
         return os.path.join("uploaded_files", str(self.user_id), str(self.id))
 
     def get_destination_dir(self):
-        return self.get_source_dir() + "_" + str(self.path_extra)
+        return self.get_source_dir() + "_processed"
 
     def get_merged_destination_filename(self, datetime):
-        return StringUtility.get_merged_destination_filename(str(self.path_extra), str(self.id), datetime)
+        return StringUtility.get_merged_destination_filename(str(self.id), datetime)
 
     def get_merged_destination_path(self, datetime: strftime, file_ending_including_dot: str):
         return os.path.join(
