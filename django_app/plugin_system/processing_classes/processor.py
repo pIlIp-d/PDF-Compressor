@@ -34,7 +34,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
         self._can_merge = can_merge
         self._file_type_from = file_type_from
         self._file_type_to = file_type_to
-        self._final_merge_file = None
         self.run_multi_threaded = run_multi_threaded
 
     def _add_event_handler_processors(self) -> None:
@@ -96,9 +95,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
         raise ValueError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
 
     def process(self, source_path, destination_path):
-        # reset after each run
-        self._final_merge_file = None
-
         io_path_parser = IOPathParser(
             source_path,
             destination_path,
@@ -117,11 +113,11 @@ class Processor(Postprocessor, Preprocessor, ABC):
         # create temporary destinations to avoid data loss
         temporary_destination_file_list = [self._get_temp_file(file) for file in destination_file_list]
 
+        final_merge_file = None
         if is_merging:
             if not self._can_merge:
                 raise ValueError("Merging is not supported for this Processor." + str(self))
-
-            self._final_merge_file = OsUtility.get_path_without_file_ending(
+            final_merge_file = OsUtility.get_path_without_file_ending(
                 temporary_destination_file_list[0]) + "_merged." + self._file_type_to
 
         for event_handler in self.event_handlers:
@@ -135,13 +131,13 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         if is_merging:
             # move merge result to destination
-            self._merge_files(temporary_destination_file_list, self._final_merge_file)
+            self._merge_files(temporary_destination_file_list, final_merge_file)
             ConsoleUtility.print_green(
-                f"Merged {self._processed_part} into {ConsoleUtility.get_file_string(self._final_merge_file)}"
+                f"Merged {self._processed_part} into {ConsoleUtility.get_file_string(final_merge_file)}"
             )
 
         if is_merging:
-            end_size = OsUtility.get_file_size(self._final_merge_file)
+            end_size = OsUtility.get_file_size(final_merge_file)
         else:
             end_size = sum(OsUtility.get_filesize_list(temporary_destination_file_list))
         # TODO move all (non-error) prints out of this class
@@ -150,7 +146,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
             ConsoleUtility.print("\n")
 
         if is_merging:
-            OsUtility.move_file(self._final_merge_file, destination_path)
+            OsUtility.move_file(final_merge_file, destination_path)
         else:
             for temp_destination, destination in zip(temporary_destination_file_list, destination_file_list):
                 OsUtility.move_file(temp_destination, destination)
