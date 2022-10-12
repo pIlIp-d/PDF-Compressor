@@ -1,10 +1,13 @@
 class DestinationTypeSelect {
     constructor() {
         this.select_object = document.getElementById("destination_type_select");
+
         this.update_options(false);
+
+        let _this = this;
         this.select_object.addEventListener("change", function () {
             let selected_option = this.value;
-            save_plugin_in_url(current_plugin);
+            save_plugin_in_url(selected_option);
             if (selected_option === "null") {
                 set_form_content("Choose something.");
                 deactivate_compression_button();
@@ -24,7 +27,7 @@ class DestinationTypeSelect {
                                 set_form_script(json_response.form_script)
                             if ("allowed_file_endings" in json_response)
                                 allowed_file_endings = json_response.allowed_file_endings
-                            this.select_object.update_options();
+                            _this.update_options();
                         }
                     }
                 );
