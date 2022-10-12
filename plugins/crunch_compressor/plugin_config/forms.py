@@ -6,13 +6,13 @@ from django_app.plugin_system.plugin_form import PluginForm
 class PdfCompressorForm(PluginForm):
     merge_files = forms.BooleanField(
         label='Merge files into a single PDF.',
-        initial=False,
-        help_text="TODO"
+        initial=False
     )
     simple_and_lossless = forms.BooleanField(
         label='Simple and lossless:',
         initial=True,
-        help_text="TODO"
+        help_text="Is much faster. It's optimal if your pdf is just typed text. If you compress a handwriting or "
+                  "photo-scan you get much better results deactivating this option."
     )
     compression_mode = forms.TypedChoiceField(
         choices=(
@@ -25,7 +25,6 @@ class PdfCompressorForm(PluginForm):
         initial=5,
         label='Compression mode:',
         coerce=str,
-        help_text='TODO'
     )
     default_pdf_dpi = forms.IntegerField(
         label='Default DPI:',
@@ -33,8 +32,9 @@ class PdfCompressorForm(PluginForm):
         max_value=1000,
         step_size=10,
         required=True,
-        initial=400,
-        help_text='TODO'
+        initial=350,
+        help_text='Smaller numbers improve compression, higher numbers can have better '
+                  'quality. For handwriting about 200-300 is enough.'
     )
     ocr_mode = forms.TypedChoiceField(
         choices=(
@@ -99,6 +99,10 @@ class PngCompressorForm(PluginForm):
 
 
 class ImageToPdfConvertForm(PluginForm):
+    merge_files = forms.BooleanField(
+        label='Merge files into a single PDF.',
+        initial=False
+    )
     ocr_mode = forms.TypedChoiceField(
         choices=(
             ('auto', 'Auto'),
@@ -118,7 +122,7 @@ class ImageToPdfConvertForm(PluginForm):
         initial="eng",
         label='Tesseract Language:',
         coerce=str,
-        help_text='Choose the language, that tesseract should use to create the OCR.'
+        help_text='Choose the language, that tesseract should use to create the OCR(Optical Character Recognition).'
     )
 
     def get_hierarchy(self) -> dict:
