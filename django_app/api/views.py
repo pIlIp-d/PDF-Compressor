@@ -43,24 +43,25 @@ def internal_server_error(error_string: str):
 
 @csrf_protect  # TODO csrf_protect doesn't work, yet
 def remove_file(request):
-    if request.method == "GET":
-        if request.GET.get("file_origin") == "uploaded":
-            file = UploadedFile.objects.filter(
-                id=request.GET.get("file_id")
-            ).first()
-        elif request.GET.get("file_origin") == "processed":
-            file = ProcessedFile.objects.filter(
-                id=request.GET.get("file_id")
-            ).first()
-        else:
-            return JsonResponse({"status": 412, "error": "Parameter file_origin is required."}, status=412)
+    if request.method != "GET":
+        return wrong_method_error("GET")
 
-        if file is not None and file.processing_request.user_id == request.session["user_id"]:
-            file.delete()
-        else:
-            return JsonResponse({"status": 412, "error": "No file with that id found for you."}, status=412)
-        return JsonResponse({"status": 200, "error": "Removed file successfully."}, status=200)
-    return wrong_method_error("GET")
+    if request.GET.get("file_origin") == "uploaded":
+        file_class = UploadedFile
+    elif request.GET.get("file_origin") == "processed":
+        file_class = ProcessedFile
+    else:
+        return JsonResponse({"status": 412, "error": "Parameter file_origin is required."}, status=412)
+
+    file = file_class.objects.filter(
+        id=request.GET.get("file_id")
+    ).first()
+
+    if file is not None and file.processing_request.user_id == request.session["user_id"]:
+        file.delete()
+    else:
+        return JsonResponse({"status": 412, "error": "No file with that id found for you."}, status=412)
+    return JsonResponse({"status": 200, "error": "Removed file successfully."}, status=200)
 
 
 @csrf_protect
