@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 
 from django_app import settings
-from django_app.api.decorators import only_for_localhost
 from django_app.plugin_system.plugin import Plugin
 from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
@@ -78,50 +77,6 @@ def upload_file(request):
         file_id = uploaded_file.id
         return JsonResponse({"file_id": file_id})
     return wrong_method_error("POST")
-
-
-@only_for_localhost
-def finish_file(request):
-    if request.method == "GET":
-        if "processed_file_path" in request.GET:
-            file = ProcessedFile.objects.filter(processed_file_path=request.GET.get("processed_file_path"))
-            file.finished = True
-            file.save()
-            return JsonResponse({"status": 200}, status=200)
-        else:
-            return parameter_missing_error("processed_file_path")
-    else:
-        return wrong_method_error("GET")
-
-
-@only_for_localhost
-def finish_request(request):
-    if request.method == "GET":
-        if "request_id" in request.GET:
-            processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
-            for file in ProcessedFile.objects.filter(processing_request=processing_request):
-                file.finished = True
-                file.save()
-            processing_request.finished = True
-            processing_request.save()
-            return JsonResponse({"status": 200}, status=200)
-        else:
-            return parameter_missing_error("request_id")
-    else:
-        return wrong_method_error("GET")
-
-
-@only_for_localhost
-def started_request_processing(request):
-    if request.method != "GET":
-        return wrong_method_error("GET")
-    if "request_id" not in request.GET:
-        return parameter_missing_error("request_id")
-
-    processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
-    processing_request.started = True
-    processing_request.save()
-    return JsonResponse({"status": 200}, status=200)
 
 
 def get_intersection_of_file_endings_from_different_input_filetypes(
