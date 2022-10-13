@@ -2,7 +2,7 @@ import os
 import shutil
 
 from django_app.task_scheduler.tasks.task import Task
-from django_app.webserver.string_utility import StringUtility
+from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class ZipTask(Task):
@@ -12,16 +12,15 @@ class ZipTask(Task):
         self.__folder_path = folder_path
 
     def run(self):
-        filename_without_file_ending = StringUtility.get_filename_with_ending(self.__zip_file_path)[:-len(".zip")]
+        filename_without_file_ending = OsUtility.get_filename(self.__zip_file_path)
 
         # create zip-archive
         compression_format = "zip"
         shutil.make_archive(
             filename_without_file_ending,
-            compression_format,
-            self.__folder_path
+            format=compression_format,
+            base_dir=self.__folder_path
         )
-
         # move file into final destination
         shutil.move(
             os.path.join(".", filename_without_file_ending + ".zip"),
