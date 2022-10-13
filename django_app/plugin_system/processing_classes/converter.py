@@ -18,7 +18,6 @@ class Converter(Processor, ABC):
             event_handlers,
             file_type_from,
             file_type_to,
-            "_converted",  # predefine file appendix
             can_merge,
             run_multi_threaded,
             processed_part
