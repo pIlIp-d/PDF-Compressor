@@ -6,6 +6,8 @@ import os
 # package name PyMuPdf
 import fitz
 
+from plugins.crunch_compressor.utility.os_utility import OsUtility
+
 
 class PdfToImageConverter(Converter):
     SUPPORTED_FILETYPES = ["png", "pnm", "pgm", "pbm", "ppm", "pam", "psd", "ps"]  # TODO test all possible types
@@ -27,6 +29,7 @@ class PdfToImageConverter(Converter):
         # create destination directory if not already exists
         os.makedirs(destination_file, exist_ok=True)
 
+        print("METHODE", source_file, destination_file)
         ConsoleUtility.print("--splitting pdf into images--")
 
         # open pdf and split it into rgb-pixel maps -> png
@@ -34,5 +37,7 @@ class PdfToImageConverter(Converter):
         for page in doc:
             ConsoleUtility.print(f"** - Finished Page {page.number + 1}/{len(doc)}")
             pix = page.get_pixmap(dpi=self.__dpi)
-            page_number = str(page.number) if page.number >= 10 else "0" + str(page.number)
-            pix.save(os.path.join(destination_file, 'page_%s.%s' % (page_number, self._file_type_to)))
+            page_number = str(page.number) if page.number >= 10 else "0" + str(
+                page.number)  # TODO support pages/ numbers over 100 properly
+            pix.save(os.path.join(destination_file, '%s_page_%s.%s' %
+                                  (OsUtility.get_filename(source_file), page_number, self._file_type_to)))
