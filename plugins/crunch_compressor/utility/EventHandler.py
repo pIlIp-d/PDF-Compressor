@@ -9,6 +9,4 @@ class EventHandler(Preprocessor, Postprocessor, ABC):
 
     def finished_all_files(self): pass
 
-    def preprocess(self, source_file: str, destination_file: str) -> None: pass
-
-    def postprocess(self, source_file: str, destination_file: str) -> None: pass
+    def finished_file(self, file_path): pass
