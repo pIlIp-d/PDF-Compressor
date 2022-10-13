@@ -8,8 +8,10 @@ from django_app import settings
 
 class Plugin(ABC):
     COMPRESSION_TYPE = "compression"
+    PDF_MIME_TYPE = "application/pdf"
 
-    def __init__(self, name: str, from_file_types: list, form: str, task: str, merger: bool = False):
+    def __init__(self, name: str, from_file_types: list, form: str, task: str, only_zip_as_result: bool = False, merger: bool = False):
+        self._only_zip_as_result = only_zip_as_result
         self.name = name
         self._task = task
         self._form = form
@@ -116,5 +118,7 @@ class Plugin(ABC):
                 html += "</div>"
         if self._merger:
             html += "<input type='hidden' name='merge_files' value='on'>"
+        if self._only_zip_as_result: # todo finish implement
+            html += "<input type='hidden' name='only_zip_as_result' value='on'>"
         html += f"<input type='hidden' name='destination_file_type' value='{destination_file_type}'>"
         return html, ___get_javascript(hierarchy)
