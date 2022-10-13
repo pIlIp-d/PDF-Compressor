@@ -3,6 +3,8 @@ import os
 
 MEDIA_FOLDER_PATH = os.path.join(os.path.dirname(__file__), "", "..", "media")
 
+TIME_FORMAT = "%d.%m.%Y-%H.%M.%S"
+
 
 class StringUtility:
     @classmethod
@@ -15,7 +17,7 @@ class StringUtility:
 
     @classmethod
     def get_formatted_time(cls, t):
-        return t.strftime("%d.%m.%Y-%H.%M.%S")
+        return t.strftime(TIME_FORMAT)
 
     @classmethod
     def get_filename_with_ending(cls, file_path: str) -> str:
