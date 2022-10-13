@@ -112,16 +112,15 @@ def finish_request(request):
 
 @only_for_localhost
 def started_request_processing(request):
-    if request.method == "GET":
-        if "request_id" in request.GET:
-            processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
-            processing_request.started = True
-            processing_request.save()
-            return JsonResponse({"status": 200}, status=200)
-        else:
-            return parameter_missing_error("request_id")
-    else:
+    if request.method != "GET":
         return wrong_method_error("GET")
+    if "request_id" not in request.GET:
+        return parameter_missing_error("request_id")
+
+    processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
+    processing_request.started = True
+    processing_request.save()
+    return JsonResponse({"status": 200}, status=200)
 
 
 def get_intersection_of_file_endings_from_different_input_filetypes(
@@ -204,34 +203,34 @@ def get_form_html_for_web_view(request):
 
 
 def get_possible_destination_file_types(request):
-    if request.method == "GET":
-        from_file_types = []
-        if "request_id" in request.GET:
-            request_id = request.GET.get("request_id")
-            request = ProcessingFilesRequest.get_or_create_new_request(
-                user_id=request.session.get("user_id"),
-                request_id=request_id
-            )
-            files_of_request = UploadedFile.get_uploaded_file_list_of_current_request(request)
-            from_file_types = [
-                file.get_mime_type() for file in files_of_request
-            ]
-            print(from_file_types)
-        if len(from_file_types) == 0:
-            from_file_types = [None]
-
-        list_of_file_types_per_file = list()
-        for from_file_type in from_file_types:
-            list_of_file_types = dict()
-            for plugin in settings.PROCESSOR_PLUGINS:
-                list_of_file_types[plugin.name] = plugin.get_destination_types(from_file_type)
-            list_of_file_types_per_file.append(list_of_file_types)
-            # TODO also allow multi steps convert -> shortest path inside graph
-        return JsonResponse({
-            "status": 200,
-            "list_of_file_types_per_file": list_of_file_types_per_file,
-            "possible_file_types": get_intersection_of_file_endings_from_different_input_filetypes(
-                list_of_file_types_per_file)
-        }, status=200)
-    else:
+    if request.method != "GET":
         return wrong_method_error("GET")
+
+    from_file_types = []
+    if "request_id" in request.GET:
+        request_id = request.GET.get("request_id")
+        request = ProcessingFilesRequest.get_or_create_new_request(
+            user_id=request.session.get("user_id"),
+            request_id=request_id
+        )
+        files_of_request = UploadedFile.get_uploaded_file_list_of_current_request(request)
+        from_file_types = [
+            file.get_mime_type() for file in files_of_request
+        ]
+
+    if len(from_file_types) == 0:
+        from_file_types = [None]
+
+    list_of_file_types_per_file = list()
+    for from_file_type in from_file_types:
+        list_of_file_types = dict()
+        for plugin in settings.PROCESSOR_PLUGINS:
+            list_of_file_types[plugin.name] = plugin.get_destination_types(from_file_type)
+        list_of_file_types_per_file.append(list_of_file_types)
+        # TODO also allow multi steps convert -> shortest path inside graph
+    return JsonResponse({
+        "status": 200,
+        "list_of_file_types_per_file": list_of_file_types_per_file,
+        "possible_file_types": get_intersection_of_file_endings_from_different_input_filetypes(
+            list_of_file_types_per_file)
+    }, status=200)
