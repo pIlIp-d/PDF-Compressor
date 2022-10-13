@@ -1,3 +1,5 @@
+import mimetypes
+
 from django_app import settings
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
 from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
@@ -54,4 +56,18 @@ class ImageToPdfConvertTask(ProcessingTask):
         ).process(
             source_path=self._source_path,
             destination_path=self._destination_path
+        )
+
+
+class PdfToImageConvertTask(ProcessingTask):
+    def run(self):
+        print("ABC", self._destination_path)
+        event_handler = super()._get_event_handler()
+        PdfToImageConverter(
+            mimetypes.guess_extension(self._request_parameters.get("result_file_type"))[1:],
+            int(self._request_parameters.get("default_pdf_dpi")),
+            event_handlers=event_handler
+        ).process(
+            source_path=self._source_path,
+            destination_path=self._destination_path if self._destination_path == "merge" else "split"
         )

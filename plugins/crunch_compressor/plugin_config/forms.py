@@ -135,3 +135,24 @@ class ImageToPdfConvertForm(PluginForm):
                 ]
             }
         }
+
+
+class PdfToImageConvertForm(PluginForm):
+    result_file_type = forms.TypedChoiceField(
+        choices=(
+            ('image/png', 'image/png')
+        ),
+        initial='image/png',
+        label='Result File Type:',
+        coerce=str
+    )
+    default_pdf_dpi = forms.IntegerField(
+        label='Default DPI:',
+        min_value=10,
+        max_value=1000,
+        step_size=10,
+        required=True,
+        initial=350,
+        help_text='Smaller numbers improve compression, higher numbers can have better '
+                  'quality. For handwriting about 200-300 is enough.'
+    )

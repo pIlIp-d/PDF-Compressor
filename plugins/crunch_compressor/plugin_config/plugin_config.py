@@ -2,7 +2,6 @@ from django_app.plugin_system.plugin import Plugin
 
 
 class PdfCompressorPlugin(Plugin):
-    PDF_MIME_TYPE = "application/pdf"
 
     def __init__(self, name: str):
         super().__init__(
@@ -14,7 +13,6 @@ class PdfCompressorPlugin(Plugin):
 
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
         result = super().get_destination_types(from_file_type)
-        print(from_file_type)
         if from_file_type == self.PDF_MIME_TYPE:
             result.append(self.COMPRESSION_TYPE)
         return result
@@ -55,5 +53,22 @@ class ImageToPdfConvertPlugin(Plugin):
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
         result = super().get_destination_types(from_file_type)
         if from_file_type in self._from_file_types:
-            result.append("application/pdf")
+            result.append(self.PDF_MIME_TYPE)
+        return result
+
+
+class PdfToImageConvertPlugin(Plugin):
+    def __init__(self, name: str):
+        super().__init__(
+            name,
+            [self.PDF_MIME_TYPE],
+            "plugins.crunch_compressor.plugin_config.forms.PdfToImageConvertForm",
+            "plugins.crunch_compressor.plugin_config.tasks.PdfToImageConvertTask",
+            only_zip_as_result=True
+        )
+
+    def get_destination_types(self, from_file_type: str = None) -> list[str]:
+        result = super().get_destination_types(from_file_type)
+        if from_file_type == self.PDF_MIME_TYPE:
+            result.append("image/png")
         return result
