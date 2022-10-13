@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 from plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
-    ImageToPdfConvertPlugin
+    ImageToPdfConvertPlugin, PdfToImageConvertPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,4 +136,5 @@ PROCESSOR_PLUGINS = {
     PdfCompressorPlugin("pdf_compressor"),
     PngCompressorPlugin("png_compressor"),
     ImageToPdfConvertPlugin("png_to_pdf_converter"),
+    PdfToImageConvertPlugin("pdf_to_image_converter"),
 }
