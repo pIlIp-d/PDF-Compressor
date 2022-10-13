@@ -4,8 +4,7 @@ from django_app.task_scheduler.db_con import get_connection
 
 
 class Task(ABC):
-    def __init__(self, request_id: int):
-        self._request_id = request_id
+    def __init__(self):
         self._task_id = None
         self.finished = False
 
