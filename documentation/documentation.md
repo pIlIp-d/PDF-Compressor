@@ -12,10 +12,6 @@ makemigration, migrate
 
 `python3 manage.py runserver`
 
-## start the processing daemon
-
-`python3 task_manager.py`
-
 _____
 
 # How it works
@@ -85,18 +81,18 @@ from django_app.task_scheduler.tasks.processing_task import ProcessingTask
 
 
 class ExampleTask(ProcessingTask):
-    def run(self):
-        event_handler = super()._get_process_stats_event_handler()
-        ###################
-        # run your processing, converting, compressing etc
-        #  use parameters in self._request_parameters: dict, contains all parameters from your Form
-        example_int_parameter = int(self._request_parameters.get("example_int_parameter"))
-        example_checkbox_parameter = self._request_parameters.get("example_checkbox_parameter") == "on"
-        example_string_parameter = self._request_parameters.get("example_string_parameter")
+  def run(self):
+    event_handler = super()._get_event_handler()
+    ###################
+    # run your processing, converting, compressing etc
+    #  use parameters in self._request_parameters: dict, contains all parameters from your Form
+    example_int_parameter = int(self._request_parameters.get("example_int_parameter"))
+    example_checkbox_parameter = self._request_parameters.get("example_checkbox_parameter") == "on"
+    example_string_parameter = self._request_parameters.get("example_string_parameter")
 
-        #  see event_handler documentation, so that you trigger all necessary events
-        #  optionally follow `settings.DEBUG` for your quiet mode/ print suppressing
-        ###################
+    #  see event_handler documentation, so that you trigger all necessary events
+    #  optionally follow `settings.DEBUG` for your quiet mode/ print suppressing
+    ###################
 ```
 
 ## Plugin Form
@@ -211,14 +207,12 @@ class EventHandler(...):
 
 # TODOs
 
+* **add remove all files button (per User) to download page**
 * /media folder memory management (capacity per user etc)
 * GarbageCollector (regular cleanup of old Tasks, /media folder, /temporary_files folder)
   * deletes request, if it has no files
-* add remove all files button (per User)
-* using **kwargs, read-only, password
 * option reserve/strip meta data
 * option bookmarks
-* [!] mime Type check instead of file ending only (with 'python-magic' package)
 * POST value validating with django forms (inside ProcessingTasks)
 * download view delete button per request (deletes corresponding request, tasks and files)
 * POST value validating with django forms
