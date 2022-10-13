@@ -79,9 +79,17 @@ class Processor(Postprocessor, Preprocessor, ABC):
                      for source, destination in zip(source_files, destination_files)]
         self._custom_map_execute(self.process_file, args_list, cpu_count)
 
-    def _get_temp_file(self, filename: str):
+    def _get_temp_folder(self):
+        while True:
+            counter = uuid.uuid4()
+            temp_file = os.path.abspath(
+                os.path.join("", "temporary_files", str(counter) + self._processed_files_appendix))
+            if not os.path.isdir(temp_file):
+                return temp_file
+
+    def _get_temp_file(self, temp_folder, file_path: str):
         return os.path.abspath(
-            os.path.join("", "temporary_files", OsUtility.get_filename(filename) + "_temp." + self._file_type_to)
+            os.path.join(temp_folder, OsUtility.get_filename(file_path) + "_temp." + self._file_type_to)
         )
 
     def _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
@@ -93,29 +101,75 @@ class Processor(Postprocessor, Preprocessor, ABC):
         """
         raise ValueError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
 
-    def process(self, source_path, destination_path):
-        io_path_parser = IOPathParser(
-            source_path,
-            destination_path,
-            self._file_type_from,
-            self._file_type_to,
-            self._processed_files_appendix
-        )
-        source_file_list = io_path_parser.get_input_file_paths()
-        destination_file_list = io_path_parser.get_output_file_paths()
+    def _get_files_and_extra_info(self, source_path, destination_path):
+        def ___is_file(path, ending):
+            path.endswith(ending)
 
-        is_merging = io_path_parser.is_merging()
+        def ___parse_from_input_folder():
+            sources = OsUtility.get_file_list(source_path, self._file_type_from)
+
+            if "merge" == destination_path:
+                def ___get_merge_destination_file():
+                    return os.path.join(
+                        source_path + self._processed_files_appendix,
+                        "merged_" + StringUtility.get_formatted_time(datetime.now()) + self._file_type_to
+                    )
+                return sources, [___get_merge_destination_file()], True
+            elif destination_path == "split":
+                return sources, [source_path + self._processed_files_appendix], False
+
+            merging = len(sources) > 1 and ___is_file(destination_path, self._file_type_to)
+
+            output_folder = source_path + self._processed_files_appendix if destination_path == "default" else destination_path
+            destinations = [
+                os.path.join(output_folder, OsUtility.get_filename(file) + "." + self._file_type_to)
+                for file in sources
+            ]
+            return sources, destinations, merging
+
+        def ___parse_from_input_file():
+            # file ending plus '.'
+            input_path_without_file_ending = OsUtility.get_path_without_file_ending(source_path) + "."
+
+            if destination_path == "default":
+                output_path = input_path_without_file_ending + self._processed_files_appendix + self._file_type_to
+            elif destination_path == "split":
+                output_path = os.path.dirname(source_path) + self._processed_files_appendix
+            elif not ___is_file(destination_path, self._file_type_to):
+                output_path = os.path.join(destination_path, os.path.basename(input_path_without_file_ending))
+            else:
+                output_path = destination_path
+            return [source_path], [output_path], False
+
+        return ___parse_from_input_folder() if os.path.isdir(
+            source_path) else ___parse_from_input_file()
+
+    def process(self, source_path, destination_path):
+        source_file_list, destination_file_list, is_merging = self._get_files_and_extra_info(source_path,
+                                                                                             destination_path)
+        if destination_path == "merge":
+            destination_path = destination_file_list[0]
 
         # save size for comparison at the end
         orig_sizes = OsUtility.get_filesize_list(source_file_list)
 
         # create temporary destinations to avoid data loss
-        temporary_destination_file_list = [self._get_temp_file(file) for file in destination_file_list]
+        temp_folder = self._get_temp_folder()
+        if destination_path == "split":
+            temporary_destination_file_list = [
+                temp_folder
+                for file in destination_file_list
+            ]
+        else:
+            temporary_destination_file_list = [
+                self._get_temp_file(temp_folder, file)
+                for file in destination_file_list
+            ]
 
         final_merge_file = None
         if is_merging:
             if not self._can_merge:
-                raise ValueError("Merging is not supported for this Processor." + str(self))
+                raise ValueError("Merging is not supported for this Processor. " + str(self))
             final_merge_file = OsUtility.get_path_without_file_ending(
                 temporary_destination_file_list[0]) + "_merged." + self._file_type_to
 
@@ -146,9 +200,17 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         if is_merging:
             OsUtility.move_file(final_merge_file, destination_path)
+        elif destination_path == "split":
+            print("found split")
+            for file in OsUtility.get_file_list(temp_folder):
+                print("move file: " + file, os.path.join(destination_file_list[0], os.path.basename(file)))
+                OsUtility.move_file(file, os.path.join(destination_file_list[0], os.path.basename(file)))
         else:
             for temp_destination, destination in zip(temporary_destination_file_list, destination_file_list):
-                OsUtility.move_file(temp_destination, destination)
+                if os.path.isfile(temp_destination):
+                    OsUtility.move_file(temp_destination, destination)
 
-        for event_handler in self.event_handlers:
+        OsUtility.clean_up_folder(temp_folder)
+
+        for event_handler in self._event_handlers:
             event_handler.finished_all_files()
