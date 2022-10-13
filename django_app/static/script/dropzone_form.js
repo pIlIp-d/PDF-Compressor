@@ -128,6 +128,7 @@ Dropzone.options.myDropzone = {
                 );
             }
             deactivate_compression_button();
+            SELECT.update_options();
         });
         this.on("queuecomplete", function () {
             Dropzone.queueFinished = true;
