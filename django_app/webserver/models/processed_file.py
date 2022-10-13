@@ -10,7 +10,6 @@ from django_app.webserver.string_utility import StringUtility
 class ProcessedFile(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
     processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE)
-    finished = models.BooleanField(default=False)
     processed_file_path = models.TextField()
     date_of_upload = models.DateTimeField(auto_now_add=True)
     merger = models.BooleanField(default=False)
@@ -23,7 +22,7 @@ class ProcessedFile(models.Model):
             return len(UploadedFile.objects.filter(processing_request=self.processing_request)) \
                    + len(ProcessedFile.objects.filter(processing_request=self.processing_request))
 
-        file = StringUtility.get_local_absolute_path(self.processed_file_path)
+        file = str(self.processed_file_path)
         if os.path.isfile(file):
             os.remove(file)
         if file_count() <= 1:
@@ -45,17 +44,18 @@ class ProcessedFile(models.Model):
     @classmethod
     def get_all_processing_files(cls, user_id: str):
 
-        def ___get_json(file_obj, filename: str, filename_path: str, finished: bool, request_id: int, file_origin: str):
+        def ___get_json(file_obj, filename: str, filename_path: str, request_id: int, file_origin: str):
+            file_is_present = os.path.isfile(StringUtility.get_local_absolute_path(filename_path))
             return {
                 "file_id": file_obj.id,
                 "filename": StringUtility.get_filename_with_ending(filename),
                 "filename_path": os.path.join("media", filename_path),
-                "finished": finished,
+                "finished": file_is_present,
                 "request_id": request_id,
                 "date_of_upload": StringUtility.get_formatted_time(file_obj.date_of_upload),
                 "file_origin": file_origin,
                 "size": "%.2fmb" % (
-                    0 if not finished or not os.path.isfile(StringUtility.get_local_absolute_path(filename_path))
+                    0 if not file_is_present
                     else os.path.getsize(StringUtility.get_local_absolute_path(filename_path)) / 1000000)
             }
 
@@ -65,7 +65,7 @@ class ProcessedFile(models.Model):
                     'date_of_upload'):
                 files.append(___get_json(
                     file_obj=file, filename=file.uploaded_file.name + " (Original)",
-                    filename_path=file.uploaded_file.name, finished=True, request_id=___processing_request.id,
+                    filename_path=file.uploaded_file.name, request_id=___processing_request.id,
                     file_origin="uploaded"
                 ))
             return files
@@ -77,7 +77,7 @@ class ProcessedFile(models.Model):
                 if processed_file.processing_request.id == ___processing_request.id:
                     files.append(___get_json(
                         file_obj=processed_file, filename=processed_file.processed_file_path,
-                        filename_path=processed_file.processed_file_path, finished=processed_file.finished,
+                        filename_path=processed_file.processed_file_path,
                         request_id=___processing_request.id, file_origin="processed"
                     ))
             return files

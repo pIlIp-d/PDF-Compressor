@@ -55,11 +55,10 @@ class PDFCompressor:
         self.__compression_mode = compression_mode
         self.__default_pdf_dpi = default_pdf_dpi
         self.__event_handlers = event_handlers
-        self.__uses_default_destination = destination_path == "default"
 
         self.__source_path = rf"{os.path.abspath(source_path)}"
         self.__destination_path = \
-            destination_path if self.__uses_default_destination else rf"{os.path.abspath(destination_path)}"
+            destination_path if destination_path == "default" else rf"{os.path.abspath(destination_path)}"
 
         pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../..")
         os.chdir(pdf_dir)
