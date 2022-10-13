@@ -18,7 +18,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
             event_handlers: list[EventHandler],
             file_type_from: str,
             file_type_to: str,
-            processed_files_appendix: str = "_processed",
             can_merge: bool = False,
             run_multi_threaded: bool = True,
             processed_part: str = "All Files"
@@ -29,7 +28,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         self._preprocessors = []
         self._postprocessors = []
         self._add_event_handler_processors()
-        self._processed_files_appendix = processed_files_appendix
+        self._processed_files_appendix = "_processed"
         self._processed_part = processed_part
         self._can_merge = can_merge
         self._file_type_from = file_type_from
