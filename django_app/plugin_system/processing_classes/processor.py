@@ -1,14 +1,14 @@
 import os
+import uuid
 from abc import ABC, abstractmethod
 from concurrent.futures import ProcessPoolExecutor
-import inspect
-from functools import wraps
+from datetime import datetime
 
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
+from django_app.webserver.string_utility import StringUtility
 from plugins.crunch_compressor.utility.EventHandler import EventHandler
 from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
-from plugins.crunch_compressor.utility.io_path_parser import IOPathParser
 from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
@@ -24,21 +24,21 @@ class Processor(Postprocessor, Preprocessor, ABC):
     ):
         if event_handlers is None:
             event_handlers = list()
-        self.event_handlers = event_handlers
+        self._event_handlers = event_handlers
         self._preprocessors = []
         self._postprocessors = []
         self._add_event_handler_processors()
         self._processed_files_appendix = "_processed"
         self._processed_part = processed_part
         self._can_merge = can_merge
-        self._file_type_from = file_type_from
-        self._file_type_to = file_type_to
-        self.run_multi_threaded = run_multi_threaded
+        self._file_type_from = file_type_from.lower()
+        self._file_type_to = file_type_to.lower()
+        self._run_multi_threaded = run_multi_threaded
 
     def _add_event_handler_processors(self) -> None:
-        for event_handler in self.event_handlers:
+        for event_handler in self._event_handlers:
             self.add_preprocessor(event_handler)
-        for event_handler in self.event_handlers:
+        for event_handler in self._event_handlers:
             self.add_postprocessor(event_handler)
 
     def add_preprocessor(self, processor: Preprocessor) -> None:
@@ -173,11 +173,11 @@ class Processor(Postprocessor, Preprocessor, ABC):
             final_merge_file = OsUtility.get_path_without_file_ending(
                 temporary_destination_file_list[0]) + "_merged." + self._file_type_to
 
-        for event_handler in self.event_handlers:
+        for event_handler in self._event_handlers:
             event_handler.started_processing()
 
         # run processing
-        if self.run_multi_threaded:
+        if self._run_multi_threaded:
             self.process_file_list_multi_threaded(source_file_list, temporary_destination_file_list)
         else:
             self.process_file_list(source_file_list, temporary_destination_file_list)
