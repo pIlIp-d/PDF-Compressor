@@ -4,7 +4,6 @@ from django_app.task_scheduler.event_handler.process_stats_event_handler import 
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.string_utility import StringUtility
-from django_app.task_scheduler.event_handler.zip_all_files_event_handler import ZipAllFilesEventHandler
 
 
 class ProcessingTask(Task, ABC):
@@ -30,12 +29,5 @@ class ProcessingTask(Task, ABC):
 
     def _get_event_handler(self) -> list[ProcessStatsEventHandler]:
         return [
-            ZipAllFilesEventHandler(
-                self.__processed_file_paths[0]
-            ),
-            ProcessStatsEventHandler(
-                self.__amount_of_input_files,
-                self.__processed_file_paths,
-                self._request_id
-            )
+            ProcessStatsEventHandler(self._request_id)
         ]
