@@ -27,7 +27,7 @@ class ProcessingTask(Task, ABC):
         )
         self.__processed_file_paths = processed_file_paths
 
-    def _get_process_stats_event_handler(self) -> list[ProcessStatsEventHandler]:
+    def _get_event_handler(self) -> list[ProcessStatsEventHandler]:
         return [
             ZipAllFilesEventHandler(
                 self.__processed_file_paths[0]
