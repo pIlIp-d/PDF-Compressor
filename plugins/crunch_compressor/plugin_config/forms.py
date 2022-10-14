@@ -140,7 +140,7 @@ class ImageToPdfConvertForm(PluginForm):
 class PdfToImageConvertForm(PluginForm):
     result_file_type = forms.TypedChoiceField(
         choices=(
-            ('image/png', 'image/png')
+            ('image/png', 'image/png'),  # TODO add important notice: ',' at the end is required
         ),
         initial='image/png',
         label='Result File Type:',
