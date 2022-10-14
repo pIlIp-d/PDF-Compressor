@@ -61,7 +61,6 @@ class ImageToPdfConvertTask(ProcessingTask):
 
 class PdfToImageConvertTask(ProcessingTask):
     def run(self):
-        print("ABC", self._destination_path)
         event_handler = super()._get_event_handler()
         PdfToImageConverter(
             mimetypes.guess_extension(self._request_parameters.get("result_file_type"))[1:],
