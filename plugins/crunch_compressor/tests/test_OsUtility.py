@@ -4,7 +4,8 @@ from unittest import TestCase
 
 import jsons
 
-from plugins.crunch_compressor.utility.os_utility import OsUtility
+from django_app.utility.os_utility import OsUtility
+from plugins.crunch_compressor.config import get_config
 
 
 class TestOsUtility(TestCase):
@@ -279,8 +280,8 @@ class TestOsUtility(TestCase):
         file = os.path.join(os.path.abspath("TestData/singlePagePdf.pdf"))
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
-        file2 = os.path.join(os.path.abspath("SomeRubishTest-LALA-File_folder(jjkn)"))
-        self.assertEqual("SomeRubishTest-LALA-File_folder(jjkn)", OsUtility.get_filename(file2))
+        file2 = os.path.join(os.path.abspath("SomeRubbishTest-LALA-File_folder(jjkn)"))
+        self.assertEqual("SomeRubbishTest-LALA-File_folder(jjkn)", OsUtility.get_filename(file2))
 
     def test_get_filename_with_empty_string_as_path(self):
         self.assertEqual("", OsUtility.get_filename(""))
@@ -295,7 +296,7 @@ class TestOsUtility(TestCase):
         shutil.move(self.CONFIG_FILE, self.CONFIG_FILE + ".tmp")
         self.assertRaises(
             FileNotFoundError,
-            OsUtility.get_config,
+            get_config,
             self.CONFIG_FILE
         )
         # move tmp file back
@@ -303,7 +304,7 @@ class TestOsUtility(TestCase):
 
     def test_os_utility_get_config_all_values_set(self):
         # no error -> all must have been set
-        OsUtility.get_config(self.CONFIG_FILE)
+        get_config(self.CONFIG_FILE)
 
     def test_os_utility_get_config_not_all_values_are_set(self):
         shutil.copyfile(self.CONFIG_FILE, self.CONFIG_FILE + ".tmp")
@@ -316,7 +317,7 @@ class TestOsUtility(TestCase):
             config_file.write(jsons.dumps(json))
         self.assertRaises(
             TypeError,
-            OsUtility.get_config,
+            get_config,
             self.CONFIG_FILE
         )
         shutil.move(self.CONFIG_FILE + ".tmp", self.CONFIG_FILE)

@@ -3,7 +3,7 @@ import subprocess
 from subprocess import CalledProcessError
 
 from plugins.crunch_compressor.compressor.png_compressor.abstract_png_compressor import AbstractPngCompressor
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from django_app.utility.console_utility import ConsoleUtility
 
 
 class PngcrushCompressor(AbstractPngCompressor):

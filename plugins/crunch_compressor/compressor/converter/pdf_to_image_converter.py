@@ -1,12 +1,12 @@
 from django_app.plugin_system.processing_classes.converter import Converter
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from django_app.utility.console_utility import ConsoleUtility
 
 import os
 
 # package name PyMuPdf
 import fitz
 
-from plugins.crunch_compressor.utility.os_utility import OsUtility
+from django_app.utility.os_utility import OsUtility
 
 
 class PdfToImageConverter(Converter):

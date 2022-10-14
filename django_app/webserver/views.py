@@ -1,4 +1,3 @@
-import mimetypes
 from functools import reduce
 
 from django.http import JsonResponse
@@ -6,10 +5,8 @@ from django.shortcuts import render, redirect
 
 from django_app.api.views import wrong_method_error
 from django_app.plugin_system.plugin import Plugin
-from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
-from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 FORCE_SILENT_PROCESSING = False
 

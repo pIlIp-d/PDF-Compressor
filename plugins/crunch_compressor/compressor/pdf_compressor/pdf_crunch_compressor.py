@@ -6,8 +6,8 @@ from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter impor
 from plugins.crunch_compressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
 from plugins.crunch_compressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
-from plugins.crunch_compressor.utility.os_utility import OsUtility
+from django_app.utility.console_utility import ConsoleUtility
+from django_app.utility.os_utility import OsUtility
 
 
 class PDFCrunchCompressor(AbstractPdfCompressor):

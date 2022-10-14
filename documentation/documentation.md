@@ -24,7 +24,7 @@ It displays the website, handles requests and forwards the processing request to
 ## Processing (Backend)
 
 The taskScheduler class checks for changes in the tasks db and if changes are detected,  
-it starts processing (i.e Compressing) by using the data/parameters given in the tasks.tasks db table.
+it starts processing (e.g. Compressing) by using the data/parameters given in the `tasks.tasks` db table.
 
 ## New Tasks
 
@@ -190,7 +190,7 @@ per parent there are required fields
 
 # Event Handler Class
 
-every tasks should trigger certain events, that can be used by the program to determine progress or to apply different processing like zipping or console logging
+every task should trigger certain events, that can be used by the program to determine progress or to apply different processing like zipping or console logging
 
 ```python
 class EventHandler(...):
@@ -208,7 +208,7 @@ class EventHandler(...):
 # TODOs
 
 * **add remove all files button (per User) to download page**
-* /media folder memory management (capacity per user etc)
+* /media folder memory management (capacity per user etc.)
 * GarbageCollector (regular cleanup of old Tasks, /media folder, /temporary_files folder)
   * deletes request, if it has no files
 * option reserve/strip meta data

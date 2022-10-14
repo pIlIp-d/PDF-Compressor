@@ -3,7 +3,7 @@ from .advpng_compressor import AdvanceCompressor
 from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
 from ...processor.CompressionPostprocessor import CompressionPostprocessor
-from ...utility.console_utility import ConsoleUtility
+from django_app.utility.console_utility import ConsoleUtility
 
 
 class PNGCrunchCompressor(AbstractPngCompressor):

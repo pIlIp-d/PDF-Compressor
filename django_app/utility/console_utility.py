@@ -28,9 +28,10 @@ class ConsoleUtility:
             if result < 0:
                 raise ValueError("result can't be less than 0")
 
-            cls.print(cls.GREEN + f"Compressed {compressed_value} from " + str(round(orig / 1000000, 2)) + "mb to " + str(
-                round(result / 1000000, 2)) + "mb (-" + str(
-                round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
+            cls.print(
+                cls.GREEN + f"Compressed {compressed_value} from " + str(round(orig / 1000000, 2)) + "mb to " + str(
+                    round(result / 1000000, 2)) + "mb (-" + str(
+                    round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
 
     @classmethod
     def print_error(cls, string: str) -> None:

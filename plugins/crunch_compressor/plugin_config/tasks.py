@@ -5,8 +5,8 @@ from django_app.task_scheduler.tasks.processing_task import ProcessingTask
 from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
 from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
+from plugins.crunch_compressor.config import get_config
 from plugins.crunch_compressor.pdfcompressor import PDFCompressor
-from plugins.crunch_compressor.utility.os_utility import OsUtility
 
 
 class PdfCompressionTask(ProcessingTask):
@@ -29,7 +29,7 @@ class PdfCompressionTask(ProcessingTask):
 class PngCompressionTask(ProcessingTask):
     def run(self):
         event_handler = super()._get_event_handler()
-        config = OsUtility.get_config()
+        config = get_config()
         PNGCrunchCompressor(
             pngquant_path=config.pngquant_path,
             advpng_path=config.advpng_path,
@@ -45,7 +45,7 @@ class PngCompressionTask(ProcessingTask):
 class ImageToPdfConvertTask(ProcessingTask):
     def run(self):
         event_handler = super()._get_event_handler()
-        config = OsUtility.get_config()
+        config = get_config()
         ImagesToPdfConverter(
             pytesseract_path=config.tesseract_path,
             force_ocr=self._request_parameters.get("ocr_mode") == "on",

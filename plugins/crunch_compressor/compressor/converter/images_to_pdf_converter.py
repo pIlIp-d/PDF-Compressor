@@ -1,7 +1,7 @@
 from PIL.Image import DecompressionBombError
 
 from django_app.plugin_system.processing_classes.converter import Converter
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from django_app.utility.console_utility import ConsoleUtility
 
 # package name PyMuPdf
 import fitz  # also imports convert() method

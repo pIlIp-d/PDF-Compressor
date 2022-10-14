@@ -1,5 +1,4 @@
 import subprocess
-from typing import Callable
 
 
 def run_subprocess_and_get_output(args: list) -> tuple[int, str, str]:
