@@ -122,8 +122,6 @@ class PDFCompressor:
             self.__cpdf.process(self.__source_path, self.__destination_path)
         else:
             self.__pdf_crunch.process(self.__source_path, self.__destination_path)
-        for event_handler in self.__event_handlers:
-            event_handler.finished_all_files()
 
     @staticmethod
     def __raise_value_error(error_string: str) -> None:
