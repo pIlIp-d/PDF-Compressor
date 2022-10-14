@@ -1,7 +1,7 @@
 from abc import ABC
 
 from django_app.plugin_system.processing_classes.processor import Processor
-from plugins.crunch_compressor.utility.EventHandler import EventHandler
+from django_app.utility import EventHandler
 
 
 class Converter(Processor, ABC):

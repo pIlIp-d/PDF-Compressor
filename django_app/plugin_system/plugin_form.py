@@ -1,4 +1,4 @@
-from django.forms import Form, RegexField
+from django.forms import Form
 
 
 class PluginForm(Form):

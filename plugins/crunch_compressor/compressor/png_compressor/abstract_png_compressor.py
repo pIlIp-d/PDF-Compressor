@@ -3,7 +3,7 @@ from abc import ABC
 from plugins.crunch_compressor.compressor.png_compressor.abstract_image_compressor import AbstractImageCompressor
 
 
-# TODO check if multi threaded execution of all PNGCompressor classes ends up not being inefficient
+# TODO check if multi-threaded execution of all PNGCompressor classes ends up not being inefficient
 
 
 class AbstractPngCompressor(AbstractImageCompressor, ABC):

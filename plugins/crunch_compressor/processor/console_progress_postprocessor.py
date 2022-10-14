@@ -1,5 +1,5 @@
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
+from django_app.utility.console_utility import ConsoleUtility
 
 
 class ConsoleProgressPostprocessor(Postprocessor):

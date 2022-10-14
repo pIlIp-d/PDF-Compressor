@@ -2,7 +2,7 @@ import os
 import shutil
 
 from django_app.task_scheduler.tasks.task import Task
-from plugins.crunch_compressor.utility.os_utility import OsUtility
+from django_app.utility.os_utility import OsUtility
 
 
 class ZipTask(Task):

@@ -7,9 +7,9 @@ from datetime import datetime
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
 from django_app.webserver.string_utility import StringUtility
-from plugins.crunch_compressor.utility.EventHandler import EventHandler
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
-from plugins.crunch_compressor.utility.os_utility import OsUtility
+from django_app.utility import EventHandler
+from django_app.utility.console_utility import ConsoleUtility
+from django_app.utility.os_utility import OsUtility
 
 
 class Processor(Postprocessor, Preprocessor, ABC):
@@ -158,7 +158,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         if destination_path == "split":
             temporary_destination_file_list = [
                 temp_folder
-                for file in destination_file_list
+                for _ in destination_file_list
             ]
         else:
             temporary_destination_file_list = [

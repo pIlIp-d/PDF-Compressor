@@ -7,10 +7,11 @@ PORT = "8080"
 ADDRESS = "0.0.0.0"
 METHOD = "http"
 
+
 def configure():
-    from django.core.management.commands.runserver import Command as server
-    server.default_addr = ADDRESS
-    server.default_port = PORT
+    from django.core.management.commands.runserver import Command as Server
+    Server.default_addr = ADDRESS
+    Server.default_port = PORT
 
 
 def main():

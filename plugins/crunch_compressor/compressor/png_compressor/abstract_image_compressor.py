@@ -4,7 +4,7 @@ from abc import ABC
 from PIL import Image
 
 from django_app.plugin_system.processing_classes.compressor import Compressor
-from ...utility.os_utility import OsUtility
+from django_app.utility.os_utility import OsUtility
 
 
 class AbstractImageCompressor(Compressor, ABC):

@@ -8,27 +8,12 @@
 # ===================================================================
 
 import os
-from enum import Enum
 
 from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
-from .utility import EventHandler
-from .utility.console_utility import ConsoleUtility
-from .utility.os_utility import OsUtility
-
-
-class PdfCompressorOptionHelp(Enum):
-    source_path = "Path to pdf file or to folder containing pdf files"
-    destination_path = "Compressed file Output Path. Default: 'filename_compressed.pdf' or 'compressed/...' for folders"
-    compression_mode = "compression mode 1-5. 1:high compression but slow 5:lower compression but fast. Default=5"
-    force_ocr = "When turned on allows output file to be larger than input file, to force ocr. " \
-                "Default: off and only smaller output files are saved.'"
-    no_ocr = "Don't create OCR on pdf."
-    quiet = "Don't print to console. Doesn't apply to Exceptions."
-    tesseract_language = "Language to create OCR with."
-    simple_and_lossless = "Simple and lossless compression is non-invasive and skips the image converting." \
-                          "Not as effective but simple and faster."
-    default_pdf_dpi = "DPI to use in conversion from pdf to images. Default=350."
+from django_app.utility import EventHandler
+from django_app.utility.console_utility import ConsoleUtility
+from .config import get_config
 
 
 class PDFCompressor:
@@ -44,8 +29,10 @@ class PDFCompressor:
             tesseract_language: str = "deu",
             simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
-            event_handlers: list[EventHandler] = list()
+            event_handlers: list[EventHandler] = None
     ):
+        if event_handlers is None:
+            event_handlers = list()
         ConsoleUtility.quiet_mode = quiet
         self.__force_ocr = force_ocr
         self.__simple_and_lossless = simple_and_lossless
@@ -64,31 +51,24 @@ class PDFCompressor:
         os.chdir(pdf_dir)
 
         if not os.path.exists(self.__source_path):
-            PDFCompressor.__raise_value_error(
-                "option -p/--path must be a valid path to a file or folder."
-            )
+            raise ValueError("option -p/--path must be a valid path to a file or folder.")
         if compression_mode < 1 or compression_mode > 5:
-            PDFCompressor.__raise_value_error(
-                "option -m/--mode must be in range 1 to 5."
-            )
+            raise ValueError("option -m/--mode must be in range 1 to 5.")
         if self.__force_ocr and no_ocr:
-            PDFCompressor.__raise_value_error(
-                "option -f/--force-ocr and -n/--no-ocr can't be used together"
-            )
+            raise ValueError("option -f/--force-ocr and -n/--no-ocr can't be used together")
 
         # configure compressors
-        config_paths = OsUtility.get_config()
+        config_paths = get_config()
 
-        # lossless compressor
         try:
+            # lossless compressor
             self.__cpdf = CPdfSqueezeCompressor(
                 config_paths.cpdfsqueeze_path,
                 config_paths.wine_path,
                 event_handlers=event_handlers if self.__simple_and_lossless else list()
             )
-        except ValueError:
-            ConsoleUtility.print_error("Error: Program cpdfsqueeze not found or configured inorrectly, "
-                                       "skipped compression with cpdfsqueeze.")
+        except ValueError as error:
+            print(str(error) + " -> skipped compression with cpdfsqueeze.")
             self.__cpdf = None
         if not self.__simple_and_lossless:
             # lossy compressor
@@ -122,10 +102,3 @@ class PDFCompressor:
             self.__cpdf.process(self.__source_path, self.__destination_path)
         else:
             self.__pdf_crunch.process(self.__source_path, self.__destination_path)
-
-    @staticmethod
-    def __raise_value_error(error_string: str) -> None:
-        ConsoleUtility.print(ConsoleUtility.get_error_string(error_string))
-        raise ValueError(error_string)
-
-# TODO consider adding conversion from png to jpeg before the merge if no alpha is needed

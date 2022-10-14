@@ -6,8 +6,8 @@ import time
 from io import StringIO
 from unittest import TestCase
 
-from plugins.crunch_compressor.utility.console_utility import ConsoleUtility
-from plugins.crunch_compressor.utility.os_utility import OsUtility
+from django_app.utility.console_utility import ConsoleUtility
+from django_app.utility.os_utility import OsUtility
 
 
 class TestConsolePDFCompressor(TestCase):
@@ -248,7 +248,7 @@ class TestConsolePDFCompressor(TestCase):
         input_file = os.path.join(os.path.realpath(""), "TestData", "singlePagePdf.pdf")
         self.remove_if_not_exists(result_path)
         time1 = time.time()
-        return_code = subprocess.call([
+        return_code1 = subprocess.call([
             "python3", self.program_path,
             "-p", input_file,
             "--mode", "1"
@@ -257,7 +257,7 @@ class TestConsolePDFCompressor(TestCase):
         first_file_size = os.stat(result_path).st_size
 
         time2 = time.time()
-        return_code = subprocess.call([
+        return_code2 = subprocess.call([
             "python3", self.program_path,
             "-p", input_file,
             "--mode", "5"
@@ -267,7 +267,8 @@ class TestConsolePDFCompressor(TestCase):
         os.remove(result_path)
         self.assertTrue(first_file_size <= second_file_size and time1 >= time2)
         self.assertFalse(console_buffer.getvalue().__contains__(ConsoleUtility.RED))
-        self.assertEqual(0, return_code)
+        self.assertEqual(0, return_code1)
+        self.assertEqual(0, return_code2)
 
     def test_pdf_compressor_output_file_already_exists(self):
         console_buffer = self.get_console_buffer()
