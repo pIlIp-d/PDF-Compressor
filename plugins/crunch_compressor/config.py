@@ -5,7 +5,7 @@ import jsons
 
 from django_app.utility.console_utility import ConsoleUtility
 
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), "../../plugins/crunch_compressor", "config.json")
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), ".", "config.json")
 
 
 def get_config(config_file: str = CONFIG_FILE):

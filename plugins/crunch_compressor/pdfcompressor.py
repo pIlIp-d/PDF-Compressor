@@ -11,7 +11,7 @@ import os
 
 from .compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from .compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
-from django_app.utility import EventHandler
+from django_app.utility.event_handler import EventHandler
 from django_app.utility.console_utility import ConsoleUtility
 from .config import get_config
 

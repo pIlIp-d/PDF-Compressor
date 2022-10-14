@@ -26,5 +26,8 @@ try:
     for plugin in settings.PROCESSOR_PLUGINS:
         plugin.get_form_class()
         plugin.get_task()
+    print("Loaded plugins successfully.")
 except ImportError as e:
+    if settings.DEBUG:
+        raise e
     ConsoleUtility.print_error(str(e))
