@@ -16,6 +16,13 @@ class StringUtility:
         return os.path.abspath(os.path.join(MEDIA_FOLDER_PATH, download_path))
 
     @classmethod
+    def get_media_normalized_path(cls, absolute_path: str):
+        absolute_media_path = os.path.abspath(MEDIA_FOLDER_PATH)
+        if not absolute_path.startswith(absolute_media_path):
+            raise ValueError("File is not inside the Media folder")
+        return absolute_path[len(absolute_media_path)+1:]
+
+    @classmethod
     def get_formatted_time(cls, t):
         return t.strftime(TIME_FORMAT)
 
