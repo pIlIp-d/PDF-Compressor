@@ -9,7 +9,7 @@ class OsUtility:
     @classmethod
     def get_file_list(cls, folder: str, ending: str = "") -> list:
         if not os.path.exists(folder):
-            raise FileNotFoundError(folder)
+            return []
         if os.path.isfile(folder):
             raise ValueError(folder)
         # get all the png files in temporary folder <=> all pdf pages
@@ -27,7 +27,7 @@ class OsUtility:
         if os.path.isfile(folder):
             raise ValueError
         if not os.path.exists(folder):
-            raise FileNotFoundError
+            return
         # removes the directory and files in 'folder'
         ConsoleUtility.print("--cleaning up--")
         if os.path.isdir(folder):
@@ -35,8 +35,11 @@ class OsUtility:
 
     @classmethod  # todo unitTest
     def move_file(cls, from_file: str, to_file: str):
-        cls.copy_file(from_file, to_file)
-        os.remove(from_file)
+        if os.path.isfile(from_file):
+            cls.copy_file(from_file, to_file)
+            os.remove(from_file)
+        else:
+            ConsoleUtility.print_error("FileNotFoundError: OsUtility.move_file() - from_file")
 
     @classmethod  # todo unitTest
     def copy_file(cls, from_file: str, to_file: str):
