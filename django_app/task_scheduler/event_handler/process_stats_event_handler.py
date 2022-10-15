@@ -38,4 +38,4 @@ class ProcessStatsEventHandler(EventHandler):
 
         # add files to download view
         for file in reversed(OsUtility.get_file_list(folder)):
-            ProcessedFile.add_processed_file(file, processing_request)
+            ProcessedFile.add_processed_file(StringUtility.get_media_normalized_path(file), processing_request)
