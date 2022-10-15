@@ -53,5 +53,5 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
             if settings.DEBUG:
                 print(e)
             ConsoleUtility.print_error("[!] Compression Failed during CPdfSqueezeCompressor stage.")
-            OsUtility.move_file(source_file, destination_file)
+            OsUtility.copy_file(source_file, destination_file)
         self.postprocess(source_file, destination_file)
