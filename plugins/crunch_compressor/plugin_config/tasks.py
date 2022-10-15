@@ -68,5 +68,5 @@ class PdfToImageConvertTask(ProcessingTask):
             event_handlers=event_handler
         ).process(
             source_path=self._source_path,
-            destination_path=self._destination_path if self._destination_path == "merge" else "split"
+            destination_path=self._destination_path if self._destination_path == "merge" else "default"
         )
