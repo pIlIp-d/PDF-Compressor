@@ -22,7 +22,7 @@ def get_directory_for_html(request) -> str:
 def render_main_view(request):
     context = {
         "dir": get_directory_for_html(request),
-        "user_id": request.session["user_id"],
+        "user_id": request.session["user_id"],  # TODO necessary ?
         "request_id": request.session["request_id"],
         "plugin": request.GET.get("plugin") or "null"
     }
@@ -32,7 +32,7 @@ def render_main_view(request):
 def render_download_view(request):
     if not (request.method == "POST" or request.method == "GET"):
         return wrong_method_error("GET", "POST")
-    context = {"dir": "../"}
+    context = {"dir": get_directory_for_html(request)}
     return render(request, 'application/download.html', context)
 
 

@@ -8,5 +8,5 @@ def get_connection():
     return conn
 
 
-def fetch_all_as_dict(query_result) -> list[dict]:
-    return [dict(row) for row in query_result.fetchall()]
+# def fetch_all_as_dict(query_result) -> list[dict]:
+#     return [dict(row) for row in query_result.fetchall()]
