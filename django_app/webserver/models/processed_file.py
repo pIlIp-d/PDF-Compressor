@@ -73,7 +73,7 @@ class ProcessedFile(models.Model):
         def ___get_processed_files(___processing_request):
             files = []
             for processed_file in ProcessedFile.objects.filter(processing_request=___processing_request).order_by(
-                    'date_of_upload'):
+                    'date_of_upload'): # TODO reverse
                 if processed_file.processing_request.id == ___processing_request.id:
                     files.append(___get_json(
                         file_obj=processed_file, filename=processed_file.processed_file_path,

@@ -19,23 +19,23 @@ class Plugin(ABC):
             only_zip_as_result: bool = False,
             merger: bool = False
     ):
-        self._only_zip_as_result = only_zip_as_result
         self.name = name
-        self._task = task
-        self._form = form
         self._from_file_types = from_file_types
+        self._form = form
+        self._task = task
+        self._only_zip_as_result = only_zip_as_result
         self._merger = merger
 
     def get_destination_types(self, from_file_type: str):
-        def ___deduplicate(l: list) -> list:
-            return list(set(l))
+        def ___deduplicate(list_with_duplicates: list) -> list:
+            return list(set(list_with_duplicates))
 
         if from_file_type is None:
             # return all possible destination types of all possible input types
             return ___deduplicate(
                 reduce(
                     lambda sum_list, next_list: sum_list + next_list,
-                    [self.get_destination_types(a) for a in self._from_file_types],
+                    [self.get_destination_types(file_type) for file_type in self._from_file_types],
                     list()
                 )
             )
@@ -66,7 +66,7 @@ class Plugin(ABC):
         for plugin in settings.PROCESSOR_PLUGINS:
             if plugin.name == name:
                 return plugin
-        raise ImportError("Plugin not Found. Plugin: " + name)
+        raise ValueError("Plugin not Found. Plugin: " + name)
 
     def get_input_file_types(self):
         return self._from_file_types

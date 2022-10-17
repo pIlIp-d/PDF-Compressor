@@ -8,7 +8,7 @@ from ..api.urls import urlpatterns as api_urls
 app_name = 'webserver'
 
 urlpatterns = [
-    path('', views.render_main_view, name='main-view'),
+    path('', views.render_main_view),
     path('download/', views.render_download_view, name='download_view'),
     path('start_processing_and_show_download_view/', views.start_processing_and_show_download_view,
          name='start_processing_and_show_download_view'),

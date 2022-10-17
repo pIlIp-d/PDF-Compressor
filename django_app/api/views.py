@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
-
 from django_app import settings
 from django_app.plugin_system.plugin import Plugin
 from django_app.webserver.models.processed_file import ProcessedFile
@@ -60,7 +59,7 @@ def remove_file(request):
         file.delete()
     else:
         return JsonResponse({"status": 412, "error": "No file with that id found for you."}, status=412)
-    return JsonResponse({"status": 200, "error": "Removed file successfully."}, status=200)
+    return JsonResponse({"status": 200, "success": "Removed file successfully."}, status=200)
 
 
 @csrf_protect
