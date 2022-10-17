@@ -12,14 +12,11 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 from django_app import settings
-from django_app.task_scheduler.task_scheduler import TaskSchedulerDaemon
 from django_app.utility.console_utility import ConsoleUtility
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
 
 application = get_wsgi_application()
-
-TaskSchedulerDaemon.start_async()
 
 # validate plugin imports
 try:
