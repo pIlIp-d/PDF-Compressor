@@ -17,6 +17,8 @@ def configure():
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "runserver":
         configure()
+    elif len(sys.argv) > 1 and sys.argv[1] == "clear":
+        print("cleaning")  # TODO
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
     try:
