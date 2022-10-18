@@ -15,7 +15,7 @@ from django_app import settings
 from django_app.utility.console_utility import ConsoleUtility
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
-
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 application = get_wsgi_application()
 
 # validate plugin imports
