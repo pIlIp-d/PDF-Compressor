@@ -19,6 +19,7 @@ def get_directory_for_html(request) -> str:
     )
 
 
+@require_http_methods(["GET"])
 def render_main_view(request):
     context = {
         "dir": get_directory_for_html(request),
@@ -29,7 +30,7 @@ def render_main_view(request):
     return render(request, 'application/main.html', context)
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET"])
 def render_download_view(request):
     context = {"dir": get_directory_for_html(request)}
     return render(request, 'application/download.html', context)
