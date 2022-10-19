@@ -20,6 +20,7 @@ class DestinationTypeSelect {
                 }
             )
 
+
             // TODO 555 add separate request for get allowed_file_endings, that is call every update of select
             if (selected_option === "null") {
                 set_form_content("Choose something.");
