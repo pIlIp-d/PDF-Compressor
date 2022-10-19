@@ -20,8 +20,10 @@ class DestinationTypeSelect {
                 function () {
                     if (this.readyState === 4 && this.status === 200) {
                         let json_response = JSON.parse(this.response);
-                        if ("allowed_file_endings" in json_response)
-                            allowed_file_endings = json_response.allowed_file_endings
+                        console.log("UPDATE")
+                        console.log(json_response)
+                        if ("allowed_file_types" in json_response)
+                            allowed_file_endings = json_response.allowed_file_types
                     }
                 }
             )
@@ -222,7 +224,7 @@ function correct_file_type(file) {
     if (allowed_file_endings.length === 0)
         return true
     for (const ending in allowed_file_endings) {
-        if (file.type === ending) {
+        if (file.type === allowed_file_endings[ending]) {
             return true;
         }
     }
