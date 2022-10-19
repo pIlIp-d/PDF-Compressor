@@ -13,6 +13,7 @@ from pathlib import Path
 
 from plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
     ImageToPdfConvertPlugin, PdfToImageConvertPlugin
+from plugins.minimal_plugin_example.plugin_config import RenamePngPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_app.webserver",
-    "django_tables2"
+    #"django_tables2"
 ]
 
 MIDDLEWARE = [
@@ -141,4 +142,5 @@ PROCESSOR_PLUGINS = {
     PngCompressorPlugin("png_compressor"),
     ImageToPdfConvertPlugin("png_to_pdf_converter"),
     PdfToImageConvertPlugin("pdf_to_image_converter"),
+    # RenamePngPlugin("rename_png"),
 }
