@@ -8,12 +8,22 @@ class DestinationTypeSelect {
         this.select_object.addEventListener("change", function () {
             let selected_option = this.value;
             save_plugin_in_url(selected_option);
+            make_request(
+                "GET",
+                ROOT_DIR + "api/get_allowed_input_file_types/?plugin_info=" + selected_option, true,
+                function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        let json_response = JSON.parse(this.response);
+                        if ("allowed_file_endings" in json_response)
+                            allowed_file_endings = json_response.allowed_file_endings
+                    }
+                }
+            )
 
             // TODO 555 add separate request for get allowed_file_endings, that is call every update of select
             if (selected_option === "null") {
                 set_form_content("Choose something.");
                 deactivate_compression_button();
-                allowed_file_endings = [];
             } else {
                 // changed to another processor
                 make_request(
@@ -27,9 +37,6 @@ class DestinationTypeSelect {
                                 set_form_content(json_response.form_html)
                             if ("form_script" in json_response)
                                 set_form_script(json_response.form_script)
-                            // TODO 555 remove for separate request
-                            if ("allowed_file_endings" in json_response)
-                                allowed_file_endings = json_response.allowed_file_endings
                             _this.update_options();
                         }
                     }
@@ -106,6 +113,8 @@ Dropzone.options.myDropzone = {
             if (!correct_file_type(file)) {
                 this.removeFile(file);
                 showUnsupportedFileAnimation();
+                if (Dropzone.options.FileList <= 0) // TODO redundant?
+                    deactivate_compression_button();
                 return;
             }
             // TODO add default thumbnail for pdfs etc (use line below)
