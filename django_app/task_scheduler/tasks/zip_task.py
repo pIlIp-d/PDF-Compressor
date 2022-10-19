@@ -19,7 +19,7 @@ class ZipTask(Task):
         shutil.make_archive(
             filename_without_file_ending,
             format=compression_format,
-            base_dir=self.__folder_path
+            root_dir=self.__folder_path
         )
         # move file into final destination
         shutil.move(
