@@ -8,6 +8,8 @@ class DestinationTypeSelect {
         this.select_object.addEventListener("change", function () {
             let selected_option = this.value;
             save_plugin_in_url(selected_option);
+
+            // TODO 555 add separate request for get allowed_file_endings, that is call every update of select
             if (selected_option === "null") {
                 set_form_content("Choose something.");
                 deactivate_compression_button();
@@ -25,6 +27,7 @@ class DestinationTypeSelect {
                                 set_form_content(json_response.form_html)
                             if ("form_script" in json_response)
                                 set_form_script(json_response.form_script)
+                            // TODO 555 remove for separate request
                             if ("allowed_file_endings" in json_response)
                                 allowed_file_endings = json_response.allowed_file_endings
                             _this.update_options();

@@ -186,7 +186,7 @@ def get_form_html_for_web_view(request):
             "status": 200,
             "form_html": form_html,
             "form_script": form_script,
-            "allowed_file_endings": plugin.get_input_file_types()
+            "allowed_file_endings": plugin.get_input_file_types()  # TODO 555 remove for separate request
         }, status=200)
     except ValueError as e1:
         if settings.DEBUG:
