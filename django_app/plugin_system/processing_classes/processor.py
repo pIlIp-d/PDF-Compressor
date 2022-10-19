@@ -77,7 +77,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
             destination_files: list,
             cpu_count: int = os.cpu_count()
     ) -> None:
-        args_list = [{"source_file": source, "destination_file": destination}
+        args_list = [{"source_file": source, "destination_path": destination}
                      for source, destination in zip(source_files, destination_files)]
         self._custom_map_execute(self.process_file, args_list, cpu_count)
 
