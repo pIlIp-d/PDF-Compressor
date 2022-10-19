@@ -2,12 +2,18 @@ class DestinationTypeSelect {
     constructor() {
         this.select_object = document.getElementById("destination_type_select");
 
-        this.update_options(false);
+    }
 
+    init() {
         let _this = this;
+
+        this.update_options(false);
         this.select_object.addEventListener("change", function () {
+
             let selected_option = this.value;
             save_plugin_in_url(selected_option);
+            updateProcessedButton()
+
             make_request(
                 "GET",
                 ROOT_DIR + "api/get_allowed_input_file_types/?plugin_info=" + selected_option, true,
@@ -19,7 +25,6 @@ class DestinationTypeSelect {
                     }
                 }
             )
-
 
             // TODO 555 add separate request for get allowed_file_endings, that is call every update of select
             if (selected_option === "null") {
@@ -54,6 +59,7 @@ class DestinationTypeSelect {
     }
 
     add_options(possible_file_types) {
+        this.clear();
         this.select_object.options.add(new Option("Choose a Result File Type", null));
         for (let i in possible_file_types)
             for (let file_ending_index in possible_file_types[i])
@@ -69,6 +75,8 @@ class DestinationTypeSelect {
     }
 
     update_options(async = true) {
+        // always deactivate button until its clear, that it can be pressed again
+        deactivate_compression_button();
         let _this = this;
         make_request(
             "GET",
@@ -77,16 +85,10 @@ class DestinationTypeSelect {
             function () {
                 if (this.readyState === 4 && this.status === 200) {
                     let json_response = JSON.parse(this.response);
-                    if ("possible_file_types" in json_response) {
-                        _this.clear();
+                    if ("possible_file_types" in json_response)
                         _this.add_options(json_response.possible_file_types);
-                    }
-
-                    if (Dropzone.queueFinished && _this.select_object.value !== "null")
-                        activate_compression_button();
-
+                    updateProcessedButton();
                     if (_this.is_empty()) {
-                        deactivate_compression_button();
                         set_form_content("No Processing option for the current combination of files found.");
                     }
                 }
@@ -97,9 +99,9 @@ class DestinationTypeSelect {
 
 let compress_button = document.getElementById("compress_button");
 let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-let SELECT;
+let SELECT = new DestinationTypeSelect();
 document.addEventListener("DOMContentLoaded", function () {
-    SELECT = new DestinationTypeSelect();
+    SELECT.init();
 });
 
 let dz = null;
@@ -140,8 +142,9 @@ Dropzone.options.myDropzone = {
                     `${ROOT_DIR}api/remove_file/?file_id=${file.file_id}&user_id=${USER_ID}&queue_csrf_token=${queue_csrf_token}&file_origin=uploaded`
                 );
             }
-            deactivate_compression_button();
             SELECT.update_options();
+            if (_this.files.length === 0)
+                Dropzone.queueFinished = false;
         });
         this.on("queuecomplete", function () {
             Dropzone.queueFinished = true;
@@ -149,7 +152,8 @@ Dropzone.options.myDropzone = {
                 SELECT.update_options();
         });
         this.on("success", function (file, responseText) {
-            file.file_id = responseText.file_id;
+            if ("file_id" in responseText)
+                file.file_id = responseText.file_id;
         });
     }
 };
@@ -187,6 +191,15 @@ function save_plugin_in_url(plugin_name) {
     window.history.pushState(null, "", new_url);
 }
 
+
+function updateProcessedButton() {
+    if (!SELECT.is_empty() && Dropzone.queueFinished && SELECT.select_object.value !== "null")
+        activate_compression_button();
+    else {
+        deactivate_compression_button();
+    }
+}
+
 function activate_compression_button() {
     compress_button.classList.remove("disabled");
     compress_button.classList.add("enabled");
@@ -208,8 +221,8 @@ function submit_compression_options_form() {
 function correct_file_type(file) {
     if (allowed_file_endings.length === 0)
         return true
-    for (let ending in allowed_file_endings) {
-        if (ending != null && file.type === (allowed_file_endings[ending])) {
+    for (const ending in allowed_file_endings) {
+        if (file.type === ending) {
             return true;
         }
     }
