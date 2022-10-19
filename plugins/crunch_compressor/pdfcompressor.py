@@ -19,33 +19,34 @@ from .config import get_config
 class PDFCompressor:
 
     def __init__(
-            self,
-            source_path: str,
-            destination_path: str = "default",
-            compression_mode: int = 5,
-            force_ocr: bool = False,
-            no_ocr: bool = False,
-            quiet: bool = False,
-            tesseract_language: str = "deu",
-            simple_and_lossless: bool = False,
-            default_pdf_dpi: int = 400,
-            event_handlers: list[EventHandler] = None
+        self,
+        source_path: str,
+        destination_path: str = "default",
+        compression_mode: int = 5,
+        advanced_settings: bool = False,
+        force_ocr: bool = False,
+        no_ocr: bool = False,
+        quiet: bool = False,
+        tesseract_language: str = "deu",
+        simple_and_lossless: bool = False,
+        default_pdf_dpi: int = 400,
+        event_handlers: list[EventHandler] = None
     ):
+
         if event_handlers is None:
             event_handlers = list()
         ConsoleUtility.quiet_mode = quiet
+        self.__source_path = rf"{os.path.abspath(source_path)}"
+        self.__destination_path = destination_path if destination_path == "default" else rf"{os.path.abspath(destination_path)}"
+        self.__compression_mode = compression_mode
         self.__force_ocr = force_ocr
         self.__simple_and_lossless = simple_and_lossless
         self.__final_merge_path = None
         self.__no_ocr = no_ocr
         self.__tesseract_language = tesseract_language
-        self.__compression_mode = compression_mode
+        self.__advanced_settings = advanced_settings
         self.__default_pdf_dpi = default_pdf_dpi
         self.__event_handlers = event_handlers
-
-        self.__source_path = rf"{os.path.abspath(source_path)}"
-        self.__destination_path = \
-            destination_path if destination_path == "default" else rf"{os.path.abspath(destination_path)}"
 
         pdf_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../..")
         os.chdir(pdf_dir)
