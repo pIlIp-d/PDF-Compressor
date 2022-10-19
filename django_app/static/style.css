@@ -116,3 +116,25 @@ button:disabled, button[disabled] {
         transform: translate3d(4px, 0, 0);
     }
 }
+
+/* disabled container for form */
+.disabled_option{
+    pointer-events:none;
+    cursor: not-allowed;
+    opacity: 0.5;
+
+}
+
+/* disabled container for form */
+.disabled_container{
+    pointer-events:none;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+/* make nested container look the same as the other */
+.disabled_container .disabled_container{
+    opacity: 1.5;
+}
+.disabled_container option {
+    color: #000;
+}
