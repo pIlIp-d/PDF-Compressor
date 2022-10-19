@@ -5,7 +5,7 @@ from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.utility.os_utility import OsUtility
 
 
-class Splitter(Processor, ABC):
+class ProcessorWithDestinationFolder(Processor, ABC):
     def _get_files_and_extra_info(self, source_path, destination_path) -> tuple[list[str], list[str], bool, bool]:
         sources = OsUtility.get_file_list(source_path, self._file_type_from) if os.path.isdir(source_path) else [
             source_path]
