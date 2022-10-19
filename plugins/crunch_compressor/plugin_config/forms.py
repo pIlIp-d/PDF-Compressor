@@ -81,6 +81,10 @@ class PdfCompressorForm(PluginForm):
         }
         # TODO document/implement a combi type
 
+    def get_advanced_options(self) -> list[str]:
+        return ["compression_mode", "merge_files", "ocr_mode", "simple_and_lossless", "default_pdf_dpi", "simple_and_lossless",
+                "tesseract_language"]
+
 
 class PngCompressorForm(PluginForm):
     compression_mode = forms.TypedChoiceField(

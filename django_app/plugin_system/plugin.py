@@ -72,8 +72,14 @@ class Plugin(ABC):
         return self._from_file_types
 
     def get_form_html_and_script(self, destination_file_type: str) -> tuple[str, str]:
+        form = self.get_form_class()()
+
+        advanced_form_fields = form.get_advanced_options()
+
         def ___get_container(__form_element):
-            container_str = '<div class="form_element">'
+            advanced_settings_class = "advanced_setting" if __form_element.name in advanced_form_fields else ""
+            print(advanced_settings_class)
+            container_str = f'<div class="form_element {advanced_settings_class}">'
             if __form_element.help_text != "":
                 container_str += f'<span class="helptext">{__form_element.help_text}</span>'
             container_str += f"""                          
@@ -84,7 +90,7 @@ class Plugin(ABC):
 
         def ___get_javascript(__hierarchy):
             # initialize_form_hierarchy is called after the form is loaded
-            config_script = "function initialize_form_hierarchy(){"
+            config_script = "function initialize_form(){"
             # add javascript for hierarchy configuration
             for form_container in __hierarchy.keys():
                 if __hierarchy.get(form_container).get("type") == "bool":
@@ -106,10 +112,20 @@ class Plugin(ABC):
                                 }; %s.onchange();""" \
                                      % (form_container, form_container, form_container, string_list, form_container,
                                         form_container)
+
+                # add event listener for advanced_options_checkbox and initially update the visibility
+                config_script += "document.getElementById('advanced_options_checkbox').onchange = function(){update_advanced_options(this.checked);};"
+                config_script += "update_advanced_options(false)"
             return config_script + "}"
 
-        html = ""
-        form = self.get_form_class()()
+        html = """
+        <div class='form_element'>
+            <span class="helptext">TODO</span>
+            <span>Show advanced options</span>
+            <input type="checkbox" id="advanced_options_checkbox">
+        </div>
+        """ if advanced_form_fields != [] else ""
+
         hierarchy = form.get_hierarchy()
         for form_element in form:
             open_hierarchy_containers = 0

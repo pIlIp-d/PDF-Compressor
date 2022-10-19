@@ -167,7 +167,7 @@ function set_form_script(script_string) {
     let script = document.createElement("script");
     script.innerHTML = script_string;
     document.getElementById("form_content").appendChild(script);
-    initialize_form_hierarchy();
+    initialize_form();
 }
 
 function save_plugin_in_url(plugin_name) {
