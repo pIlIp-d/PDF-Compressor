@@ -1,5 +1,6 @@
 import datetime
 import os
+from functools import reduce
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -79,7 +80,6 @@ def internal_server_error(error_string: str):
 
 
 # TODO /api/rename_file
-
 @csrf_protect  # TODO csrf_protect doesn't work, yet
 def remove_file(request):
     if request.method != "GET":
@@ -105,17 +105,20 @@ def remove_file(request):
 
 def get_allowed_input_file_types(request):
     plugin_info = request.GET.get("plugin_info")
+    allowed_file_types = []
     if plugin_info == "null":
-        allowed_file_types = [plugin.get_input_file_types() for plugin in settings.PROCESSOR_PLUGINS]  # TODO reduce lists
+        allowed_file_types = reduce(
+            lambda allowed_files, current_plugin:
+            allowed_file_types + current_plugin.get_input_file_types(),
+            settings.PROCESSOR_PLUGINS, []
+        )
+        print(allowed_file_types)
+
     else:
         plugin_name = plugin_info.split(":")[0]
         plugin = Plugin.get_processing_plugin_by_name(plugin_name)  # check none
-        allowed_file_types = plugin.get_input_file_types()  # TODO json
-
+        allowed_file_types = plugin.get_input_file_types()
     return JsonResponse({"status": 200, "allowed_file_types": allowed_file_types}, status=200)
-
-
-
 
 @csrf_protect
 def upload_file(request):
