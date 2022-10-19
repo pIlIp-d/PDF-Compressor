@@ -1,7 +1,6 @@
 class DestinationTypeSelect {
     constructor() {
         this.select_object = document.getElementById("destination_type_select");
-
     }
 
     init() {
@@ -12,23 +11,9 @@ class DestinationTypeSelect {
 
             let selected_option = this.value;
             save_plugin_in_url(selected_option);
-            updateProcessedButton()
+            updateProcessedButton();
+            _this.update_allowed_input_file_types(selected_option);
 
-            make_request(
-                "GET",
-                ROOT_DIR + "api/get_allowed_input_file_types/?plugin_info=" + selected_option, true,
-                function () {
-                    if (this.readyState === 4 && this.status === 200) {
-                        let json_response = JSON.parse(this.response);
-                        console.log("UPDATE")
-                        console.log(json_response)
-                        if ("allowed_file_types" in json_response)
-                            allowed_file_endings = json_response.allowed_file_types
-                    }
-                }
-            )
-
-            // TODO 555 add separate request for get allowed_file_endings, that is call every update of select
             if (selected_option === "null") {
                 set_form_content("Choose something.");
                 deactivate_compression_button();
@@ -76,6 +61,20 @@ class DestinationTypeSelect {
         return this.select_object.options.length <= 1;
     }
 
+    update_allowed_input_file_types(selected_option) {
+        make_request(
+            "GET",
+            ROOT_DIR + "api/get_allowed_input_file_types/?plugin_info=" + selected_option, true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let json_response = JSON.parse(this.response);
+                    if ("allowed_file_types" in json_response)
+                        allowed_file_endings = json_response.allowed_file_types
+                }
+            }
+        )
+    }
+
     update_options(async = true) {
         // always deactivate button until its clear, that it can be pressed again
         deactivate_compression_button();
@@ -99,7 +98,7 @@ class DestinationTypeSelect {
     }
 }
 
-let compress_button = document.getElementById("compress_button");
+let process_button = document.getElementById("process_button");
 let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 let SELECT = new DestinationTypeSelect();
 document.addEventListener("DOMContentLoaded", function () {
@@ -144,9 +143,9 @@ Dropzone.options.myDropzone = {
                     `${ROOT_DIR}api/remove_file/?file_id=${file.file_id}&user_id=${USER_ID}&queue_csrf_token=${queue_csrf_token}&file_origin=uploaded`
                 );
             }
-            SELECT.update_options();
             if (_this.files.length === 0)
                 Dropzone.queueFinished = false;
+            SELECT.update_options();
         });
         this.on("queuecomplete", function () {
             Dropzone.queueFinished = true;
@@ -203,17 +202,17 @@ function updateProcessedButton() {
 }
 
 function activate_compression_button() {
-    compress_button.classList.remove("disabled");
-    compress_button.classList.add("enabled");
-    compress_button.disabled = false;
-    compress_button.addEventListener("click", submit_compression_options_form);
+    process_button.classList.remove("disabled");
+    process_button.classList.add("enabled");
+    process_button.disabled = false;
+    process_button.addEventListener("click", submit_compression_options_form);
 }
 
 function deactivate_compression_button() {
-    compress_button.classList.remove("enabled");
-    compress_button.classList.add("disabled");
-    compress_button.disabled = true;
-    compress_button.removeEventListener("click", submit_compression_options_form);
+    process_button.classList.remove("enabled");
+    process_button.classList.add("disabled");
+    process_button.disabled = true;
+    process_button.removeEventListener("click", submit_compression_options_form);
 }
 
 function submit_compression_options_form() {
