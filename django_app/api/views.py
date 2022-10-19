@@ -1,8 +1,11 @@
 import datetime
 import os
+from functools import reduce
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
+
 from django_app import settings
 from django_app.plugin_system.plugin import Plugin
 from django_app.webserver.models.uploaded_file import UploadedFile
@@ -19,18 +22,16 @@ from django_app.utility.os_utility import OsUtility
 # TODO decorator for method type
 
 
+@require_http_methods(["GET"])
 def started_processing(request):
-    if request.method != "GET":
-        return wrong_method_error("GET")
     processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
     processing_request.started = True
     processing_request.save()
     return JsonResponse({"status": 200})
 
 
+@require_http_methods(["GET"])
 def finished_all_files(request):
-    if request.method != "GET":
-        return wrong_method_error("GET")
     processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
     processing_request.finished = True
     processing_request.save()
@@ -44,6 +45,7 @@ def finished_all_files(request):
     os.makedirs(folder, exist_ok=True)
 
     # run synchronize
+    print("PATH", folder)
     ZipTask(folder, zip_path).run()
 
     # add files to download view
@@ -54,16 +56,10 @@ def finished_all_files(request):
 
 
 @csrf_protect
+@require_http_methods(["GET"])
 def get_all_files(request):
-    if request.method == "GET":
-        files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
-        return JsonResponse({"status": 200, "files": files_json}, status=200)
-    return wrong_method_error("GET")
-
-
-def wrong_method_error(*allowed_methods):
-    method_hint = "".join(("Try using " if i == 0 else "or") + allowed_methods[i] for i in range(len(allowed_methods)))
-    return JsonResponse({"status": 405, "error": "Method Not Allowed. " + method_hint}, status=405)
+    files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
+    return JsonResponse({"status": 200, "files": files_json}, status=200)
 
 
 def parameter_missing_error(parameter_name: str):
@@ -81,10 +77,8 @@ def internal_server_error(error_string: str):
 # TODO /api/rename_file
 
 @csrf_protect  # TODO csrf_protect doesn't work, yet
+@require_http_methods(["GET"])
 def remove_file(request):
-    if request.method != "GET":
-        return wrong_method_error("GET")
-
     if request.GET.get("file_origin") == "uploaded":
         file_class = UploadedFile
     elif request.GET.get("file_origin") == "processed":
@@ -103,10 +97,12 @@ def remove_file(request):
     return JsonResponse({"status": 200, "success": "Removed file successfully."}, status=200)
 
 
+@require_http_methods(["GET"])
 def get_allowed_input_file_types(request):
     plugin_info = request.GET.get("plugin_info")
     if plugin_info == "null":
-        allowed_file_types = [plugin.get_input_file_types() for plugin in settings.PROCESSOR_PLUGINS]  # TODO reduce lists
+        allowed_file_types = reduce(lambda allowed_types, plugin: allowed_types + plugin.get_input_file_types(),
+                                    settings.PROCESSOR_PLUGINS, [])  # TODO reduce lists
     else:
         plugin_name = plugin_info.split(":")[0]
         plugin = Plugin.get_processing_plugin_by_name(plugin_name)  # check none
@@ -115,22 +111,19 @@ def get_allowed_input_file_types(request):
     return JsonResponse({"status": 200, "allowed_file_types": allowed_file_types}, status=200)
 
 
-
-
 @csrf_protect
+@require_http_methods(["POST"])
 def upload_file(request):
-    if request.method == 'POST':
-        user_id = request.session['user_id']
-        request_id = request.POST.get('request_id')
-        uploaded_file = UploadedFile(
-            uploaded_file=request.FILES.get('file'),
-            processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
-            valid_file_endings=get_file_extension(request.FILES.get('file').name)
-        )
-        uploaded_file.save()
-        file_id = uploaded_file.id
-        return JsonResponse({"file_id": file_id})
-    return wrong_method_error("POST")
+    user_id = request.session['user_id']
+    request_id = request.POST.get('request_id')
+    uploaded_file = UploadedFile(
+        uploaded_file=request.FILES.get('file'),
+        processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
+        valid_file_endings=get_file_extension(request.FILES.get('file').name)
+    )
+    uploaded_file.save()
+    file_id = uploaded_file.id
+    return JsonResponse({"file_id": file_id})
 
 
 def get_intersection_of_file_endings_from_different_input_filetypes(
@@ -181,10 +174,9 @@ def test_get_intersections():
     assert result == {'plugin1': {1, 3, 4, 5, 6, 7, 8, 9}, 'plugin2': {1, 2, 3, 4, 5, 6}}
 
 
+@require_http_methods(["GET"])
 def get_form_html_for_web_view(request):
-    if request.method != "GET":
-        return wrong_method_error("GET")
-    elif "plugin" not in request.GET:
+    if "plugin" not in request.GET:
         return parameter_missing_error("plugin")
     elif "destination_file_type" not in request.GET:
         return parameter_missing_error("destination_file_type")
@@ -199,9 +191,7 @@ def get_form_html_for_web_view(request):
         return JsonResponse({
             "status": 200,
             "form_html": form_html,
-            "form_script": form_script,
-
-            "allowed_file_endings": plugin.get_input_file_types()  # TODO 555 remove for separate request
+            "form_script": form_script
         }, status=200)
     except ValueError as e1:
         if settings.DEBUG:
@@ -213,10 +203,8 @@ def get_form_html_for_web_view(request):
         return internal_server_error(str(error))
 
 
+@require_http_methods(["GET"])
 def get_possible_destination_file_types(request):
-    if request.method != "GET":
-        return wrong_method_error("GET")
-
     from_file_types = []
     if "request_id" in request.GET:
         request_id = request.GET.get("request_id")
