@@ -11,7 +11,8 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), ".", "config.json")
 def get_config(config_file: str = CONFIG_FILE):
     config_path = os.path.abspath(config_file)
     if not os.path.isfile(config_path):
-        raise FileNotFoundError("config file not found")
+        raise FileNotFoundError("Config file not found. Run config.py in the crunch_compressor folder to configure "
+                                "the necessary paths.")
 
     class Config:
         def __init__(self, advpng_path, pngquant_path, pngcrush_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix,

@@ -23,7 +23,6 @@ class PDFCompressor:
         source_path: str,
         destination_path: str = "default",
         compression_mode: int = 5,
-        advanced_settings: bool = False,
         force_ocr: bool = False,
         no_ocr: bool = False,
         quiet: bool = False,
@@ -44,7 +43,6 @@ class PDFCompressor:
         self.__final_merge_path = None
         self.__no_ocr = no_ocr
         self.__tesseract_language = tesseract_language
-        self.__advanced_settings = advanced_settings
         self.__default_pdf_dpi = default_pdf_dpi
         self.__event_handlers = event_handlers
 

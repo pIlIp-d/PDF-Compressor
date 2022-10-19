@@ -5,17 +5,18 @@ function update_visibility_of_container(container_id, disabled) {
         let container = containers[i];
         if (disabled)
             container.classList.add(DISABLED_CLASS);
-         else
+        else
             container.classList.remove(DISABLED_CLASS);
     }
 }
 
-function show_advanced_settings(default_settings_id, disabled) {
-    let settings = document.getElementsByClassName(default_settings_id);
-    let ADVANCED_SETTINGS = "hidden_settings";
-    for (const setting of settings)
-        if (setting == disabled)
-            setting.classList.add(ADVANCED_SETTINGS);
-         else
-            setting.classList.remove(ADVANCED_SETTINGS);
+function update_advanced_options(state) {
+    let ADVANCED_SETTINGS = "advanced_setting";
+    let settings = document.getElementsByClassName(ADVANCED_SETTINGS);
+    for (const setting of settings) {
+        if (state)
+            setting.style.display = "block";
+        else
+            setting.style.display = "none";
     }
+}
