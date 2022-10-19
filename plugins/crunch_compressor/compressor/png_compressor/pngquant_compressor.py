@@ -49,8 +49,8 @@ class PngQuantCompressor(AbstractPngCompressor):
             "--ext '-comp.png'"
         ))
 
-    def process_file(self, source_file: str, destination_file: str) -> None:
-        self.preprocess(source_file, destination_file)
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
 
         if not self._is_valid_image(source_file):
             raise ValueError(rf"'{source_file}' does not appear to be a valid path to a PNG file")
@@ -59,7 +59,7 @@ class PngQuantCompressor(AbstractPngCompressor):
         try:
             subprocess.check_output(pngquant_command, stderr=subprocess.STDOUT, shell=True)
             result_file = source_file[:-4] + '-comp.png'
-            self._compare_and_use_better_option(source_file, result_file, destination_file)
+            self._compare_and_use_better_option(source_file, result_file, destination_path)
             if os.path.exists(result_file):
                 os.remove(result_file)
 
@@ -71,4 +71,4 @@ class PngQuantCompressor(AbstractPngCompressor):
                 pass
         except Exception as e:
             ConsoleUtility.print_error(repr(e))  # dont raise e
-        self.postprocess(source_file, destination_file)
+        self.postprocess(source_file, destination_path)

@@ -64,7 +64,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
                 executor.submit(method, **method_parameter)
 
     @abstractmethod
-    def process_file(self, source_file: str, destination_file: str) -> None:
+    def process_file(self, source_file: str, destination_path: str) -> None:
         pass
 
     def process_file_list(self, source_files: list, destination_files: list) -> None:
@@ -148,7 +148,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         folder -> file: merges to file<br>
         folder -> folder: same filenames but in destination folder<br>
-        file -> file: destination_path is the resulting file<br>
+        file -> file: destination_file is the resulting file<br>
         file -> folder: a file with the same filename is created in destination folder<br>
         folder -> merge: same as folder -> folder but afterwards it merges into a default file in the directory of the
                                                                                 source folder merge_#timestring#.xxx<br>
