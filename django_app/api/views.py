@@ -19,7 +19,6 @@ from django_app.utility.os_utility import OsUtility
 
 # TODO favicon.ico
 # TODO move valid_file_endings from UploadedFile -> request Table
-# TODO decorator for method type
 
 
 @require_http_methods(["GET"])
