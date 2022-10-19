@@ -103,6 +103,20 @@ def remove_file(request):
     return JsonResponse({"status": 200, "success": "Removed file successfully."}, status=200)
 
 
+def get_allowed_input_file_types(request):
+    plugin_info = request.GET.get("plugin_info")
+    if plugin_info == "null":
+        allowed_file_types = [plugin.get_input_file_types() for plugin in settings.PROCESSOR_PLUGINS]  # TODO reduce lists
+    else:
+        plugin_name = plugin_info.split(":")[0]
+        plugin = Plugin.get_processing_plugin_by_name(plugin_name)  # check none
+        allowed_file_types = plugin.get_input_file_types()  # TODO json
+    pass     # TODO json , exception Han
+
+
+
+
+
 @csrf_protect
 def upload_file(request):
     if request.method == 'POST':
@@ -186,6 +200,7 @@ def get_form_html_for_web_view(request):
             "status": 200,
             "form_html": form_html,
             "form_script": form_script,
+
             "allowed_file_endings": plugin.get_input_file_types()  # TODO 555 remove for separate request
         }, status=200)
     except ValueError as e1:
