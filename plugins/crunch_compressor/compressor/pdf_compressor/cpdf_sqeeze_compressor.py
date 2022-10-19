@@ -39,19 +39,19 @@ class CPdfSqueezeCompressor(AbstractPdfCompressor):
         if owner_password is not None:
             self.extra_args += " -opw " + owner_password
 
-    def process_file(self, source_file: str, destination_file: str) -> None:
-        self.preprocess(source_file, destination_file)
-        if not os.path.exists(source_file) or not destination_file.endswith(".pdf"):
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
+        if not os.path.exists(source_file) or not destination_path.endswith(".pdf"):
             raise ValueError("Only pdf files are accepted")
 
         command = self.__wine_path_on_linux + " " + self.__cpdfsqueeze_path
         # path arguments "from" "to"
-        command += rf' "{source_file}" "{destination_file}"{self.extra_args}'
+        command += rf' "{source_file}" "{destination_path}"{self.extra_args}'
         try:
             subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         except Exception as e:
             if settings.DEBUG:
                 print(e)
             ConsoleUtility.print_error("[!] Compression Failed during CPdfSqueezeCompressor stage.")
-            OsUtility.copy_file(source_file, destination_file)
-        self.postprocess(source_file, destination_file)
+            OsUtility.copy_file(source_file, destination_path)
+        self.postprocess(source_file, destination_path)

@@ -7,7 +7,7 @@ from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.string_utility import StringUtility
 
 
-# TODO document all options, destination_path is in [file, folder, merge, split]
+# TODO document all options, destination_file is in [file, folder, merge, split]
 class ProcessingTask(Task, ABC):
     def __init__(
             self,

@@ -85,9 +85,9 @@ class ImagesToPdfConverter(Converter):
         # TODO maybe add event 'merged'
         ConsoleUtility.print("finished merge")
 
-    def process_file(self, source_file: str, destination_file: str) -> None:
+    def process_file(self, source_file: str, destination_path: str) -> None:
         # create destination directory if not already exists
-        os.makedirs(os.path.dirname(destination_file), exist_ok=True)
+        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
         try:
             if not self.force_ocr or self.no_ocr:
                 raise ValueError("skipping tesseract")
@@ -103,5 +103,5 @@ class ImagesToPdfConverter(Converter):
             result = convert(source_file)
             ConsoleUtility.print_error("No OCR applied.")
 
-        with open(destination_file, "wb") as f:
+        with open(destination_path, "wb") as f:
             f.write(result)

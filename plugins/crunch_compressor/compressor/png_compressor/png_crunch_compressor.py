@@ -62,17 +62,17 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             ConsoleUtility.print_error("Error: Program pngcrush not found, skipped compression with pngcrush.")
             self.__pngcrush = None
 
-    def process_file(self, source_file: str, destination_file: str) -> None:
-        self.preprocess(source_file, destination_file)
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
 
         # run single file compress
         if self.__pngquant is not None:
-            self.__pngquant.process_file(source_file, destination_file)
+            self.__pngquant.process_file(source_file, destination_path)
         if self.__advcomp is not None:
-            self.__advcomp.process_file(destination_file, destination_file)
+            self.__advcomp.process_file(destination_path, destination_path)
         if self.__pngcrush is not None:
-            self.__pngcrush.process_file(source_file, destination_file)
-        self.postprocess(source_file, destination_file)
+            self.__pngcrush.process_file(source_file, destination_path)
+        self.postprocess(source_file, destination_path)
 
     def process_file_list(self, source_files: list, destination_files: list) -> None:
         # run optimized compress

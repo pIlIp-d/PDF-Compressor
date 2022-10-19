@@ -61,12 +61,12 @@ class AdvanceCompressor(AbstractPngCompressor):
 
         super().postprocess(source_file, destination_file)
 
-    def process_file(self, source_file: str, destination_file: str) -> None:
-        self.preprocess(source_file, destination_file)
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
         if not self._is_valid_image(source_file):
             raise ValueError(rf"'{source_file}' does not appear to be a valid path to a PNG file")
 
-        advpng_command = rf"{self.__system_extra}  {self.__advpng_path} {self.__advpng_options} '{destination_file}'"
+        advpng_command = rf"{self.__system_extra}  {self.__advpng_path} {self.__advpng_options} '{destination_path}'"
         try:
             subprocess.check_output(advpng_command, stderr=subprocess.STDOUT, shell=True)
         except CalledProcessError as cpe:
@@ -75,4 +75,4 @@ class AdvanceCompressor(AbstractPngCompressor):
             pass
         except Exception as e:
             ConsoleUtility.print_error(repr(e))  # dont raise e
-        self.postprocess(source_file, destination_file)
+        self.postprocess(source_file, destination_path)
