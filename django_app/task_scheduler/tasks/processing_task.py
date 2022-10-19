@@ -21,6 +21,9 @@ class ProcessingTask(Task, ABC):
         # destination is either merged file or directory
         self._destination_path = "merge" if self._request_parameters.get("merge_files") else \
             StringUtility.get_local_absolute_path(processing_request.get_destination_dir())
+        self.__amount_of_input_files = len(
+            UploadedFile.get_uploaded_file_list_of_current_request(processing_request)
+        )
 
     def _get_event_handler(self) -> list[ProcessStatsEventHandler]:
         return [
