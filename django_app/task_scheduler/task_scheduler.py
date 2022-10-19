@@ -61,10 +61,11 @@ class TaskScheduler:
 class TaskSchedulerDaemon(threading.Thread):
     @classmethod
     def start_async(cls):
-        reader = TaskSchedulerDaemon(daemon=True)
+        reader = cls(daemon=True)
         reader.start()
 
     def run(self):
+        time.sleep(2)
         task_scheduler = TaskScheduler()
         print("started TaskScheduler.")
         while True:
