@@ -111,8 +111,8 @@ def get_allowed_input_file_types(request):
         plugin_name = plugin_info.split(":")[0]
         plugin = Plugin.get_processing_plugin_by_name(plugin_name)  # check none
         allowed_file_types = plugin.get_input_file_types()  # TODO json
-    pass     # TODO json , exception Han
 
+    return JsonResponse({"status": 200, "allowed_file_types": allowed_file_types}, status=200)
 
 
 
