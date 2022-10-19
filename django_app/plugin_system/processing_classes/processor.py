@@ -178,6 +178,9 @@ class Processor(Postprocessor, Preprocessor, ABC):
         is_merging = force_merge or is_merging
 
         print(source_file_list, destination_path_list, is_merging, is_splitting)
+        if len(source_file_list) == 0:
+            raise ValueError("No files to Processed were found in the source_path.")
+
         # save size for comparison at the end
         orig_sizes = OsUtility.get_filesize_list(source_file_list)
 
