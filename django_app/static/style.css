@@ -32,7 +32,7 @@
 
 #my-dropzone {
     height: auto;
-    border: 5px solid #408623FF;
+    border: 5px solid var(--accent-color);
     font-size: large;
     position: relative;
 }
@@ -55,7 +55,7 @@
 
 
 #process_button:hover {
-    box-shadow: 0px 15px 20px #408623FF;
+    box-shadow: 0px 15px 20px #000000;
     transform: translateY(-7px);
 }
 
