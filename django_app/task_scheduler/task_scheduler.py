@@ -8,8 +8,6 @@ from .db_con import get_connection
 INTERVAL_TIME = 5
 QUIET_MODE = False
 
-# TODO rename -> TaskExecutorDeamon
-
 
 class TaskScheduler:
     interval = None
@@ -37,13 +35,16 @@ class TaskScheduler:
             task_obj._task_id = query_row["id"]
             return task_obj
 
-        cur = get_connection().cursor()
-        response = cur.execute("SELECT * FROM task_objects where finished=False;").fetchall()
-
+        response = cls.get_unfinished_tasks()
         for task in [___load_task(obj) for obj in response]:
             if not task.finished:
                 task.run()
                 task.finish_task()
+
+    @classmethod
+    def get_unfinished_tasks(cls):
+        cur = get_connection().cursor()
+        return cur.execute("SELECT * FROM task_objects where finished=False;").fetchall()
 
     @staticmethod
     def __get_timestamp(time_string):
@@ -53,12 +54,11 @@ class TaskScheduler:
     def check_for_unfinished_tasks(cls) -> bool:
         if not cls.quiet_mode:
             print("checked db at " + str(datetime.now()))
-        cur = get_connection().cursor()
-        res = cur.execute("SELECT * FROM task_objects where finished=False;").fetchone()
+        res = cls.get_unfinished_tasks()
         return False if res is None else len(res) >= 1
 
 
-class TaskSchedulerDaemon(threading.Thread):
+class TaskExecutorDeamon(threading.Thread):
     @classmethod
     def start_async(cls):
         reader = cls(daemon=True)
