@@ -18,8 +18,8 @@ class DestinationTypeSelect {
         this.select_object.addEventListener("change", function () {
             let selected_option = this.value;
             save_plugin_in_url(selected_option);
-            _this.update_allowed_input_file_types(selected_option);
             PROCESSING_BUTTON.update();
+            _this.update_allowed_input_file_types(selected_option);
             if (selected_option === "null")
                 set_form_content("Choose something.");
             else {
@@ -41,6 +41,30 @@ class DestinationTypeSelect {
                 );
             }
         });
+    }
+
+    update_options(extra_response_handler = null) {
+        // always deactivate button until its clear, that it can be pressed again
+        PROCESSING_BUTTON.deactivate();
+        let _this = this;
+        make_request(
+            "GET",
+            ROOT_DIR + "api/get_possible_destination_file_types?request_id=" + REQUEST_ID,
+            true,
+            function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let json_response = JSON.parse(this.response);
+                    if ("possible_file_types" in json_response)
+                        _this.add_options(json_response.possible_file_types);
+                    if (_this.is_empty()) {
+                        set_form_content("No Processing option for the current combination of files found.");
+                    }
+                    PROCESSING_BUTTON.update();
+                    if (extra_response_handler != null)
+                        extra_response_handler();
+                }
+            }
+        )
     }
 
     clear() {
@@ -74,30 +98,6 @@ class DestinationTypeSelect {
                     let json_response = JSON.parse(this.response);
                     if ("allowed_file_types" in json_response)
                         allowed_file_endings = json_response.allowed_file_types
-                }
-            }
-        )
-    }
-
-    update_options(extra_response_handler = null) {
-        // always deactivate button until its clear, that it can be pressed again
-        PROCESSING_BUTTON.deactivate();
-        let _this = this;
-        make_request(
-            "GET",
-            ROOT_DIR + "api/get_possible_destination_file_types?request_id=" + REQUEST_ID,
-            true,
-            function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    let json_response = JSON.parse(this.response);
-                    if ("possible_file_types" in json_response)
-                        _this.add_options(json_response.possible_file_types);
-                    PROCESSING_BUTTON.update();
-                    if (_this.is_empty()) {
-                        set_form_content("No Processing option for the current combination of files found.");
-                    }
-                    if (extra_response_handler != null)
-                        extra_response_handler();
                 }
             }
         )
