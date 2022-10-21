@@ -44,7 +44,6 @@ def finished_all_files(request):
     os.makedirs(folder, exist_ok=True)
 
     # run synchronize
-    print("PATH", folder)
     ZipTask(folder, zip_path).run()
 
     # add files to download view
@@ -228,7 +227,6 @@ def get_possible_destination_file_types(request):
         # TODO also allow multi steps convert -> shortest path inside graph
     return JsonResponse({
         "status": 200,
-        "list_of_file_types_per_file": list_of_file_types_per_file,
         "possible_file_types": get_intersection_of_file_endings_from_different_input_filetypes(
             list_of_file_types_per_file)
     }, status=200)
