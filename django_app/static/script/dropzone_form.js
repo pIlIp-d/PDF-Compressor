@@ -1,24 +1,29 @@
+let SELECT;
+let PROCESSING_BUTTON;
+document.addEventListener("DOMContentLoaded", function () {
+    SELECT = new DestinationTypeSelect("destination_type_select");
+    PROCESSING_BUTTON = new ProcessingButton("process_button", SELECT, Dropzone);
+    SELECT.init();
+});
+
 class DestinationTypeSelect {
-    constructor() {
-        this.select_object = document.getElementById("destination_type_select");
+    constructor(select_id) {
+        this.select_object = document.getElementById(select_id);
     }
 
     init() {
         let _this = this;
-
-        this.update_options(false);
+        // trigger onchange event after update_options finished (only needed the first time to load the form html)
+        this.update_options(()=>this.select_object.dispatchEvent(new Event('change')));
         this.select_object.addEventListener("change", function () {
-
             let selected_option = this.value;
             save_plugin_in_url(selected_option);
-            updateProcessedButton();
             _this.update_allowed_input_file_types(selected_option);
-
-            if (selected_option === "null") {
+            PROCESSING_BUTTON.update();
+            if (selected_option === "null")
                 set_form_content("Choose something.");
-                deactivate_compression_button();
-            } else {
-                // changed to another processor
+            else {
+                // get form html for the newly selected plugin
                 make_request(
                     "GET",
                     ROOT_DIR + "api/get_form_html_for_web_view/?plugin=" + selected_option.split(":")[0] + "&destination_file_type=" + selected_option.split(": ")[1],
@@ -36,8 +41,6 @@ class DestinationTypeSelect {
                 );
             }
         });
-        // run change event once for initialization
-        this.select_object.dispatchEvent(new Event('change'));
     }
 
     clear() {
@@ -58,6 +61,7 @@ class DestinationTypeSelect {
     }
 
     is_empty() {
+        // =empty if there are no options but the 'null' option
         return this.select_object.options.length <= 1;
     }
 
@@ -75,77 +79,112 @@ class DestinationTypeSelect {
         )
     }
 
-    update_options(async = true) {
+    update_options(extra_response_handler = null) {
         // always deactivate button until its clear, that it can be pressed again
-        deactivate_compression_button();
+        PROCESSING_BUTTON.deactivate();
         let _this = this;
         make_request(
             "GET",
             ROOT_DIR + "api/get_possible_destination_file_types?request_id=" + REQUEST_ID,
-            async,
+            true,
             function () {
                 if (this.readyState === 4 && this.status === 200) {
                     let json_response = JSON.parse(this.response);
                     if ("possible_file_types" in json_response)
                         _this.add_options(json_response.possible_file_types);
-                    updateProcessedButton();
+                    PROCESSING_BUTTON.update();
                     if (_this.is_empty()) {
                         set_form_content("No Processing option for the current combination of files found.");
                     }
+                    if (extra_response_handler != null)
+                        extra_response_handler();
                 }
             }
         )
     }
 }
 
-let process_button = document.getElementById("process_button");
-let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-let SELECT = new DestinationTypeSelect();
-document.addEventListener("DOMContentLoaded", function () {
-    SELECT.init();
-});
+class ProcessingButton {
+    constructor(button_id, select, dropzone) {
+        this.process_button = document.getElementById(button_id);
+        this.select = select;
+        this.dropzone = dropzone;
+    }
 
-let dz = null;
+    update() {
+        if (!this.select.is_empty() && this.select.select_object.value !== "null" && this.dropzone.queueFinished && dropzone_files.length > 0)
+            this.activate();
+        else
+            this.deactivate();
+    }
+
+    activate() {
+        this.process_button.classList.remove("disabled");
+        this.process_button.classList.add("enabled");
+        this.process_button.disabled = false;
+        this.process_button.addEventListener("click", this.submit);
+    }
+
+    deactivate() {
+        this.process_button.classList.remove("enabled");
+        this.process_button.classList.add("disabled");
+        this.process_button.disabled = true;
+        this.process_button.removeEventListener("click", this.submit);
+    }
+
+    submit() {
+        document.getElementById("compression_options_form").submit();
+    }
+}
+
 Dropzone.queueFinished = false;
 Dropzone.options.maxFiles = 100;
+let dropzone_files;
 Dropzone.options.myDropzone = {
     autoProcessQueue: true,
     init: function () {
-        dz = this;
+        dropzone_files = this.files;
         let _this = this;
         this.on("addedfile", function (file) {
             if (!correct_file_type(file)) {
                 this.removeFile(file);
                 showUnsupportedFileAnimation();
-                if (Dropzone.options.FileList <= 0) // TODO redundant?
-                    deactivate_compression_button();
-                return;
+            } else {
+                function get_remove_button(file) {
+                    let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
+                    removeButton.addEventListener("click", function (e) {
+                        // Make sure the button click doesn't submit the form
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Remove the file preview
+                        _this.removeFile(file);
+                    });
+                    return removeButton;
+                }
+                // TODO add default thumbnail for pdfs etc (use line below)
+                //dz.emit("thumbnail", file, "http://path/to/image");
+                Dropzone.queueFinished = false;
+                file.file_id = null;
+                file.previewElement.appendChild(get_remove_button(file));
             }
-            // TODO add default thumbnail for pdfs etc (use line below)
-            //dz.emit("thumbnail", file, "http://path/to/image");
-            Dropzone.queueFinished = false;
-            file.file_id = null;
-            let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
-            removeButton.addEventListener("click", function (e) {
-                // Make sure the button click doesn't submit the form
-                e.preventDefault();
-                e.stopPropagation();
-                // Remove the file preview.
-                _this.removeFile(file);
-            });
-            file.previewElement.appendChild(removeButton);
         });
         this.on("removedfile", function (file) {
-            if (file.file_id != null) {
-                let queue_csrf_token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-                make_request(
-                    "GET",
-                    `${ROOT_DIR}api/remove_file/?file_id=${file.file_id}&user_id=${USER_ID}&queue_csrf_token=${queue_csrf_token}&file_origin=uploaded`
-                );
-            }
             if (_this.files.length === 0)
                 Dropzone.queueFinished = false;
-            SELECT.update_options();
+            if (file.file_id != null) {
+                let queue_csrf_token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+                // TODO if request is already finished, get a new request_id
+                make_request(
+                    "GET",
+                    `${ROOT_DIR}api/remove_file/?file_id=${file.file_id}&user_id=${USER_ID}&queue_csrf_token=${queue_csrf_token}&file_origin=uploaded`,
+                    true,
+                    function () {
+                        if (this.readyState === 4 && this.status === 200) {
+                            SELECT.update_options();
+                        }
+                    }
+                );
+            }
         });
         this.on("queuecomplete", function () {
             if (_this.files.length !== 0) {

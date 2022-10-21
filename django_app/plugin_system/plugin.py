@@ -114,8 +114,9 @@ class Plugin(ABC):
                                         form_container)
 
                 # add event listener for advanced_options_checkbox and initially update the visibility
-                config_script += "document.getElementById('advanced_options_checkbox').onchange = function(){update_advanced_options(this.checked);};"
-                config_script += "update_advanced_options(false)"
+                if advanced_form_fields:
+                    config_script += "document.getElementById('advanced_options_checkbox').onchange = function(){update_advanced_options(this.checked);};"
+                    config_script += "update_advanced_options(false)"
             return config_script + "}"
 
         html = """
@@ -124,7 +125,7 @@ class Plugin(ABC):
             <span>Show advanced options</span>
             <input type="checkbox" id="advanced_options_checkbox">
         </div>
-        """ if advanced_form_fields != [] else ""
+        """ if advanced_form_fields else ""
 
         hierarchy = form.get_hierarchy()
         for form_element in form:
