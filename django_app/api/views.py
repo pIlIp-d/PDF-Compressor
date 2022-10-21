@@ -207,11 +207,11 @@ def get_form_html_for_web_view(request):
         }, status=200)
     except ValueError as e1:
         if settings.DEBUG:
-            print(e1)
+            raise e1
         return invalid_parameter_error("destination_file_type")
     except ImportError as error:
         if settings.DEBUG:
-            print(error)
+            raise error
         return internal_server_error(str(error))
 
 
