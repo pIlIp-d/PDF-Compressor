@@ -148,9 +148,10 @@ Dropzone.options.myDropzone = {
             SELECT.update_options();
         });
         this.on("queuecomplete", function () {
-            Dropzone.queueFinished = true;
-            if (_this.files.length !== 0)
+            if (_this.files.length !== 0) {
+                Dropzone.queueFinished = true;
                 SELECT.update_options();
+            }
         });
         this.on("success", function (file, responseText) {
             if ("file_id" in responseText)
@@ -159,73 +160,24 @@ Dropzone.options.myDropzone = {
     }
 };
 
-function set_form_content(form_html) {
-    document.getElementById("form_content").innerHTML = form_html;
+function set_form_content(form_html_string) {
+    document.getElementById("form_content").innerHTML = form_html_string;
 }
 
 function set_form_script(script_string) {
     let script = document.createElement("script");
     script.innerHTML = script_string;
     document.getElementById("form_content").appendChild(script);
+    // call predefined function that comes with form_script
     initialize_form();
-}
-
-function save_plugin_in_url(plugin_name) {
-    current_plugin = plugin_name;
-    let new_url = location.href.split("?")[0]
-    let parameters;
-    if (location.href.split("?").length > 1)
-        parameters = location.href.split("?")[1].split("&")
-    else
-        parameters = ["plugin="]
-    for (let p in parameters) {
-        if (Number(p) === 0) {
-            new_url += "?";
-        } else if (Number(p) < parameters.length - 1) {
-            new_url += "&";
-        }
-        if (parameters[p].startsWith("plugin"))
-            new_url += "plugin=" + plugin_name
-        else
-            new_url += parameters[p];
-    }
-    window.history.pushState(null, "", new_url);
-}
-
-
-function updateProcessedButton() {
-    if (!SELECT.is_empty() && Dropzone.queueFinished && SELECT.select_object.value !== "null")
-        activate_compression_button();
-    else {
-        deactivate_compression_button();
-    }
-}
-
-function activate_compression_button() {
-    process_button.classList.remove("disabled");
-    process_button.classList.add("enabled");
-    process_button.disabled = false;
-    process_button.addEventListener("click", submit_compression_options_form);
-}
-
-function deactivate_compression_button() {
-    process_button.classList.remove("enabled");
-    process_button.classList.add("disabled");
-    process_button.disabled = true;
-    process_button.removeEventListener("click", submit_compression_options_form);
-}
-
-function submit_compression_options_form() {
-    document.getElementById("compression_options_form").submit();
 }
 
 function correct_file_type(file) {
     if (allowed_file_endings.length === 0)
         return true
     for (const ending in allowed_file_endings) {
-        if (file.type === allowed_file_endings[ending]) {
+        if (file.type === allowed_file_endings[ending])
             return true;
-        }
     }
     return false;
 }
