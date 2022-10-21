@@ -2,6 +2,7 @@ import importlib
 import json
 from abc import ABC
 from functools import reduce
+import htmgem.tags as gem
 
 from django_app import settings
 
@@ -73,77 +74,87 @@ class Plugin(ABC):
 
     def get_form_html_and_script(self, destination_file_type: str) -> tuple[str, str]:
         form = self.get_form_class()()
-
         advanced_form_fields = form.get_advanced_options()
+        hierarchy = form.get_hierarchy()
 
-        def ___get_container(__form_element):
-            advanced_settings_class = "advanced_setting" if __form_element.name in advanced_form_fields else ""
-            print(advanced_settings_class)
-            container_str = f'<div class="form_element {advanced_settings_class}">'
-            if __form_element.help_text != "":
-                container_str += f'<span class="helptext">{__form_element.help_text}</span>'
-            container_str += f"""                          
-                           <span>{__form_element.label}</span>
-                           {__form_element}
-                       </div>"""
-            return container_str
+        def ___get_javascript():
+            def ___get_js_for_element(element, function_string):
+                return """
+                       let {0} = document.getElementById("id_{0}");
+                       {0}.onchange = function(){{update_visibility_of_container("not_{0}", {1})}};
+                       {0}.onchange();""".format(element, function_string)
 
-        def ___get_javascript(__hierarchy):
+            def ___get_bool_type(hierarchy_element):
+                hide_state = "" if hierarchy.get(hierarchy_element).get("hide_state") == "True" else "!"
+                return ___get_js_for_element(hierarchy_element, hide_state + "this.checked")
+
+            def ___get_choice_type(hierarchy_element):
+                string_list = json.dumps(hierarchy.get(hierarchy_element).get("values_for_deactivation"))
+                return ___get_js_for_element(hierarchy_element, string_list + ".includes(this.value)")
+
+            def ___get_advanced_options_checkbox():
+                # add event listener for advanced_options_checkbox and initially update the visibility
+                return """
+                document.getElementById('advanced_options_checkbox').onchange = function(){
+                    update_advanced_options(this.checked)
+                };
+                update_advanced_options(false)
+                """
+
             # initialize_form_hierarchy is called after the form is loaded
             config_script = "function initialize_form(){"
             # add javascript for hierarchy configuration
-            for form_container in __hierarchy.keys():
-                if __hierarchy.get(form_container).get("type") == "bool":
-                    hide_state = "" if __hierarchy.get(form_container).get("hide_state") == "True" else "!"
-                    config_script += """
-                                let %s = document.getElementById("id_%s")
-                                %s.onchange = function () {
-                                    update_visibility_of_container("not_%s", %sthis.checked);
-                                }; %s.onchange();""" \
-                                     % (form_container, form_container, form_container, form_container, hide_state,
-                                        form_container)
-                elif __hierarchy.get(form_container).get("type") == "choice":
-                    string_list = json.dumps(__hierarchy.get(form_container).get("values_for_deactivation"))
-                    config_script += """
-                                let %s = document.getElementById("id_%s")
-                                %s.onchange = function () {
-                                    let hide = %s.includes(this.value);
-                                    update_visibility_of_container("not_%s", hide);
-                                }; %s.onchange();""" \
-                                     % (form_container, form_container, form_container, string_list, form_container,
-                                        form_container)
+            for form_container in hierarchy.keys():
+                # type == bool
+                if hierarchy.get(form_container).get("type") == "bool":
+                    config_script += ___get_bool_type(form_container)
+                # type == choice
+                elif hierarchy.get(form_container).get("type") == "choice":
+                    config_script += ___get_choice_type(form_container)
 
-                # add event listener for advanced_options_checkbox and initially update the visibility
                 if advanced_form_fields:
-                    config_script += "document.getElementById('advanced_options_checkbox').onchange = function(){update_advanced_options(this.checked);};"
-                    config_script += "update_advanced_options(false)"
+                    config_script += ___get_advanced_options_checkbox()
             return config_script + "}"
 
-        html = """
-        <div class='form_element'>
-            <span class="helptext">TODO</span>
-            <span>Show advanced options</span>
-            <input type="checkbox" id="advanced_options_checkbox">
-        </div>
-        """ if advanced_form_fields else ""
+        def ___get_input_html(input_type: str, input_name: str, input_value: str):
+            return gem.input_({"type": input_type, "name": input_name, "value": input_value})
 
-        hierarchy = form.get_hierarchy()
+        def ___get_help_text_span(help_text: str):
+            return gem.span({"class": "helptext"}, help_text) if help_text != "" else ""
+
+        def ___get_form_element_html(__form_element):
+            advanced_settings_class = "advanced_setting" if __form_element.name in advanced_form_fields else ""
+            return gem.div(
+                {"class": "form_element " + advanced_settings_class}, [
+                    ___get_help_text_span(__form_element.help_text),
+                    gem.span(__form_element.label),
+                    str(__form_element)
+                ]
+            )
+
+        def ___hierarchy_containers_around_form_element(element):
+            for current_container in hierarchy.keys():
+                if element.html_name in hierarchy.get(current_container).get("children"):
+                    yield current_container
+
+        # generate form html
+        form_html = gem.div({"class": "form_element"}, [
+            gem.span("Show advanced options:"),
+            '<input type="checkbox" id="advanced_options_checkbox">'
+        ]) if advanced_form_fields else ""
+
         for form_element in form:
-            open_hierarchy_containers = 0
-            for container in hierarchy.keys():
-                # open hierarchy containers around child element
-                if form_element.html_name in hierarchy.get(container).get("children"):
-                    html += "<div class='not_%s'>" % container
-                    open_hierarchy_containers += 1
+            form_element_html = ___get_form_element_html(form_element)
+            for container in ___hierarchy_containers_around_form_element(form_element):
+                form_element_html = gem.div({"class": "not_%s" % container}, form_element_html)
+            form_html += form_element_html
 
-            html += ___get_container(form_element)
+        form_html += ___get_input_html("hidden", "destination_file_type", destination_file_type)
 
-            # close open hierarchy containers
-            for i in range(open_hierarchy_containers):
-                html += "</div>"
+        # add plugin specific hidden-input
         if self._merger:
-            html += "<input type='hidden' name='merge_files' value='on'>"
+            form_html += ___get_input_html("hidden", "merge_files", "on")
         if self._only_zip_as_result:  # todo finish implement
-            html += "<input type='hidden' name='only_zip_as_result' value='on'>"
-        html += f"<input type='hidden' name='destination_file_type' value='{destination_file_type}'>"
-        return html, ___get_javascript(hierarchy)
+            form_html += ___get_input_html("hidden", "only_zip_as_result", "on")
+
+        return form_html, ___get_javascript()
