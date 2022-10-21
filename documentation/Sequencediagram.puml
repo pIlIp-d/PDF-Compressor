@@ -1,0 +1,157 @@
+@startuml
+/'Sequence diagram using the PlantUML integration plugin / syntax'/
+/'syntax can be found here: https://plantuml.com/de/sequence-diagram'/
+
+
+actor Browser
+entity DOM #red
+entity DestinationTypeSelect #purple
+entity Dropzone #blue
+box Server #pink
+    participant Django
+    participant Plugins
+    database DB
+end box
+
+
+== Main View ==
+Browser o-> Django: GET render_main_view()
+activate Django
+    Django --> Browser: main.html
+deactivate Django
+activate Browser
+    Browser -> DOM: DOMContentLoaded
+deactivate Browser
+
+activate DOM
+    DOM -> DestinationTypeSelect: init()
+
+deactivate DOM
+activate DestinationTypeSelect #lightgray
+    DestinationTypeSelect -[#purple]> DestinationTypeSelect ++ : update_options()
+
+    deactivate DestinationTypeSelect
+    DestinationTypeSelect -> DestinationTypeSelect: addEventListener()
+
+    DestinationTypeSelect [#red]->o DOM : dispatch SELECT.onchange Event
+deactivate DestinationTypeSelect
+
+
+== SELECT EVENTS ==
+
+group update_options
+-[#purple]> DestinationTypeSelect
+        DestinationTypeSelect -> Django: get_possible_destination_file_types
+        activate Django
+            alt request_id in request.GET
+                Django -> DB: get_uploaded_file_list_of_current_request()
+                activate DB
+                DB --> Django: files_of_request
+                deactivate DB
+                note over Django: from_file_types =  [mime_type() for file in files_of_request]
+            else
+                note over Django: from_file_types = [None]
+            end
+            Django -> Plugins: get_destination_file_types of plugins
+            activate Plugins
+                Plugins --> Django:
+            deactivate Plugins
+            Django -> Django: possible_file_types = get_intersection_of_file_endings_from_different_input_filetypes()
+            Django --> DestinationTypeSelect: possible_file_types
+            deactivate Django
+            DestinationTypeSelect -> DestinationTypeSelect ++ : add_options()
+        deactivate DestinationTypeSelect
+    end
+
+
+group SELECT.onchange
+-[#red]> DOM
+deactivate DestinationTypeSelect
+    activate DOM
+    DOM -> Browser: save_plugin_in_url()
+    DOM -> Browser: updateProcessedButton()
+    DOM -> DestinationTypeSelect: update_allowed_input_file_types(selected_option
+    deactivate DOM
+
+    activate DestinationTypeSelect
+        DestinationTypeSelect -> Django: get_allowed_input_file_types
+        activate Django
+            Django -> Plugins: get_input_file_types of all plugins/ the specified Plugin
+            activate Plugins
+            Plugins --> Django: list of types
+            deactivate Plugins
+
+            Django --> DestinationTypeSelect: allowed_file_types
+        deactivate Django
+            DestinationTypeSelect -> DestinationTypeSelect: save new allowed_file_types
+            alt successful selected_option === "null"
+                DestinationTypeSelect -> Browser: deactivate_compression_button()
+            else
+                DestinationTypeSelect -> Django: get_form_html_for_web_view
+                activate Django
+                    Django -> Plugins: get_form_html_and_script() of plugin
+                    activate Plugins
+                        Plugins --> Django: form_html and form_script
+                    deactivate Plugins
+                Django --> DestinationTypeSelect: form_html, form_script
+                deactivate Django
+                DestinationTypeSelect -> Browser: set_form_content
+                DestinationTypeSelect -> Browser: set_form_script
+                DestinationTypeSelect -[#purple]> DestinationTypeSelect: update_options()
+            end
+    deactivate DestinationTypeSelect
+
+end
+== DROPZONE EVENTS ==
+
+-[#blue]> Dropzone: addedfile
+activate Dropzone
+alt not correct_file_type
+    Dropzone -> Browser: showUnsupportedFileAnimation()
+else
+    note over Dropzone: queueFinished = false
+    note over Dropzone: file.file_id = null
+    Dropzone -> Dropzone: add RemoveButton
+end
+deactivate Dropzone
+
+-[#blue]> Dropzone: removedfile
+activate Dropzone
+alt file.file_id != null
+    Dropzone -> Django: remove_file
+    activate Django
+        Django -> DB: get file by id
+        activate DB
+        DB --> Django: file or null
+        deactivate DB
+        alt file != null && owned by current user
+            Django -> DB: file.delete()
+            Django --> Dropzone: successfully deleted file
+        else
+            Django --> Dropzone: no file found
+            deactivate Django
+       end
+end
+alt files.length === 0
+    note over Dropzone: queueFinished = false
+end
+Dropzone -[#purple]> DestinationTypeSelect: update_options()
+deactivate Dropzone
+
+
+-[#blue]> Dropzone: queuecomplete
+activate Dropzone
+note over Dropzone: queueFinished = true
+alt files.length !== 0
+    Dropzone -[#purple]> DestinationTypeSelect: update_options()
+    deactivate Dropzone
+end
+
+
+
+-[#blue]> Dropzone: success
+activate Dropzone
+note over Dropzone: file.file_id = responseText.file_id
+
+
+@enduml
