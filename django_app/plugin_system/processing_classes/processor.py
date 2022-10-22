@@ -131,7 +131,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         if destination_path == "default":
             output_path = input_path_without_file_ending + self._processed_files_appendix + "." + self._file_type_to
-        elif not self._string_is_file(destination_path):
+        elif not self._string_is_file(destination_path):  # TODO proper mime type check
             output_path = os.path.join(destination_path,
                                        os.path.basename(input_path_without_file_ending) + "." + self._file_type_to)
         else:
@@ -177,7 +177,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         is_merging = force_merge or is_merging
 
-        print(source_file_list, destination_path_list, is_merging, is_splitting)
         if len(source_file_list) == 0:
             raise ValueError("No files to Processed were found in the source_path.")
 
@@ -233,7 +232,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
                 if os.path.isfile(temp_destination):
                     OsUtility.move_file(temp_destination, destination)
 
-        # OsUtility.clean_up_folder(temp_folder)
+        OsUtility.clean_up_folder(temp_folder)
 
         for event_handler in self._event_handlers:
             event_handler.finished_all_files()
