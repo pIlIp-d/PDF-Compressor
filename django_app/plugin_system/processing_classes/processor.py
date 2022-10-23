@@ -172,6 +172,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
                                        os.path.basename(input_path_without_file_ending) + "." + self._file_type_to)
         else:
             output_path = destination_path
+        # sources, destinations, is_merging, is_splitting
         return [source_path], [output_path], False, False
 
     def _get_files_and_extra_info(self, source_path, destination_path) -> tuple[list[str], list[str], bool, bool]:
