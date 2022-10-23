@@ -124,8 +124,7 @@ def upload_file(request):
         valid_file_endings=get_file_extension(request.FILES.get('file').name)
     )
     uploaded_file.save()
-    file_id = uploaded_file.id
-    return JsonResponse({"file_id": file_id})
+    return JsonResponse({"file_id": uploaded_file.id})
 
 
 def get_intersection_of_file_endings_from_different_input_filetypes(
