@@ -1,0 +1,69 @@
+@startuml
+
+
+partition Processor {
+    start
+    -> process(source_path, destination_path);
+    if (__source_path__ is a file or folder) then (true)
+    else (false)
+        -><color:#red>ValueError: No File or Folder was found at the given source_path.;
+        stop
+    endif
+    switch (compare value of __destination_path__)
+    case ("merge")
+        :The processed files are merged into
+        a file in the path of the source_path
+        with the format __merged_<time>.xxx__;
+    case ("default")
+        :The processed files are moved into
+        a file/directory in the same place of the
+        source_path with appendix '_processed';
+    case (is a file)
+        :The processed files are merged into this file;
+    case (is a directory)
+        :The processed files are moved into this directory;
+    endswitch
+    if (no source files are found) then (true)
+        -> <color:#red>ValueError: No files to Process were found in the source_path.;
+        stop
+    else (else)
+    endif
+    :create temporary destinations;
+    note right: to avoid disruptions in the actual destination path, if the program fails
+    if (is_merging and not self.can_merge) then (true)
+        -> <color:#red>ValueError Merging is not supported for this Processor.;
+        stop
+    else
+    endif
+    #lightblue:event_handlers.started_processing();
+    partition Processing {
+        if (self._run_multi_threaded) then (true)
+            :(process_file_list_multi_threaded());
+            fork
+                :process_file();
+            fork again
+                    :process_file();
+            fork again
+                :<b>...;
+                note right#lightblue: preprocess(), postprocess() before and after
+            end fork
+        else (false)
+            :process_file_list();
+            :process_file();
+            note right#lightblue: preprocess(), postprocess() before and after
+            :process_file();
+            note right#lightblue: preprocess(), postprocess() before and after
+            :<b>...;
+        endif
+    }
+    if (is_merging) then (true)
+        :merge temporary destinations into final_merge_file;
+    else (false)
+    endif
+    :move temporary destination files to final destinations;
+    :clean_up_folder();
+    #lightblue:event_handlers.finished_all_files();
+
+    end
+}
+@enduml

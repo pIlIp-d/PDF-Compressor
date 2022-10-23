@@ -1,0 +1,84 @@
+@startuml
+title Processing Classes
+skinparam classAttributeIconSize 0
+
+
+
+namespace django_app.plugin_system.processing_classes {
+
+    interface Preprocessor {
+        Preprocessor : preprocess(self, source_file: str, destination_file: str) -> None: pass
+    }
+
+    interface Postprocessor {
+        Postprocessor : postprocess(self, source_file: str, destination_file: str) -> None: pass
+    }
+
+    Postprocessor <|.. EventHandler
+    Preprocessor  <|.. EventHandler
+    interface EventHandler{
+        +started_processing(self)
+        +finished_all_files(self)
+    }
+    Postprocessor <|.. Processor
+    Preprocessor  <|.. Processor
+    EventHandler "mc" *-- "1" Processor
+    abstract class Processor {
+        #get_files_and_extra_info(source_path: str, destination_path: str) -> None
+        +add_preprocessor(self, processor: Preprocessor) -> None
+        +add_postprocessor(self, processor: Postprocessor) -> None
+        -- abstract methods --
+        {abstract} +process_file(source_file: str, destination_path: str) -> None
+    }
+
+    Processor  <|.. ProcessorWithDestinationFolder
+    abstract class ProcessorWithDestinationFolder {
+    ..
+    Allows processors to split source files to multiple ouput files.
+    Changes parameter of process_file() to be:
+    ..
+    source_file: str - path of a file
+    ..
+    destination_path: str - path of a folder
+    ..
+    }
+}
+namespace django_app.task_scheduler {
+    django_app.plugin_system.processing_classes.EventHandler <|. ProcessingEventHandler
+    class ProcessingEventHandler
+    namespace django_app.task_scheduler.tasks {
+        abstract class Task{
+            +finished: bool
+            #task_id: int
+            +{abstract} run() -> None
+            +create() -> None
+            +finish_task()-> None
+        }
+        Task <|- ProcessingTask
+        django_app.task_scheduler.ProcessingEventHandler "mc" *-- "1" ProcessingTask
+
+        ZipTask -|> Task
+        class ZipTask{
+            zips a given folder
+        }
+        abstract class ProcessingTask{
+            #request_id: int
+            #request_parameters: dict
+            #source_path: str
+            #destination_path: str
+            #get_event_handler() -> list[ProcessingEventHandler]
+        }
+    }
+    django_app.task_scheduler.tasks.Task "mc" *-- "1" TaskScheduler
+    class TaskScheduler {
+        +check_for_unfinished_tasks(cls) -> bool
+        +run_unfinished_tasks() -> None
+    }
+    TaskScheduler "1" *-- "1" TaskExecutorDaemon
+    class TaskExecutorDaemon {
+        +start_async(interval_in_seconds: int) -> None
+    }
+
+}
+
+@enduml

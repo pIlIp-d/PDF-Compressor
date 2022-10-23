@@ -1,0 +1,50 @@
+@startuml
+title Dropzone
+
+actor Browser
+entity DestinationTypeSelect #purple
+entity Dropzone #blue
+box Server #pink
+    participant Django
+end box
+
+-[#blue]> Dropzone: addedfile
+activate Dropzone
+alt if not correct_file_type
+    Dropzone -> Dropzone: removeFile(file)
+    Dropzone -> Browser: showUnsupportedFileAnimation()
+else
+    note over Dropzone: queueFinished = false
+    note over Dropzone: file.file_id = null
+    Dropzone -> Dropzone: add RemoveButton
+end
+deactivate Dropzone
+
+-[#blue]> Dropzone: removedfile
+activate Dropzone
+alt if files.length === 0
+    note over Dropzone: queueFinished = false
+end
+alt if file.file_id != null
+    Dropzone -> Django: remove_file
+    activate Django
+       Django --> Dropzone
+       deactivate Django
+       Dropzone -[#purple]> DestinationTypeSelect: update_options()
+    deactivate Dropzone
+end
+
+-[#blue]> Dropzone: queuecomplete
+activate Dropzone
+alt if files.length !== 0
+    note over Dropzone: queueFinished = true
+    Dropzone -[#purple]> DestinationTypeSelect: update_options()
+    deactivate Dropzone
+end
+
+-[#blue]> Dropzone: success
+activate Dropzone
+note over Dropzone: file.file_id = responseText.file_id
+deactivate Dropzone
+
+@enduml
