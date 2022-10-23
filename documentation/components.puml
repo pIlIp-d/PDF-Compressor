@@ -1,0 +1,26 @@
+@startuml
+
+    title Most important Components
+    component Browser #pink
+    component Django
+    database models.sqlite3{
+        file UploadedFiles
+        file ProcessedFiles
+        file Requests
+    }
+    Django -> models.sqlite3: uses
+
+    database tasks.sqlite3 {
+        node Tasks
+    }
+    Browser -down-> Django: requests
+    component TaskScheduler
+    TaskScheduler -up-> Tasks: runs / schedules
+    Tasks --> [ProcessingEventHandler]: signal events
+    ProcessingEventHandler -right-> Django: sends requests
+
+    component Processors
+    Tasks -left-> Processors: runs
+    Django --> Tasks: creates
+
+@enduml
