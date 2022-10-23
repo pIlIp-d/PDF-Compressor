@@ -6,7 +6,7 @@ import fitz
 from django_app.plugin_system.processing_classes.processor import Processor
 
 
-class AbstractPdfCompressor(Processor, ABC):
+class AbstractPdfProcessor(Processor, ABC):
     def __init__(
             self,
             event_handlers=None,
