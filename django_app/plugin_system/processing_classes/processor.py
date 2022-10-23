@@ -7,12 +7,13 @@ from datetime import datetime
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
 from django_app.webserver.string_utility import StringUtility
-from django_app.utility.event_handler import EventHandler
+from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from django_app.utility.console_utility import ConsoleUtility
 from django_app.utility.os_utility import OsUtility
 
-
+# TODO multi-threaded load balancing of available threads
 # TODO eventHandler list isn't Threadsafe (when multiple processing requests are executed on the same Processor object)
+
 
 class Processor(Postprocessor, Preprocessor, ABC):
     def __init__(
@@ -29,7 +30,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         self._event_handlers = event_handlers
         self._preprocessors = []
         self._postprocessors = []
-        self._add_event_handler_processors()
+        self.__add_event_handler_processors()
         self._processed_files_appendix = "_processed"
         self._processed_part = processed_part
         self._can_merge = can_merge
@@ -37,7 +38,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         self._file_type_to = file_type_to.lower()
         self._run_multi_threaded = run_multi_threaded
 
-    def _add_event_handler_processors(self) -> None:
+    def __add_event_handler_processors(self) -> None:
         for event_handler in self._event_handlers:
             self.add_preprocessor(event_handler)
         for event_handler in self._event_handlers:
@@ -67,7 +68,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def process_file(self, source_file: str, destination_path: str) -> None:
         pass
 
-    def process_file_list(self, source_files: list, destination_files: list) -> None:
+    def _process_file_list(self, source_files: list, destination_files: list) -> None:
         for source_file, destination_file in zip(source_files, destination_files):
             self.process_file(source_file, destination_file)
 
@@ -90,7 +91,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
                 return temp_file
 
     def _get_temp_destination(self, temp_folder, file_path: str):
-        if self._string_is_file(file_path):
+        if self._destination_path_string_is_file(file_path):
             return os.path.abspath(
                 os.path.join(temp_folder, OsUtility.get_filename(file_path) + "." + self._file_type_to)
             )
@@ -108,13 +109,13 @@ class Processor(Postprocessor, Preprocessor, ABC):
         """
         raise ValueError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
 
-    def _string_is_file(self, path):
+    def _destination_path_string_is_file(self, path):
         return path.endswith(self._file_type_to)
 
     def _get_files_and_extra_info_from_input_folder(self, source_path, destination_path
                                                     ) -> tuple[list[str], list[str], bool, bool]:
         sources = OsUtility.get_file_list(source_path, self._file_type_from)
-        merging = len(sources) > 1 and self._string_is_file(destination_path)
+        merging = len(sources) > 1 and self._destination_path_string_is_file(destination_path)
         output_folder = source_path + self._processed_files_appendix if destination_path == "default" else destination_path
         destinations = [
             os.path.join(
@@ -131,7 +132,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         if destination_path == "default":
             output_path = input_path_without_file_ending + self._processed_files_appendix + "." + self._file_type_to
-        elif not self._string_is_file(destination_path):  # TODO proper mime type check
+        elif not self._destination_path_string_is_file(destination_path):  # TODO proper mime type check
             output_path = os.path.join(destination_path,
                                        os.path.basename(input_path_without_file_ending) + "." + self._file_type_to)
         else:
@@ -204,7 +205,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         if self._run_multi_threaded:
             self.process_file_list_multi_threaded(source_file_list, temporary_destination_file_list)
         else:
-            self.process_file_list(source_file_list, temporary_destination_file_list)
+            self._process_file_list(source_file_list, temporary_destination_file_list)
 
         if is_merging:
             # move merge result to destination

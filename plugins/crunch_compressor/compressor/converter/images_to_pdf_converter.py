@@ -1,6 +1,6 @@
 from PIL.Image import DecompressionBombError
 
-from django_app.plugin_system.processing_classes.converter import Converter
+from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.utility.console_utility import ConsoleUtility
 
 # package name PyMuPdf
@@ -23,7 +23,7 @@ except:
 # TODO consoleUI processor
 
 
-class ImagesToPdfConverter(Converter):
+class ImagesToPdfConverter(Processor):
 
     # TODO to see supported formats run 'python3.10 -m PIL'. needed are 'save' and 'open'
     def __init__(

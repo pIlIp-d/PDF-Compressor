@@ -3,7 +3,7 @@ import shutil
 
 from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from django_app.utility.event_handler import EventHandler
+from django_app.plugin_system.processing_classes.event_handler import EventHandler
 
 
 class RenamePngTask(ProcessingTask):

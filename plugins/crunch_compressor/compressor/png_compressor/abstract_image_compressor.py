@@ -3,11 +3,11 @@ from abc import ABC
 
 from PIL import Image
 
-from django_app.plugin_system.processing_classes.compressor import Compressor
+from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.utility.os_utility import OsUtility
 
 
-class AbstractImageCompressor(Compressor, ABC):
+class AbstractImageCompressor(Processor, ABC):
     def __init__(
             self,
             file_type_from: str = "png",
@@ -33,16 +33,7 @@ class AbstractImageCompressor(Compressor, ABC):
             # couldn't open and verify -> not a valid image
             return False
 
-    def compress_file_list(self, source_files: list, destination_files: list) -> None:
-        self.process_file_list_multi_threaded(
-            source_files,
-            destination_files,
-            # use all cores, but after 8 it splits bigger tasks -> only 4 each
-            os.cpu_count() if os.cpu_count() < 8 else 4
-        )
-
     def _compare_and_use_better_option(self, file_option_1: str, file_option_2: str, destination_file: str) -> None:
-
         size_option_1 = OsUtility.get_file_size(file_option_1)
         size_option_2 = OsUtility.get_file_size(file_option_2)
 
