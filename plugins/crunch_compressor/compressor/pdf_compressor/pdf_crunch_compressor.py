@@ -119,7 +119,7 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         super().postprocess(source_file, destination_file)
 
     def process_file(self, source_file: str, destination_path: str) -> None:
-        temp_folder = self._get_temp_folder()
+        temp_folder = self._get_and_create_temp_folder()
         self.__custom_preprocess(source_file, destination_path, temp_folder)
 
         # compress all images in temp_folder

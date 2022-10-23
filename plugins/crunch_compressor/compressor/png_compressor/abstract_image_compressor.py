@@ -19,7 +19,6 @@ class AbstractImageCompressor(Processor, ABC):
             event_handlers=event_handlers,
             file_type_from=file_type_from,
             file_type_to=file_type_to,
-            processed_part="Pages",  # TODO make parameter
             run_multi_threaded=run_multi_threaded
         )
 
