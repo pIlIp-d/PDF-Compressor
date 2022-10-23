@@ -148,16 +148,18 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def __get_files_and_extra_info_from_input_folder(self, source_path, destination_path
                                                      ) -> tuple[list[str], list[str], bool, bool]:
         sources = OsUtility.get_file_list(source_path, self._file_type_from)
-        merging = len(sources) > 1 and self._destination_path_string_is_file(destination_path)
+        result_is_file = self._destination_path_string_is_file(destination_path)
         output_folder = source_path + self._processed_files_appendix if destination_path == "default" else destination_path
-        destinations = [
-            os.path.join(
-                output_folder,
-                OsUtility.get_filename(file) + "." + self._file_type_to
-            )
-            for file in sources
-        ]
-        return sources, destinations, merging, False
+        # if destination file is specified but the program can skip merging, because there only is one file
+        if result_is_file and len(sources) == 1:
+            destinations = [destination_path]
+        else:
+            destinations = [
+                os.path.join(output_folder, OsUtility.get_filename(file) + "." + self._file_type_to)
+                for file in sources
+            ]
+        # sources, destinations, is_merging, is_splitting
+        return sources, destinations, result_is_file and len(sources) > 1, False
 
     def __get_files_and_extra_info_from_input_file(self, source_path, destination_path
                                                    ) -> tuple[list[str], list[str], bool, bool]:
@@ -209,7 +211,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         if destination_path == "merge":
             source_dir = source_path if os.path.isdir(source_path) else os.path.dirname(source_path)
             destination_path = os.path.join(
-                source_dir, "merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
+                source_dir + "_processed", "merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
             )
         source_file_list, destination_path_list, is_merging, is_splitting = self._get_files_and_extra_info(
             source_path,
