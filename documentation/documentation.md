@@ -18,7 +18,7 @@
 _____
 
 ## UML diagrams
-diagrams are using the PlantUML integration plugin / syntax
+diagrams are using the PlantUML integration plugin / syntax  
 syntax can be found here: [https://plantuml.com](https://plantuml.com)
 
 # How it works
