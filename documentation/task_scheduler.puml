@@ -1,0 +1,41 @@
+@startuml
+title TaskScheduler
+
+box Server #pink
+    participant Django
+    database DB
+end box
+box Server-TaskScheduler
+    participant Task
+    participant TaskScheduler
+    participant TaskExecuterDaemon
+end box
+
+Django o-> TaskExecuterDaemon: start daemon from django_app/wsgi.py
+activate TaskExecuterDaemon
+TaskExecuterDaemon -> TaskExecuterDaemon : start() -> run() Thread
+
+loop every 5 seconds
+    TaskExecuterDaemon -> TaskScheduler: check_for_unfinished_tasks()
+    activate TaskScheduler
+        TaskScheduler -> DB
+        activate DB
+            DB --> TaskScheduler: get unfinished tasks
+        deactivate DB
+        TaskScheduler --> TaskExecuterDaemon
+    deactivate TaskScheduler
+
+    alt if unfinished Tasks exist
+        TaskExecuterDaemon -> TaskScheduler: run_unfinished_tasks()
+        deactivate TaskExecuterDaemon
+        activate TaskScheduler
+            TaskScheduler -> TaskScheduler: get_unfinished_tasks()
+            loop for task in unfinished tasks
+                TaskScheduler -> Task: run()
+                TaskScheduler -> Task: finish_task()
+                deactivate TaskScheduler
+            end
+    end
+end
+
+@enduml
