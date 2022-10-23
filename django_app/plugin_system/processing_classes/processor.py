@@ -118,7 +118,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
                 os.path.join("", "temporary_files", str(counter) + self._processed_files_appendix)
             )
             if not os.path.isdir(temp_folder):
-                os.makedirs(temp_folder)
                 return temp_folder
 
     def _get_temp_destination(self, temp_folder, destination_path: str):
@@ -226,6 +225,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         # create temporary destinations to avoid data loss
         temp_folder = self._get_and_create_temp_folder()
+        os.makedirs(temp_folder, exist_ok=True)
         temporary_destination_file_list = [
             self._get_temp_destination(temp_folder, path)
             for path in destination_path_list

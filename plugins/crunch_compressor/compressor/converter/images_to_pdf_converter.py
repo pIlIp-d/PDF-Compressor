@@ -87,7 +87,6 @@ class ImagesToPdfConverter(Processor):
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         # create destination directory if not already exists
-        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
         try:
             if not self.force_ocr or self.no_ocr:
                 raise ValueError("skipping tesseract")
