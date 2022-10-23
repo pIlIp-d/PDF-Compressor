@@ -16,7 +16,7 @@ class OsUtility:
         files = []
         for r, _, f in os.walk(folder):
             for file_name in f:
-                if not file_name.endswith(ending):
+                if not file_name.lower().endswith(ending.lower()):
                     continue
                 files.append(os.path.join(r, file_name))
         files.sort()

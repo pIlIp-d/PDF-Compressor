@@ -143,7 +143,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         raise ValueError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
 
     def _destination_path_string_is_file(self, path) -> bool:
-        return path.endswith(self._file_type_to)
+        return path.lower().endswith(self._file_type_to.lower())
 
     def __get_files_and_extra_info_from_input_folder(self, source_path, destination_path
                                                      ) -> tuple[list[str], list[str], bool, bool]:
