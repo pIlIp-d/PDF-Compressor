@@ -118,15 +118,6 @@ class PDFCrunchCompressor(AbstractPdfCompressor):
         ConsoleUtility.quiet_mode = quiet_mode_buffer
         super().postprocess(source_file, destination_file)
 
-    def process_file_list(self, source_files: list, destination_files: list) -> None:
-        # only use parallel compression of files, when there are more than 8 threads available
-        if os.cpu_count() > 8:
-            self.process_file_list_multi_threaded(source_files, destination_files, os.cpu_count() // 4)
-        else:
-            # instead it uses parallel image compression per pdf
-            for source, destination in zip(source_files, destination_files):
-                self.process_file(source, destination)
-
     def process_file(self, source_file: str, destination_path: str) -> None:
         temp_folder = self._get_temp_folder()
         self.__custom_preprocess(source_file, destination_path, temp_folder)

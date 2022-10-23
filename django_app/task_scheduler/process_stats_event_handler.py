@@ -1,11 +1,10 @@
 import requests
 
 import manage
-from django_app.utility.event_handler import EventHandler
+from django_app.plugin_system.processing_classes.event_handler import EventHandler
 
 
-# TODO rename to ProcesEventHandler
-class ProcessStatsEventHandler(EventHandler):
+class ProcessingEventHandler(EventHandler):
     def __init__(self, request_id: int):
         super().__init__()
         self.__request_id = request_id

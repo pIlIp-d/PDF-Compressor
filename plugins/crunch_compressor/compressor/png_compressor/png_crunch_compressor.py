@@ -74,7 +74,7 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             self.__pngcrush.process_file(source_file, destination_path)
         self.postprocess(source_file, destination_path)
 
-    def process_file_list(self, source_files: list, destination_files: list) -> None:
+    def _process_file_list(self, source_files: list, destination_files: list) -> None:
         # run optimized compress
         if self.__pngquant is not None:
             self.__pngquant.process_file_list_multi_threaded(source_files, destination_files)
