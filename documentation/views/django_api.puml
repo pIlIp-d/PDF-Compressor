@@ -75,7 +75,7 @@ group api
     Client o-[#blue]> Django: get_possible_destination_file_types
     activate Django
         alt if request_id in request parameters
-            Django -[#blue]-> Client: possible_file_types of all plugins\n that accept the file types of all UploadedFiles to the current request
+            Django -[#blue]-> Client: possible_file_types of all plugins\n that accept the file types of all UploadedFiles of the current request
         else
             Django -[#blue]-> Client: possible_file_types of all plugins
             deactivate Django
