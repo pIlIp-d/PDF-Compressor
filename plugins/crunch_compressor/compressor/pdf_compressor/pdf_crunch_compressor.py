@@ -3,14 +3,14 @@ import shutil
 
 from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
 from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
-from plugins.crunch_compressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from django_app.plugin_system.processing_classes.abstract_pdf_compressor import AbstractPdfProcessor
 from plugins.crunch_compressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
 from django_app.utility.console_utility import ConsoleUtility
 from django_app.utility.os_utility import OsUtility
 
 
-class PDFCrunchCompressor(AbstractPdfCompressor):
+class PDFCrunchCompressor(AbstractPdfProcessor):
     def __init__(
             self,
             pngquant_path: str,

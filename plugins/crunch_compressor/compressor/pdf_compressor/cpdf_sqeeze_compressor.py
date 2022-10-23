@@ -2,12 +2,12 @@ import os
 import subprocess
 
 from django_app import settings
-from plugins.crunch_compressor.compressor.pdf_compressor.abstract_pdf_compressor import AbstractPdfCompressor
+from django_app.plugin_system.processing_classes.abstract_pdf_compressor import AbstractPdfProcessor
 from django_app.utility.console_utility import ConsoleUtility
 from django_app.utility.os_utility import OsUtility
 
 
-class CPdfSqueezeCompressor(AbstractPdfCompressor):
+class CPdfSqueezeCompressor(AbstractPdfProcessor):
     def __init__(
             self,
             cpdfsqueeze_path: str,
