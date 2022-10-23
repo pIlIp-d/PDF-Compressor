@@ -27,7 +27,6 @@ class PdfToImageConverter(ProcessorWithDestinationFolder):
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         # create destination directory if not already exists
-        os.makedirs(destination_path, exist_ok=True)
 
         print("METHODE", source_file, destination_path)
         ConsoleUtility.print("--splitting pdf into images--")

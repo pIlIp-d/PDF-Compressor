@@ -29,7 +29,6 @@ class Renamer(ProcessorWithDestinationFolder):
             self._new_filename_prefix + os.path.basename(source_file)
         )
 
-        os.makedirs(os.path.dirname(destination_file), exist_ok=True)
         if os.path.isfile(source_file):
             shutil.copyfile(source_file, destination_file)
 
