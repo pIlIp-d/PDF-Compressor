@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
 from django_app import settings
+from django_app.api.decorators import only_for_localhost, requires_parameters
 from django_app.plugin_system.plugin import Plugin
 from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.validators import get_file_extension
@@ -19,9 +20,19 @@ from django_app.utility.os_utility import OsUtility
 
 # TODO favicon.ico
 # TODO move valid_file_endings from UploadedFile -> request Table
+# TODO /api/rename_file
+
+def invalid_parameter_error(parameter_name: str):
+    return JsonResponse({"status": 412, "error": f"Invalid value for parameter '{parameter_name}"}, status=412)
 
 
+def internal_server_error(error_string: str):
+    return JsonResponse({"status": 500, "error": error_string}, status=500)
+
+
+@only_for_localhost
 @require_http_methods(["GET"])
+@requires_parameters("GET", ["request_id"])
 def started_processing(request):
     processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
     processing_request.started = True
@@ -29,8 +40,11 @@ def started_processing(request):
     return JsonResponse({"status": 200})
 
 
+@only_for_localhost
 @require_http_methods(["GET"])
+@requires_parameters("GET", ["request_id"])
 def finished_all_files(request):
+    print("LLLLL: finished_all_files")
     processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
     processing_request.finished = True
     processing_request.save()
@@ -60,29 +74,16 @@ def get_all_files(request):
     return JsonResponse({"status": 200, "files": files_json}, status=200)
 
 
-def parameter_missing_error(parameter_name: str):
-    return JsonResponse({"status": 412, "error": f"Parameter '{parameter_name}' is required!"}, status=412)
-
-
-def invalid_parameter_error(parameter_name: str):
-    return JsonResponse({"status": 412, "error": f"Invalid value for parameter '{parameter_name}"}, status=412)
-
-
-def internal_server_error(error_string: str):
-    return JsonResponse({"status": 500, "error": error_string}, status=500)
-
-
-# TODO /api/rename_file
-
 @csrf_protect  # TODO csrf_protect doesn't work, yet
 @require_http_methods(["GET"])
+@requires_parameters("GET", ["file_origin"])
 def remove_file(request):
     if request.GET.get("file_origin") == "uploaded":
         file_class = UploadedFile
     elif request.GET.get("file_origin") == "processed":
         file_class = ProcessedFile
     else:
-        return JsonResponse({"status": 412, "error": "Parameter file_origin is required."}, status=412)
+        return JsonResponse({"status": 412, "error": "Unknown value for file_origin."}, status=412)
 
     file = file_class.objects.filter(
         id=request.GET.get("file_id")
@@ -96,6 +97,7 @@ def remove_file(request):
 
 
 @require_http_methods(["GET"])
+@requires_parameters("GET", ["plugin_info"])
 def get_allowed_input_file_types(request):
     plugin_info = request.GET.get("plugin_info")
     if plugin_info == "null":
@@ -111,6 +113,8 @@ def get_allowed_input_file_types(request):
 
 @csrf_protect
 @require_http_methods(["POST"])
+@requires_parameters("POST", ["request_id"])
+@requires_parameters("FILES", ["file"])
 def upload_file(request):
     user_id = request.session['user_id']
     request_id = request.POST.get('request_id')
@@ -173,12 +177,9 @@ def test_get_intersections():
 
 
 @require_http_methods(["GET"])
+@requires_parameters("GET", ["plugin", "destination_file_type"])
 def get_form_html_for_web_view(request):
-    if "plugin" not in request.GET:
-        return parameter_missing_error("plugin")
-    elif "destination_file_type" not in request.GET:
-        return parameter_missing_error("destination_file_type")
-    elif request.GET.get("plugin") not in [p.name for p in settings.PROCESSOR_PLUGINS]:
+    if request.GET.get("plugin") not in [p.name for p in settings.PROCESSOR_PLUGINS]:
         return invalid_parameter_error("plugin")
     try:
         destination_file_type = request.GET.get("destination_file_type")
