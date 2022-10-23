@@ -17,6 +17,10 @@
 
 _____
 
+## UML diagrams use 
+diagrams are using the PlantUML integration plugin / syntax
+syntax can be found here: [https://plantuml.com](https://plantuml.com)
+
 # How it works
 
 ## django webapp (UI nd Backend)
