@@ -19,6 +19,11 @@
     Tasks --> [ProcessingEventHandler]: signal events
     ProcessingEventHandler -right-> Django: sends requests
 
+    component Plugin {
+        component ProcesingTask
+        component PluginForm
+    }
+    ProcesingTask -up-> Tasks: extends
     component Processors
     Tasks -left-> Processors: runs
     Django --> Tasks: creates
