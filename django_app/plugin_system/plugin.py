@@ -125,8 +125,7 @@ class Plugin(ABC):
         def ___get_form_element_html(__form_element):
             advanced_settings_class = "advanced_setting" if __form_element.name in advanced_form_fields else ""
             return gem.div(
-                {"class": "form_element " + advanced_settings_class}, [
-                    ___get_help_text_span(__form_element.help_text),
+                {"class": "form_element " + advanced_settings_class, "title": __form_element.help_text}, [
                     gem.span(__form_element.label),
                     str(__form_element)
                 ]
