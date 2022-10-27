@@ -244,6 +244,9 @@ class Processor(Postprocessor, Preprocessor, ABC):
         for event_handler in self._event_handlers:
             event_handler.started_processing()
 
+        # create destination directory
+        os.makedirs(os.path.dirname(temporary_destination_file_list[0]), exist_ok=True)
+
         # run processing
         if self._run_multi_threaded:
             self.process_file_list_multi_threaded(source_file_list, temporary_destination_file_list)
