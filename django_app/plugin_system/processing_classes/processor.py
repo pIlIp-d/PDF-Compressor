@@ -67,8 +67,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
             processor.postprocess(source_file, destination_file)
 
     @classmethod
-    def _custom_map_execute(cls, method, args_list: list, cpu_count: int) -> None:
-        with ProcessPoolExecutor(max_workers=cpu_count) as executor:
+    def _custom_map_execute(cls, method, args_list: list) -> None:
+        with ProcessPoolExecutor() as executor:
             for method_parameter in args_list:
                 executor.submit(method, **method_parameter)
 
@@ -94,8 +94,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def process_file_list_multi_threaded(
             self,
             source_files: list[str],
-            destination_files: list[str],
-            cpu_count: int = os.cpu_count()
+            destination_files: list[str]
     ) -> None:
         """
         parallel processing of files in source_files to destination_files<br>
@@ -106,7 +105,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         """
         args_list = [{"source_file": source, "destination_path": destination}
                      for source, destination in zip(source_files, destination_files)]
-        self._custom_map_execute(self.process_file, args_list, cpu_count)
+        self._custom_map_execute(self.process_file, args_list)
 
     def _get_and_create_temp_folder(self) -> str:
         """
