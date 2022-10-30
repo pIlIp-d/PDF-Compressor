@@ -65,14 +65,15 @@ class TestingEventHandler(EventHandler):
 
 
 class TestProcessor(TestCase):
-    def execute_simple_processing_and_get_event_handler(
+    def __execute_monitored_processing(
             self,
             source_path: str,
             destination_path: str,
-            amount_of_event_handlers: int = 1
-    ) -> TestingEventHandler:
+            amount_of_event_handlers: int,
+            processor_class
+    ) -> None:
         event_handler = TestingEventHandler()
-        SimpleExampleProcessor([event_handler for _ in range(amount_of_event_handlers)], "txt", "txt").process(
+        processor_class([event_handler for _ in range(amount_of_event_handlers)], "txt", "txt").process(
             source_path, destination_path
         )
         if os.path.isfile(destination_path):
@@ -81,7 +82,31 @@ class TestProcessor(TestCase):
             shutil.rmtree(destination_path)
         else:
             self.fail("no result created")
-        return event_handler
+
+    def __execute_simple_processing_from_file(self, amount_of_event_handlers: int = 1):
+        source_path = os.path.join(".", "TestData", "empty.txt")
+        destination_path = os.path.join(".", "TestData", "result.txt")
+        self.__execute_monitored_processing(
+            source_path, destination_path, amount_of_event_handlers, SimpleExampleProcessor
+        )
+
+    def __execute_simple_processing_from_folder(
+            self, amount_of_event_handlers: int = 1, source_folder: str = os.path.join(".", "TestData", "testFolder")
+    ):
+        destination_path = os.path.join(".", "TestData", "testOutput")
+        self.__execute_monitored_processing(
+            source_folder, destination_path, amount_of_event_handlers, SimpleExampleProcessor
+        )
+
+    def __execute_monitored_error_processor(self):
+        source_path = os.path.join(".", "TestData", "empty.txt")
+        destination_path = os.path.join(".", "TestData", "result.txt")
+        self.__execute_monitored_processing(source_path, destination_path, 1, ErrorProcessor)
+
+    def __execute_monitored_processor_with_destination_folder_sub_class(self):
+        source_path = os.path.join(".", "TestData", "empty.txt")
+        destination_path = os.path.join(".", "TestData", "outputFolder")
+        self.__execute_monitored_processing(source_path, destination_path, 1, DestinationFolderSubClass)
 
     def test_started_processed_with_single_file(self):
         source_path = os.path.join(".", "TestData", "empty.txt")
