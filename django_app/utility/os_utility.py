@@ -11,7 +11,7 @@ class OsUtility:
         if not os.path.exists(folder):
             return []
         if os.path.isfile(folder):
-            raise ValueError(folder)
+            return [folder]
         # get all the png files in temporary folder <=> all pdf pages
         files = []
         for r, _, f in os.walk(folder):
