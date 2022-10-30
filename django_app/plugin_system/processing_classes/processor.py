@@ -181,7 +181,9 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def __get_files_and_extra_info_from_input_file(self, source_path, destination_path
                                                    ) -> tuple[list[str], list[str], bool, bool]:
         input_path_without_file_ending = OsUtility.get_path_without_file_ending(source_path)
-
+        if not reduce(lambda result, ending: result or source_path.lower().endswith(ending), self._file_type_from,
+                      False):
+            return [], [], False, False
         if destination_path == "default":
             output_path = input_path_without_file_ending + self._processed_files_appendix + "." + self._file_type_to
         elif not self._destination_path_string_is_file(destination_path):  # TODO proper mime type check
