@@ -7,6 +7,10 @@ from django_app.plugin_system.processing_classes.event_handler import EventHandl
 from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
 
+manager = multiprocessing.Manager()
+ns = manager.Namespace()
+lock = manager.Lock()
+
 
 class SimpleExampleProcessor(Processor):
     def __init__(self, event_handler: [EventHandler], file_type_from: str, file_type_to: str):
@@ -38,26 +42,30 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
 
 class TestingEventHandler(EventHandler):
     def __init__(self):
-        self.amount_of_started_processing_calls = 0
-        self.amount_of_finished_all_files_calls = 0
-        self.amount_of_preprocess_calls = 0
-        self.amount_of_postprocess_calls = 0
+        ns.amount_of_started_processing_calls = 0
+        ns.amount_of_finished_all_files_calls = 0
+        ns.amount_of_preprocess_calls = 0
+        ns.amount_of_postprocess_calls = 0
 
     def started_processing(self):
-        self.amount_of_started_processing_calls += 1
+        with lock:
+            ns.amount_of_started_processing_calls += 1
 
     def finished_all_files(self):
-        self.amount_of_finished_all_files_calls += 1
+        with lock:
+            ns.amount_of_finished_all_files_calls += 1
 
     def preprocess(self, source_file: str, destination_file: str) -> None:
-        self.amount_of_preprocess_calls = 0
+        with lock:
+            ns.amount_of_preprocess_calls += 1
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
-        self.amount_of_postprocess_calls = 0
+        with lock:
+            ns.amount_of_postprocess_calls += 1
 
 
 class TestProcessor(TestCase):
-    def get_amount_of_calls(
+    def execute_simple_processing_and_get_event_handler(
             self,
             source_path: str,
             destination_path: str,
@@ -78,34 +86,38 @@ class TestProcessor(TestCase):
     def test_started_processed_with_single_file(self):
         source_path = os.path.join(".", "TestData", "empty.txt")
         destination_path = os.path.join(".", "TestData", "result.txt")
-        self.assertEqual(1, self.get_amount_of_calls(source_path, destination_path).amount_of_started_processing_calls)
+        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_multiple_files(self):
         source_path = os.path.join(".", "TestData", "testFolder")
         destination_path = os.path.join(".", "TestData", "testOutput")
-        self.assertEqual(1, self.get_amount_of_calls(source_path, destination_path).amount_of_started_processing_calls)
+        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_no_files(self):
         source_path = os.path.join(".", "TestData", "emptyFolder")
         destination_path = os.path.join(".", "TestData", "testOutput")
         self.assertRaises(
             ValueError,
-            self.get_amount_of_calls,
+            self.execute_simple_processing_and_get_event_handler,
             source_path, destination_path
         )
 
     def test_started_processed_with_two_event_handlers(self):
         source_path = os.path.join(".", "TestData", "empty.txt")
         destination_path = os.path.join(".", "TestData", "result.txt")
+        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 2)
         self.assertEqual(
-            2, self.get_amount_of_calls(source_path, destination_path, 2).amount_of_started_processing_calls
+            2, ns.amount_of_started_processing_calls
         )
 
     def test_started_processed_with_no_event_handler(self):
         source_path = os.path.join(".", "TestData", "empty.txt")
         destination_path = os.path.join(".", "TestData", "result.txt")
+        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 0)
         self.assertEqual(
-            0, self.get_amount_of_calls(source_path, destination_path, 0).amount_of_started_processing_calls
+            0, ns.amount_of_started_processing_calls
         )
 
     def test_started_processed_with_error_while_processing(self):
@@ -119,7 +131,7 @@ class TestProcessor(TestCase):
             source_path,
             destination_path
         )
-        self.assertEqual(1, event_handler.amount_of_started_processing_calls)
+        self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_processor_is_processor_with_destination_folder_instance(self):
         event_handler = TestingEventHandler()
