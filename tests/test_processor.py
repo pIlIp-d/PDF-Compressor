@@ -109,230 +109,127 @@ class TestProcessor(TestCase):
         self.__execute_monitored_processing(source_path, destination_path, 1, DestinationFolderSubClass)
 
     def test_started_processed_with_single_file(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_file()
         self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_multiple_files(self):
-        source_path = os.path.join(".", "TestData", "testFolder")
-        destination_path = os.path.join(".", "TestData", "testOutput")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_folder()
         self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_no_files(self):
-        source_path = os.path.join(".", "TestData", "emptyFolder")
-        destination_path = os.path.join(".", "TestData", "testOutput")
         self.assertRaises(
-            ValueError,
-            self.execute_simple_processing_and_get_event_handler,
-            source_path, destination_path
+            ValueError, self.__execute_simple_processing_from_folder,
+            source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
+        self.assertEqual(0, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_two_event_handlers(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 2)
-        self.assertEqual(
-            2, ns.amount_of_started_processing_calls
-        )
+        self.__execute_simple_processing_from_file(2)
+        self.assertEqual(2, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_no_event_handler(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 0)
-        self.assertEqual(
-            0, ns.amount_of_started_processing_calls
-        )
+        self.__execute_simple_processing_from_file(0)
+        self.assertEqual(0, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_error_while_processing(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        event_handler = TestingEventHandler()
-        processor = ErrorProcessor([event_handler], "txt", "txt")
-        self.assertRaises(
-            FailedProcessingException,
-            processor.process,
-            source_path,
-            destination_path
-        )
+        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
         self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_processor_is_processor_with_destination_folder_instance(self):
-        event_handler = TestingEventHandler()
-        processor = DestinationFolderSubClass([event_handler], "txt", "txt")
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        processor.process(source_path, destination_path)
+        self.__execute_monitored_processor_with_destination_folder_sub_class()
         self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_finished_all_files_with_single_file(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_file()
         self.assertEqual(1, ns.amount_of_finished_all_files_calls)
 
     def test_finished_all_files_with_multiple_files(self):
-        source_path = os.path.join(".", "TestData", "testFolder")
-        destination_path = os.path.join(".", "TestData", "testOutput")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_folder()
         self.assertEqual(1, ns.amount_of_finished_all_files_calls)
 
     def test_finished_all_files_with_no_files(self):
-        source_path = os.path.join(".", "TestData", "emptyFolder")
-        destination_path = os.path.join(".", "TestData", "testOutput")
         self.assertRaises(
-            ValueError,
-            self.execute_simple_processing_and_get_event_handler,
-            source_path, destination_path
-        )
-
-    def test_finished_all_files_with_two_event_handlers(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 2)
-        self.assertEqual(
-            2, ns.amount_of_finished_all_files_calls
-        )
-
-    def test_finished_all_files_with_no_event_handler(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 0)
-        self.assertEqual(
-            0, ns.amount_of_finished_all_files_calls
-        )
-
-    def test_finished_all_files_with_error_while_processing(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        event_handler = TestingEventHandler()
-        processor = ErrorProcessor([event_handler], "txt", "txt")
-        self.assertRaises(
-            FailedProcessingException,
-            processor.process,
-            source_path,
-            destination_path
+            ValueError, self.__execute_simple_processing_from_folder,
+            source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_finished_all_files_calls)
 
+    def test_finished_all_files_with_two_event_handlers(self):
+        self.__execute_simple_processing_from_file(2)
+        self.assertEqual(2, ns.amount_of_finished_all_files_calls)
+
+    def test_finished_all_files_with_no_event_handler(self):
+        self.__execute_simple_processing_from_file(0)
+        self.assertEqual(0, ns.amount_of_finished_all_files_calls)
+
+    def test_finished_all_files_with_error_while_processing(self):
+        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
+        self.assertEqual(0, ns.amount_of_finished_all_files_calls)
+
     def test_finished_all_files_with_processor_is_processor_with_destination_folder_instance(self):
-        event_handler = TestingEventHandler()
-        processor = DestinationFolderSubClass([event_handler], "txt", "txt")
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        processor.process(source_path, destination_path)
+        self.__execute_monitored_processor_with_destination_folder_sub_class()
         self.assertEqual(1, ns.amount_of_finished_all_files_calls)
 
     def test_preprocess_with_single_file(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_file()
         self.assertEqual(1, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_multiple_files(self):
-        source_path = os.path.join(".", "TestData", "testFolder")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_folder()
         self.assertEqual(2, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_no_files(self):
-        source_path = os.path.join(".", "TestData", "emptyFolder")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
         self.assertRaises(
-            ValueError,
-            self.execute_simple_processing_and_get_event_handler,
-            source_path, destination_path
+            ValueError, self.__execute_simple_processing_from_folder,
+            source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_two_event_handlers(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 2)
+        self.__execute_simple_processing_from_file(2)
         self.assertEqual(2, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_no_event_handler(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 2)
-        self.assertEqual(2, ns.amount_of_preprocess_calls)
+        self.__execute_simple_processing_from_file(0)
+        self.assertEqual(0, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_error_while_processing(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        event_handler = TestingEventHandler()
-        processor = ErrorProcessor([event_handler], "txt", "txt")
-        self.assertRaises(
-            FailedProcessingException,
-            processor.process,
-            source_path,
-            destination_path
-        )
+        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
         self.assertEqual(1, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_processor_is_processor_with_destination_folder_instance(self):
-        event_handler = TestingEventHandler()
-        processor = DestinationFolderSubClass([event_handler], "txt", "txt")
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        processor.process(source_path, destination_path)
-        self.assertEqual(1, ns.amount_of_preprocess_calls)
+        self.__execute_monitored_processor_with_destination_folder_sub_class()
+        self.assertEqual(1, ns.amount_of_finished_all_files_calls)
 
     def test_postprocess_with_single_file(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "result.txt")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_file()
         self.assertEqual(1, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_multiple_files(self):
-        source_path = os.path.join(".", "TestData", "testFolder")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path)
+        self.__execute_simple_processing_from_folder()
         self.assertEqual(2, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_no_files(self):
-        source_path = os.path.join(".", "TestData", "emptyFolder")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
         self.assertRaises(
-            ValueError,
-            self.execute_simple_processing_and_get_event_handler,
-            source_path, destination_path
+            ValueError, self.__execute_simple_processing_from_folder,
+            source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
-
         self.assertEqual(0, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_two_event_handlers(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 2)
+        self.__execute_simple_processing_from_file(2)
         self.assertEqual(2, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_no_event_handler(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        self.execute_simple_processing_and_get_event_handler(source_path, destination_path, 0)
+        self.__execute_simple_processing_from_file(0)
         self.assertEqual(0, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_error_while_processing(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        event_handler = TestingEventHandler()
-        processor = ErrorProcessor([event_handler], "txt", "txt")
-        self.assertRaises(
-            FailedProcessingException,
-            processor.process,
-            source_path,
-            destination_path
-        )
+        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
         self.assertEqual(0, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_processor_is_processor_with_destination_folder_instance(self):
-        event_handler = TestingEventHandler()
-        processor = DestinationFolderSubClass([event_handler], "txt", "txt")
-        source_path = os.path.join(".", "TestData", "empty.txt")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
-        processor.process(source_path, destination_path)
+        self.__execute_monitored_processor_with_destination_folder_sub_class()
         self.assertEqual(1, ns.amount_of_postprocess_calls)
 
     @classmethod
