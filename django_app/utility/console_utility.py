@@ -21,20 +21,16 @@ class ConsoleUtility:
         return cls.YELLOW + str(file) + cls.END
 
     @classmethod
-    def print_stats(cls, orig: int, result: int, compressed_value: str) -> None:
+    def print_stats(cls, orig: int, result: int) -> None:
         if not cls.quiet_mode:
             if orig < 0:
                 raise ValueError("orig must be greater than or equal to 0")
             if result < 0:
                 raise ValueError("result can't be less than 0")
-
-            if orig == 0:
-                cls.print(cls.GREEN + f"Compressed {compressed_value} from 0 to {result}")
-            else:
-                cls.print(
-                    cls.GREEN + f"Compressed {compressed_value} from " + str(round(orig / 1000000, 2)) + "mb to " + str(
-                        round(result / 1000000, 2)) + "mb (-" + str(
-                        round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
+            orig_size = str(round(orig / 1000000, 2))
+            result_size = str(round(result / 1000000, 2))
+            percentage = 0 if orig == 0 else str(-1 * round(100 - (result / orig * 100), 2))
+            cls.print_green(f"Compressed Files. Size: from {orig_size}mb to {result_size}mb ({percentage}%)\n")
 
     @classmethod
     def print_error(cls, string: str) -> None:
