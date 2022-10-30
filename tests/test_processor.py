@@ -4,46 +4,12 @@ import multiprocessing
 from unittest import TestCase
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
-from django_app.plugin_system.processing_classes.processor import Processor
-from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
+from tests.help_classes import SimpleExampleProcessor, ErrorProcessor, DestinationFolderSubClass, \
+    FailedProcessingException
 
 manager = multiprocessing.Manager()
 ns = manager.Namespace()
 lock = manager.Lock()
-
-
-class SimpleExampleProcessor(Processor):
-    def __init__(self, event_handler: [EventHandler]):
-        super().__init__(event_handler, ["txt"], "txt")
-
-    def process_file(self, source_file: str, destination_path: str) -> None:
-        self.preprocess(source_file, destination_path)
-        shutil.copyfile(source_file, destination_path)
-        self.postprocess(source_file, destination_path)
-
-
-class FailedProcessingException(Exception):
-    pass
-
-
-class ErrorProcessor(Processor):
-    def __init__(self, event_handlers: list[EventHandler]):
-        super().__init__(event_handlers, ["txt"], "txt")
-
-    def process_file(self, source_file: str, destination_path: str) -> None:
-        self.preprocess(source_file, destination_path)
-        raise FailedProcessingException
-        self.postprocess(source_file, destination_path)
-
-
-class DestinationFolderSubClass(ProcessorWithDestinationFolder):
-    def __init__(self, event_handlers: list[EventHandler]):
-        super().__init__(event_handlers, ["txt"], "txt")
-
-    def process_file(self, source_file: str, destination_path: str) -> None:
-        self.preprocess(source_file, destination_path)
-        shutil.copyfile(source_file, destination_path)
-        self.postprocess(source_file, destination_path)
 
 
 class TestingEventHandler(EventHandler):
