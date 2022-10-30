@@ -312,4 +312,6 @@ class TestProcessor(TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        shutil.rmtree(os.path.join(".", "temporary_files"))
+        temp_dir = os.path.join(".", "temporary_files")
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
