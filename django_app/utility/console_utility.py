@@ -47,6 +47,6 @@ class ConsoleUtility:
         cls.print_ansi_colored_string(cls.GREEN, string)
 
     @classmethod
-    def print(cls, string: str) -> None:
+    def print(cls, string: str = "") -> None:
         if not cls.quiet_mode:
             print(string)
