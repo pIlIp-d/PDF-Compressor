@@ -48,6 +48,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
             return string if not string.endswith(".") else string[1:]
 
         self._file_type_from = [without_dot_at_the_beginning(t).lower() for t in file_type_from]
+        if file_type_to == "":
+            raise ValueError("file_type_to cant be empty!")
         self._file_type_to = without_dot_at_the_beginning(file_type_to).lower()
         self._run_multi_threaded = run_multi_threaded
 
