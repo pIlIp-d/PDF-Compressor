@@ -23,15 +23,18 @@ class ConsoleUtility:
     @classmethod
     def print_stats(cls, orig: int, result: int, compressed_value: str) -> None:
         if not cls.quiet_mode:
-            if orig <= 0:
-                raise ValueError("orig must be greater than 0")
+            if orig < 0:
+                raise ValueError("orig must be greater than or equal to 0")
             if result < 0:
                 raise ValueError("result can't be less than 0")
 
-            cls.print(
-                cls.GREEN + f"Compressed {compressed_value} from " + str(round(orig / 1000000, 2)) + "mb to " + str(
-                    round(result / 1000000, 2)) + "mb (-" + str(
-                    round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
+            if orig == 0:
+                cls.print(cls.GREEN + f"Compressed {compressed_value} from 0 to {result}")
+            else:
+                cls.print(
+                    cls.GREEN + f"Compressed {compressed_value} from " + str(round(orig / 1000000, 2)) + "mb to " + str(
+                        round(result / 1000000, 2)) + "mb (-" + str(
+                        round(100 - (result / orig * 100), 2)) + "%)" + cls.END)
 
     @classmethod
     def print_error(cls, string: str) -> None:
