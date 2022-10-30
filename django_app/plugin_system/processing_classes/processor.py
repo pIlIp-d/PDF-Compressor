@@ -3,6 +3,7 @@ import uuid
 from abc import ABC, abstractmethod
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
+from functools import reduce
 
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
@@ -20,7 +21,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def __init__(
             self,
             event_handlers: list[EventHandler],
-            file_type_from: str,
+            file_type_from: list[str],
             file_type_to: str,
             can_merge: bool = False,
             run_multi_threaded: bool = True,
@@ -28,8 +29,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
         """
         abstract class that simplifies file processing by only implementing process_file in subclasses
         :param event_handlers: list of EventHandlers of which the events are called in every stage of Processing
-        :param file_type_from: source_files type TODO mime type
-        :param file_type_to: type of result/processed files TODO mime type
+        :param file_type_from: list of source_files type e.g. ["png", "jpg", "jpeg"]
+        :param file_type_to: type of result/processed files
         :param can_merge: enables the _merge_files() method after processing all files<br>
                 -> _merge_files() must be implemented in subclass
         :param run_multi_threaded: allow to call process_file() for multiple files at the same time (multi threaded)
@@ -42,8 +43,12 @@ class Processor(Postprocessor, Preprocessor, ABC):
         self.__add_event_handler_processors()
         self._processed_files_appendix = "_processed"
         self._can_merge = can_merge
-        self._file_type_from = file_type_from.lower()
-        self._file_type_to = file_type_to.lower()
+
+        def without_dot_at_the_beginning(string):
+            return string if not string.endswith(".") else string[1:]
+
+        self._file_type_from = [without_dot_at_the_beginning(t).lower() for t in file_type_from]
+        self._file_type_to = without_dot_at_the_beginning(file_type_to).lower()
         self._run_multi_threaded = run_multi_threaded
 
     def __add_event_handler_processors(self) -> None:
@@ -107,7 +112,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
         length of source_files and destination_files needs to be equal
         :param source_files: list of source files
         :param destination_files: list of destination files/directories depending on the implementation of superclass
-        :param cpu_count: cpu cores on which the process_file calls are distributed to
         """
         args_list = [{"source_file": source, "destination_path": destination}
                      for source, destination in zip(source_files, destination_files)]
@@ -150,9 +154,15 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def _destination_path_string_is_file(self, path) -> bool:
         return path.lower().endswith(self._file_type_to.lower())
 
+    def _get_sources_files_by_file_type_from(self, source_path) -> list[str]:
+        return list(set(reduce(
+            lambda a, file_ending: a + OsUtility.get_file_list(source_path, file_ending),
+            self._file_type_from, []
+        )))
+
     def __get_files_and_extra_info_from_input_folder(self, source_path, destination_path
                                                      ) -> tuple[list[str], list[str], bool, bool]:
-        sources = OsUtility.get_file_list(source_path, self._file_type_from)
+        sources = self._get_sources_files_by_file_type_from(source_path)
         result_is_file = self._destination_path_string_is_file(destination_path)
         output_folder = source_path + self._processed_files_appendix if destination_path == "default" else destination_path
         # if destination file is specified but the program can skip merging, because there only is one file
@@ -270,10 +280,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
             end_size = OsUtility.get_file_size(temporary_merge_file)
         else:
             end_size = sum(OsUtility.get_filesize_list(temporary_destination_file_list))
-        # TODO move all (non-error) prints out of this class
-        if len(source_file_list) > 1:
-            ConsoleUtility.print_stats(sum(orig_sizes), end_size, "All Files")
-            ConsoleUtility.print("\n")
+
+        ConsoleUtility.print_stats(sum(orig_sizes), end_size)
 
         if is_merging and not is_splitting:
             OsUtility.move_file(temporary_merge_file, destination_path)
