@@ -68,9 +68,15 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
     @classmethod
     def _custom_map_execute(cls, method, args_list: list) -> None:
+        futures = []
         with ProcessPoolExecutor() as executor:
             for method_parameter in args_list:
-                executor.submit(method, **method_parameter)
+                futures.append(executor.submit(method, **method_parameter))
+        # finally raise occurred exceptions
+        for future in futures:
+            exception = future.exception()
+            if exception is not None:
+                raise exception
 
     @abstractmethod
     def process_file(self, source_file: str, destination_path: str) -> None:
@@ -211,7 +217,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
         if destination_path == "merge":
             source_dir = source_path if os.path.isdir(source_path) else os.path.dirname(source_path)
             destination_path = os.path.join(
-                source_dir + "_processed", "merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
+                source_dir + "_processed",
+                "merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
             )
         source_file_list, destination_path_list, is_merging, is_splitting = self._get_files_and_extra_info(
             source_path,
