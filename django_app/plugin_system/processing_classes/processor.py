@@ -194,6 +194,14 @@ class Processor(Postprocessor, Preprocessor, ABC):
         # sources, destinations, is_merging, is_splitting
         return [source_path], [output_path], False, False
 
+    def _get_merge_destination(self, source_path):
+        def get_filename_ending():
+            return "_merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
+        if os.path.isdir(source_path):
+            return os.path.join(source_path + "_processed", get_filename_ending())
+        else:
+            return ".".join(source_path.split(".")[:-1]) + get_filename_ending()
+
     def _get_files_and_extra_info(self, source_path, destination_path) -> tuple[list[str], list[str], bool, bool]:
         """
         :param source_path:
@@ -228,12 +236,9 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         # get usable lists of source, destination files
         force_merge = destination_path == "merge"
-        if destination_path == "merge":
-            source_dir = source_path if os.path.isdir(source_path) else os.path.dirname(source_path)
-            destination_path = os.path.join(
-                source_dir + "_processed",
-                "merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
-            )
+        if force_merge:
+            destination_path = self._get_merge_destination(source_path)
+
         source_file_list, destination_path_list, is_merging, is_splitting = self._get_files_and_extra_info(
             source_path,
             destination_path
