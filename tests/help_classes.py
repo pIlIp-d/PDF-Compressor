@@ -72,6 +72,16 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
         self.postprocess(source_file, destination_path)
 
 
+class SimpleMultiThreadTestProcessor(Processor):
+    def __init__(self, event_handlers: list, run_multi_threaded: bool):
+        super().__init__(event_handlers, ["txt"], "txt", run_multi_threaded)
+
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
+        shutil.copyfile(source_file, destination_path)
+        self.postprocess(source_file, destination_path)
+
+
 def clean_up_after_class():
     temp_dir = os.path.join(".", "temporary_files")
     if os.path.exists(temp_dir):
