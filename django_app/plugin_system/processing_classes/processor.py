@@ -245,6 +245,9 @@ class Processor(Postprocessor, Preprocessor, ABC):
         )
         is_merging = force_merge or is_merging
 
+        if is_merging and not self._can_merge:
+            raise ValueError("Merging is not supported for this Processor. " + str(self))
+
         if len(source_file_list) == 0:
             raise ValueError("No files to Processed were found in the source_path.")
 
@@ -261,8 +264,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         temporary_merge_file = None
         if is_merging:
-            if not self._can_merge:
-                raise ValueError("Merging is not supported for this Processor. " + str(self))
             temporary_merge_file = OsUtility.get_path_without_file_ending(
                 temporary_destination_file_list[0]) + "_merged." + self._file_type_to
 
