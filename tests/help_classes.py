@@ -49,3 +49,9 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
         self.preprocess(source_file, destination_path)
         shutil.copyfile(source_file, destination_path)
         self.postprocess(source_file, destination_path)
+
+
+def clean_up_after_class():
+    temp_dir = os.path.join(".", "temporary_files")
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
