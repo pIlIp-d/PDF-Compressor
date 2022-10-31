@@ -4,7 +4,7 @@ import shutil
 from unittest import TestCase
 
 from django_app.utility.os_utility import OsUtility
-from .help_classes import SimpleProcessorForFileTypes, clean_up_after_class
+from tests.help_classes import SimpleProcessorForFileTypes, clean_up_after_class
 
 manager = multiprocessing.Manager()
 ns = manager.Namespace()
