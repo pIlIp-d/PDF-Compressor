@@ -282,9 +282,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
         if is_merging:
             # move merge result to destination
             self._merge_files(sorted(temporary_destination_file_list), temporary_merge_file)
-            ConsoleUtility.print_green(
-                f"Merged All Files into {ConsoleUtility.get_file_string(temporary_merge_file)}"
-            )
 
         if is_merging:
             end_size = OsUtility.get_file_size(temporary_merge_file)
@@ -302,6 +299,10 @@ class Processor(Postprocessor, Preprocessor, ABC):
             for temp_destination, destination in zip(temporary_destination_file_list, destination_path_list):
                 if os.path.isfile(temp_destination):
                     OsUtility.move_file(temp_destination, destination)
+        if is_merging:
+            ConsoleUtility.print_green(
+                f"Merged All Files into {ConsoleUtility.get_file_string(destination_path)}"
+            )
 
         OsUtility.clean_up_folder(temp_folder)
 
