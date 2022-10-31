@@ -228,11 +228,11 @@ class Processor(Postprocessor, Preprocessor, ABC):
         implements advanced checks, behaviour, optimization for process_file<br>
         supports different situations and improves compatibility
         :param source_path: either path to a file or a folder
-        :param destination_path: path to a file, a folder, "default" or "merge"
+        :param destination_path: path to a file, folder, "default" or "merge"
         specific behavior is defined by _get_files_and_extra_info() and can be changed by overwriting the method
         """
         if not os.path.exists(source_path):
-            raise ValueError("No File or Folder was found at the given source_path.")
+            raise ValueError(f"No File or Folder was found at the given source_path. '{source_path}'")
 
         # get usable lists of source, destination files
         force_merge = destination_path == "merge"
@@ -281,7 +281,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         if is_merging:
             # move merge result to destination
-            self._merge_files(temporary_destination_file_list, temporary_merge_file)
+            self._merge_files(sorted(temporary_destination_file_list), temporary_merge_file)
             ConsoleUtility.print_green(
                 f"Merged All Files into {ConsoleUtility.get_file_string(temporary_merge_file)}"
             )
