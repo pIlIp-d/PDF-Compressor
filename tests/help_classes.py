@@ -1,3 +1,4 @@
+import os
 import shutil
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
@@ -25,6 +26,26 @@ class SimpleProcessorForFileTypes(Processor):
             raise ValueError("can't convert to that file type")
         shutil.copyfile(source_file, destination_path)
         self.postprocess(source_file, destination_path)
+
+
+class SimpleFakeMergeProcessor(Processor):
+    # used for testing can_merge but doesn't implement the _merge_files method
+    def __init__(self, can_merge: bool):
+        super().__init__([], ["txt"], "txt", can_merge=can_merge)
+
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
+        shutil.copyfile(source_file, destination_path)
+        self.postprocess(source_file, destination_path)
+
+
+class SimpleMergeProcessor(SimpleFakeMergeProcessor):
+    # used for testing can_merge and implements the _merge_files method
+    def _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
+        with open(merged_result_file, "w") as result_file:
+            for file in file_list:
+                with open(file) as f:
+                    result_file.write(f.read())
 
 
 class FailedProcessingException(Exception):
