@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from tests.help_classes import SimpleExampleProcessor, ErrorProcessor, DestinationFolderSubClass, \
-    FailedProcessingException
+    FailedProcessingException, clean_up_after_class
 
 manager = multiprocessing.Manager()
 ns = manager.Namespace()
@@ -202,6 +202,4 @@ class TestProcessor(TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        temp_dir = os.path.join(".", "temporary_files")
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
+        clean_up_after_class()

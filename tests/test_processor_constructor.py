@@ -4,7 +4,7 @@ import shutil
 from unittest import TestCase
 
 from django_app.utility.os_utility import OsUtility
-from tests.help_classes import SimpleProcessorForFileTypes
+from .help_classes import SimpleProcessorForFileTypes, clean_up_after_class
 
 manager = multiprocessing.Manager()
 ns = manager.Namespace()
@@ -78,3 +78,7 @@ class TestProcessorConstructor(TestCase):
 
     def test_process_file_type_to_is_valid_string(self):
         self.__execute_processor(file_type_to="txt")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        clean_up_after_class()
