@@ -11,7 +11,7 @@ ns = manager.Namespace()
 lock = manager.Lock()
 
 
-class TestProcessorConstructor(TestCase):
+class TestProcessorConstructorFileTypes(TestCase):
 
     def __execute_processor(
             self,
