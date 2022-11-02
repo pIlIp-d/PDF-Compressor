@@ -28,15 +28,19 @@ class PdfToImageConverter(ProcessorWithDestinationFolder):
     def process_file(self, source_file: str, destination_path: str) -> None:
         # create destination directory if not already exists
 
-        print("METHODE", source_file, destination_path)
         ConsoleUtility.print("--splitting pdf into images--")
 
         # open pdf and split it into rgb-pixel maps -> png
         doc = fitz.open(source_file)
+        chars_needed_for_highest_page_number = len(str(len(doc)))
+
+        def get_page_number_string(page_num: int) -> str:
+            raw_num = str(page_num)
+            return "0" * (chars_needed_for_highest_page_number - len(raw_num)) + raw_num
+
         for page in doc:
             ConsoleUtility.print(f"** - Finished Page {page.number + 1}/{len(doc)}")
             pix = page.get_pixmap(dpi=self.__dpi)
-            page_number = str(page.number + 1) if page.number + 1 >= 10 else "0" + str(
-                page.number + 1)  # TODO support pages/ numbers over 100 properly
+            page_number = get_page_number_string(page.number + 1)
             pix.save(os.path.join(destination_path, '%s_page_%s.%s' %
                                   (OsUtility.get_filename(source_file), page_number, self._file_type_to)))
