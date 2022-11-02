@@ -20,7 +20,7 @@ class PdfToImageConverter(ProcessorWithDestinationFolder):
     ):
         if file_type_to.lower() not in self.SUPPORTED_FILETYPES:
             raise ValueError(f"{file_type_to} is not supported.")
-        super().__init__(event_handlers, "pdf", file_type_to, False, True)
+        super().__init__(event_handlers, ["pdf"], file_type_to, False, True)
         if dpi < 0:
             raise ValueError("default dpi needs to be greater than 0")
         self.__dpi = dpi

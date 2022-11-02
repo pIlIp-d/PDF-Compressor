@@ -10,7 +10,7 @@ from django_app.utility.os_utility import OsUtility
 class AbstractImageCompressor(Processor, ABC):
     def __init__(
             self,
-            file_type_from: str = "png",
+            file_type_from: list[str] = "png",
             file_type_to: str = "png",
             event_handlers=None,
             run_multi_threaded: bool = True

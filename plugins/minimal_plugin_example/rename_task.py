@@ -19,7 +19,7 @@ class RenamePngTask(ProcessingTask):
 class Renamer(ProcessorWithDestinationFolder):
     def __init__(self, new_filename_prefix: str, event_handlers: list[EventHandler], file_type_from: str,
                  file_type_to: str):
-        super().__init__(event_handlers, file_type_from, file_type_to)
+        super().__init__(event_handlers, [file_type_from], file_type_to)
         self._new_filename_prefix = new_filename_prefix
 
     def process_file(self, source_file: str, destination_path: str) -> None:
