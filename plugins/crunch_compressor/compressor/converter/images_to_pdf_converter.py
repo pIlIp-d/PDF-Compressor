@@ -35,7 +35,7 @@ class ImagesToPdfConverter(Processor):
             tessdata_prefix: str = "",
             event_handlers=None
     ):
-        super().__init__(event_handlers, "", "pdf", True, True)
+        super().__init__(event_handlers, ["png", "jpeg", "jpg"], "pdf", True, True)  # TODO from_file_types
         if force_ocr and no_ocr:
             raise ValueError("force_ocr and no_ocr can't be used together")
         self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE and pytesseract_path is not None

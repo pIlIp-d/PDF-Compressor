@@ -14,7 +14,7 @@ class AbstractPngCompressor(AbstractImageCompressor, ABC):
     ):
         super().__init__(
             event_handlers=event_handlers,
-            file_type_from="png",
+            file_type_from=["png"],
             file_type_to="png",
             run_multi_threaded=run_multi_threaded
         )

@@ -12,7 +12,7 @@ class AbstractPdfProcessor(Processor, ABC):
             event_handlers=None,
             run_multi_threaded: bool = True,
     ):
-        super().__init__(event_handlers, "pdf", "pdf", True, run_multi_threaded)
+        super().__init__(event_handlers, ["pdf"], "pdf", True, run_multi_threaded)
 
     def _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
         merger = fitz.open()
