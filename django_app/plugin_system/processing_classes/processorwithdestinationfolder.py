@@ -7,7 +7,7 @@ from django_app.utility.os_utility import OsUtility
 
 class ProcessorWithDestinationFolder(Processor, ABC):
     def _get_files_and_extra_info(self, source_path, destination_path) -> tuple[list[str], list[str], bool, bool]:
-        sources = OsUtility.get_file_list(source_path, self._file_type_from) if os.path.isdir(source_path) else [
+        sources = self._get_sources_files_by_file_type_from(source_path) if os.path.isdir(source_path) else [
             source_path]
         if os.path.isfile(source_path):
             output_path = OsUtility.get_path_without_file_ending(
