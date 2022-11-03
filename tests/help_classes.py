@@ -4,6 +4,7 @@ import shutil
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
+from django_app.utility.os_utility import OsUtility
 
 
 class SimpleExampleProcessor(Processor):
@@ -68,7 +69,7 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         self.preprocess(source_file, destination_path)
-        shutil.copyfile(source_file, destination_path)
+        shutil.copy(source_file, destination_path)
         self.postprocess(source_file, destination_path)
 
 
