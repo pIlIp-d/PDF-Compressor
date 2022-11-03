@@ -4,7 +4,7 @@ from django.db import models
 
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
-from django_app.webserver.string_utility import StringUtility
+from django_app.utility.string_utility import StringUtility
 
 
 class ProcessedFile(models.Model):

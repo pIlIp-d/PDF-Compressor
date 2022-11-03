@@ -3,7 +3,7 @@ from abc import ABC
 from django_app.task_scheduler.tasks.task import Task
 from django_app.task_scheduler.processing_event_handler import ProcessingEventHandler
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.webserver.string_utility import StringUtility
+from django_app.utility.string_utility import StringUtility
 
 
 class ProcessingTask(Task, ABC):

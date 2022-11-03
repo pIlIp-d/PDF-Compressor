@@ -3,7 +3,7 @@ from time import strftime
 
 from django.db import models
 
-from django_app.webserver.string_utility import StringUtility
+from django_app.utility.string_utility import StringUtility
 
 
 class ProcessingFilesRequest(models.Model):

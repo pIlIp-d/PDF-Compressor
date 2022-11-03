@@ -4,7 +4,7 @@ import os
 from django.db import models
 
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.webserver.string_utility import StringUtility
+from django_app.utility.string_utility import StringUtility
 from django_app.webserver.validators import check_file_extension, check_file_size, get_file_extension
 
 
