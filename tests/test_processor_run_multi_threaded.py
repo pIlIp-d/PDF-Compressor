@@ -38,6 +38,9 @@ class TestProcessorConstructorRunMultiThreaded(TestCase):
     def test_many_files_without_run_multi_threaded(self):
         self.__run_processing_for_many_files(False)
 
+    def test_run_and_compare_multi_threaded_executions(self):
+        self.assertTrue(self.__run_processing_for_many_files(True) < self.__run_processing_for_many_files(False))
+
     @classmethod
     def tearDownClass(cls) -> None:
         clean_up_after_class()
