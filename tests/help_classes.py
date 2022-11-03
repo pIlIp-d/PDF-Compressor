@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from django_app.plugin_system.processing_classes.processor import Processor
@@ -75,10 +76,11 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
 
 class SimpleMultiThreadTestProcessor(Processor):
     def __init__(self, event_handlers: list, run_multi_threaded: bool):
-        super().__init__(event_handlers, ["txt"], "txt", run_multi_threaded)
+        super().__init__(event_handlers, ["txt"], "txt", run_multi_threaded=run_multi_threaded)
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         self.preprocess(source_file, destination_path)
+        time.sleep(0.001)
         shutil.copyfile(source_file, destination_path)
         self.postprocess(source_file, destination_path)
 
