@@ -11,7 +11,7 @@ from django_app.webserver.validators import get_file_extension
 from django_app.task_scheduler.tasks.zip_task import ZipTask
 from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.webserver.string_utility import StringUtility
+from django_app.utility.string_utility import StringUtility
 from django_app.utility.os_utility import OsUtility
 
 
