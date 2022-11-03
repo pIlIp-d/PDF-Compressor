@@ -56,7 +56,6 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def __add_event_handler_processors(self) -> None:
         for event_handler in self._event_handlers:
             self.add_preprocessor(event_handler)
-        for event_handler in self._event_handlers:
             self.add_postprocessor(event_handler)
 
     def add_preprocessor(self, processor: Preprocessor) -> None:
