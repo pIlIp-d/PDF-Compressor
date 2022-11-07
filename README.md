@@ -19,10 +19,12 @@ Tesseract is optional for OCR - Optical Character Recognition
 
 ### Overview
 1. [clone Repo](#1-clone-repo)
-2. [Installing Tesseract if you want OCR](#2-installing-tesseract)
-3. [Install compression tools](#3-installing-compression-tools)
-4. [run `setup.py install --user`](#4-install-python-packages)
-5. [run `config.py`](#5-configure-dependency-paths)
+2. [Install python packages](#4-install-python-packages)
+3. [Webserver Setup](#3-webserver-setup)
+4. [Installing Tesseract if you want OCR](#2-installing-tesseract)
+5. [Install compression tools](#3-installing-compression-tools)
+6. [run `config.py`](#5-configure-dependency-paths)
+
 ----
 ### 1. Clone Repo
 ```bash
@@ -30,7 +32,30 @@ git clone https://github.com/pIlIp-d/PDF-Compressor
 ```
 
 ----
-### 2. Installing Tesseract
+### 2. Install Python Packages
+```bash
+cd <project-directory>
+pip install -r requirements.txt
+```
+or for specific python version 3.10
+```bash
+python3.10 -m pip install -r requirements.txt
+```
+
+### 3. Webserver Setup
+Setting up the Django DB
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+
+Start the webserver
+```bash
+python3 manage.py runserver
+```
+
+----
+### 4. Installing Tesseract
 #### Windows
 Download and Install [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki)  
 Select Additional Languages that you want. (f.e German under Additional Language Data)  
@@ -48,7 +73,7 @@ apt install tesseract-ocr-<language-shortform> -y
 apt install tesseract-ocr-deu -y
 ```
 ---
-### 3. Installing Compression Tools
+### 5. Installing Compression Tools
 #### windows
 pre-installed in compressor_lib directory (paths are already configured)
 
@@ -65,18 +90,8 @@ cpdfsqueeze is used via wine.
 apt install wine -y
 ```
 
-----
-### 4. Install Python Packages
-```bash
-cd <project-directory>
-pip install -r requirements.txt
-```
-or for specific python version 3.10
-```bash
-python3.10 -m pip install -r requirements.txt
-```
 ---
-### 5. Configure Dependency Paths
+### 6. Configure Dependency Paths
 Try to run `python3 <project-path>/config.py` and if there are no error messages you're good to go.  
 
 If there are errors or if you want to change a path you can configure it inside `config.py` by changing the paths for each dependency for your OS.
