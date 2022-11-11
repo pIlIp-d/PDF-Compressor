@@ -12,4 +12,5 @@ urlpatterns = [
     path('started_processing/', views.started_processing),
     path('get_form_html_for_web_view/', views.get_form_html_for_web_view),
     path('get_allowed_input_file_types/', views.get_allowed_input_file_types),
+    path('get_all_files_request_ids/', views.get_all_files_request_ids),
 ]
