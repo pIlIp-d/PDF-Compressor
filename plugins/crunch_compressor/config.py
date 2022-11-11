@@ -6,6 +6,7 @@ import jsons
 from django_app.utility.console_utility import ConsoleUtility
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), ".", "config.json")
+FORCE_WINE = False
 
 
 def get_config(config_file: str = CONFIG_FILE):
@@ -51,8 +52,7 @@ def main():
         error_message="cpdfsqueeze path not found. You need to install or download it. cpdfsqueeze.exe run by wine"
     )
     wine_path = ""
-
-    if os.name == "nt":
+    if os.name == "nt" or FORCE_WINE:
         # WINDOWS
         pngquant_path = check_existence(
             os.path.join(compressor_lib_path, "pngquant", "pngquant.exe"),
@@ -75,6 +75,14 @@ def main():
             os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'Programs', 'Tesseract-OCR', 'tessdata'),
             "Tessdata Folder wasn't found. check README.md for help."
         ) + "'"
+        if FORCE_WINE:
+            wine_path = check_existence(
+                path=os.path.join("/", "usr", "bin", "wine"),
+                error_message="wine wasn't found and is needed for FORCE_WINE. Install it with 'sudo apt install wine'."
+            )
+            pngquant_path = wine_path + pngquant_path
+            advpng_path = wine_path + advpng_path
+            pngcrush_path = wine_path + pngcrush_path
     else:
         # LINUX
         pngquant_path = check_existence(
