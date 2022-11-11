@@ -50,11 +50,21 @@ group api
             Django -[#blue]-> Client: no file found
             deactivate Django
        end
+====
+
+    Client o-[#blue]> Django: get_all_files_request_ids
+    activate Django
+    Django -> DB: get ProcessingFileRequests of user
+    activate DB
+    DB --> Django: list of ProcessingFileRequests
+    deactivate DB
+    Django -[#blue]-> Client: list of request_ids
+    deactivate Django
 
 ====
-    Client o-[#blue]> Django: get_all_files
+    Client o-[#blue]> Django: get_all_files_of_request -> request_id
     activate Django
-    Django -> DB: ProcessedFile.get_all_processing_files(user_id)
+    Django -> DB: ProcessedFile.get_all_processing_files(user_id, request_id)
     activate DB
     DB --> Django: json of files
     deactivate DB
