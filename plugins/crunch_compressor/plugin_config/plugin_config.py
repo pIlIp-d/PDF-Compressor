@@ -38,14 +38,8 @@ class ImageToPdfConvertPlugin(Plugin):
     def __init__(self, name: str):
         super().__init__(
             name,
-            [
-                "image/jpeg",
-                "image/pjpeg",
-                "image/png",
-                "image/gif",
-                "image/svg+xml",
-                "image/webp",
-            ],
+            ['image/xbm', 'image/bmp', 'image/webp', 'image/icns', 'image/sgi', 'image/gif', 'image/png', 'image/jpeg',
+             'image/tiff', 'image/jp2'],
             "plugins.crunch_compressor.plugin_config.forms.ImageToPdfConvertForm",
             "plugins.crunch_compressor.plugin_config.tasks.ImageToPdfConvertTask"
         )
