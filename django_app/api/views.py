@@ -76,8 +76,9 @@ def get_all_files_request_ids(request):
 
 @csrf_protect
 @require_http_methods(["GET"])
-def get_all_files(request):
-    files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
+@requires_parameters("GET", ["request_id"])
+def get_all_files_of_request(request):
+    files_json = ProcessedFile.get_all_processing_files(request.session["user_id"],  request.GET.get("request_id"))
     return JsonResponse({"status": 200, "files": files_json}, status=200)
 
 
