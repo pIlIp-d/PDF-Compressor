@@ -69,6 +69,13 @@ def finished_all_files(request):
 
 @csrf_protect
 @require_http_methods(["GET"])
+def get_all_files_request_ids(request):
+    processing_requests = ProcessingFilesRequest.objects.filter(user_id=request.session.get("user_id"))
+    return JsonResponse({"status": 200, "request_ids": [r.id for r in processing_requests]}, status=200)
+
+
+@csrf_protect
+@require_http_methods(["GET"])
 def get_all_files(request):
     files_json = ProcessedFile.get_all_processing_files(request.session["user_id"])
     return JsonResponse({"status": 200, "files": files_json}, status=200)
