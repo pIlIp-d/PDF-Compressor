@@ -40,14 +40,14 @@ These values can be used to run `<Processor>.process()` for your Plugin.
 # TODOs
 
 * **add remove all files button (per User) to download page**
-* **POST value validating with django forms (inside webserver/views.py)**
+* Selenium Tests
+* POST value validating with django forms (inside webserver/views.py)**
 * /media folder memory management (capacity per user etc.)
 * GarbageCollector (regular cleanup of old Tasks, /media folder, /temporary_files folder)
   * deletes request, if it has no files
 * option reserve/strip meta data
 * option bookmarks
 * download view delete button per request (deletes corresponding request, tasks and files)
-* POST value validating with django forms
 * unittest with file_ending not all small chars
 * unittest with more than 1, 10, 100 sites
 * display errors in processing in the download view or somewhere else
