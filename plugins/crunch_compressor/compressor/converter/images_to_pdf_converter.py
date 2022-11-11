@@ -19,13 +19,14 @@ try:
 except:
     PY_TESS_AVAILABLE = False
 
-
 # TODO consoleUI processor
+possible_files_endings = ['.jpc', '.xbm', '.j2k', '.icns', '.png', '.bmp', '.jp2', '.apng', '.j2c', '.jpe', '.tif',
+                          '.rgb', '.tiff', '.jpx', '.bw', '.gif', '.jpg', '.jpf', '.jfif', '.rgba', '.sgi', '.webp',
+                          '.dib', '.jpeg']
 
 
 class ImagesToPdfConverter(Processor):
 
-    # TODO to see supported formats run 'python3.10 -m PIL'. needed are 'save' and 'open'
     def __init__(
             self,
             pytesseract_path: str = None,
@@ -33,9 +34,16 @@ class ImagesToPdfConverter(Processor):
             no_ocr: bool = False,
             tesseract_language: str = "deu",
             tessdata_prefix: str = "",
-            event_handlers=None
+            event_handlers=None,
+            file_types: list[str] = None
+
     ):
-        super().__init__(event_handlers, ["png", "jpeg", "jpg"], "pdf", True, True)  # TODO from_file_types
+        if file_types is None:
+            file_types = possible_files_endings
+        for file_type in file_types:
+            if file_type not in possible_files_endings:
+                raise ValueError("File type not supported: '%s'" % file_type)
+        super().__init__(event_handlers, file_types, "pdf", True, True)
         if force_ocr and no_ocr:
             raise ValueError("force_ocr and no_ocr can't be used together")
         self.force_ocr = (force_ocr or not no_ocr) and PY_TESS_AVAILABLE and pytesseract_path is not None
