@@ -25,6 +25,8 @@ or for specific python version 3.10
 python3.10 -m pip install -r requirements.txt
 ```
 
+----
+
 ### 3. Webserver Setup
 Setting up the Django DB
 ```bash
@@ -38,7 +40,6 @@ python3 manage.py runserver
 ```
 
 ----
-
 
 # List of known Plugins
 
