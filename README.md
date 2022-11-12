@@ -5,7 +5,7 @@ An Modular File processing tool. Enables file upload processing via plugins and 
 
 ### Overview
 1. [clone Repo](#1-clone-repo)
-2. [Install python packages](#4-install-python-packages)
+2. [Install python packages](#2-install-python-packages)
 3. [Webserver Setup](#3-webserver-setup)
 
 ----
@@ -40,10 +40,17 @@ python3 manage.py runserver
 ```
 
 ----
+# More Documentation
+
+More Documentation can be found [here](documentation).  
+How to create your own Plugin is documented [here](documentation/Plugin.md).
+
+
+----
 
 # List of known Plugins
 
-| Plugin Name      | Description                                                                                                        | Path                                                                | Credits         |
-|------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|-----------------|
-| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_ompressor](./plugins/crunch_compressor/README.md) | [Philip Dell](https://github.com/pIlIp-d) |
+| Plugin Name      | Description                                                                                                        | Path                                                              | Credits         |
+|------------------|--------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|-----------------|
+| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_ompressor](plugins/crunch_compressor/README.md) | [Philip Dell](https://github.com/pIlIp-d) |
 
