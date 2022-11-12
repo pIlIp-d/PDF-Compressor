@@ -42,7 +42,7 @@ python3 manage.py runserver
 
 # List of known Plugins
 
-| Plugin Name      | Description                                                                                                        | Path                                               | Credits         |
-|------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|-----------------|
-| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_ompressor](./plugins/crunch_ompressor/README.md) | [Philip Dell](https://github.com/pIlIp-d) |
+| Plugin Name      | Description                                                                                                        | Path                                                                | Credits         |
+|------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|-----------------|
+| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_ompressor](./plugins/crunch_compressor/README.md) | [Philip Dell](https://github.com/pIlIp-d) |
 
