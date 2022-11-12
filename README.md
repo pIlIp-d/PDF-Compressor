@@ -42,7 +42,7 @@ python3 manage.py runserver
 ----
 # More Documentation
 
-More Documentation can be found [here](documentation).  
+More Documentation can be found [here](documentation/README.md).  
 How to create your own Plugin is documented [here](documentation/Plugin.md).
 
 
