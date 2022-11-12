@@ -15,7 +15,6 @@
 
 ### Examples
 an implemented example can be found in `plugins/minimal_plugin_example/`
-
 ```python
 from django_app.plugin_system.plugin import Plugin
 

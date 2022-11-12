@@ -20,6 +20,16 @@ class Plugin(ABC):
             only_zip_as_result: bool = False,
             merger: bool = False
     ):
+        """
+        @param name: string that is displayed when the user chooses a plugin for processing
+        @param from_file_types: list of supported mimetypes for input files e.g. ["image/png, "image/jpg"] etc
+        @param form: string that represents the path to your FormSubclass, relative from the source of the project.
+                                                                                                Used for Python Import.
+        @param task: string that represents the path to your TaskSubclass, relative from the source of the project.
+                                                                                                Used for Python Import.
+        @param only_zip_as_result: if True you only deliver a single zip as result for each Processing Request
+        @param merger: true if the Processing Task can merge multiple input files into a single output file
+        """
         self.name = name
         self._from_file_types = from_file_types
         self._form = form
