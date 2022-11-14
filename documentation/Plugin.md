@@ -2,18 +2,17 @@
 
 ## Add a new Plugin
 
-* add a folder to `<project>/plugins/<your_plugin>`
-* add a [Plugin subclass](#Plugin-Class)
-* add a [ProcessingTask subclass](#Processing-Task)
-* add a [Plugin Form](#Plugin-Form)
-* add the reference inside `<project>/django_app/settings.py` -> `PROCESSOR_PLUGINS`
+1. add a folder to `<project>/plugins/<your_plugin>`
+2. add a [Plugin subclass](#Plugin-Class)
+3. add a [ProcessingTask subclass](#Processing-Task)
+4. add a [Plugin Form](#Plugin-Form)
+5. add the reference inside `<project>/django_app/settings.py` -> `PROCESSOR_PLUGINS`
 
 ## Plugin Class
 
 1. add constructor with all parameters to super call
 2. add a get_destination_types implementation
 
-### Examples
 an implemented example can be found in `plugins/minimal_plugin_example/`
 ```python
 from django_app.plugin_system.plugin import Plugin
@@ -63,21 +62,32 @@ class ExampleTask(ProcessingTask):
     #  optionally follow `settings.DEBUG` for your quiet mode/ print suppressing
     ###################
 ```
-### Event Handler Class
-
-every task should trigger certain events, that can be used by the program to determine progress or to apply different processing like zipping or console logging
+### Processor
+make file-processing much simpler by using the [Processor](../django_app/plugin_system/processing_classes/processor.py) class
 
 ```python
-class EventHandler(...):
-    # is called before your processing task starts
-    def started_processing(self): pass
-    # is called after all processing has been finished and the result files exist in the destination directory
-    def finished_all_files(self): pass
-    # call before each processing of a file
-    def preprocess(self, source_file: str, destination_file: str) -> None: pass
-    # call after each processing of a file has been finished with source_file as the unchanged starting file
-    # and destination_file the processed file
-    def postprocess(self, source_file: str, destination_file: str) -> None: pass
+from django_app.plugin_system.processing_classes.processor import Processor
+
+
+class MyProcessor(Processor):
+    def __init__(self, event_handlers: list):
+        super().__init__(
+            event_handlers,
+            # insert your allowed file endings
+            file_type_from=[".input_example1", ".example2", ".pdf"],
+            file_type_to=".result_example"
+        )
+
+    # you only need to implement process_file to enable processing for folders, files, etc 
+    def process_file(self, source_file: str, destination_path: str) -> None:
+        self.preprocess(source_file, destination_path)
+        #################
+        # your processing
+        #################
+        self.preprocess(source_file, destination_path)
+
+    # optionally you can implement _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
+    # to enable merging of a folder into a single file
 ```
 
 
@@ -125,7 +135,7 @@ class ExampleForm(PluginForm):
 # optionally implement get_hierarchy()
 ```
 
-! on choiceFields you need to have a comma after the last option inside choices
+IMPORTANT on choiceFields you need to have a comma after the last option inside choices
 ```
 name = forms.TypedChoiceField(
         choices=(
@@ -134,7 +144,7 @@ name = forms.TypedChoiceField(
         ...
 ```
 
-### Prototype Form Fields
+## Prototype Form Fields
 
 Fields that can be used for your form and that have functionality partially implemented already
 
@@ -147,7 +157,7 @@ merge_files = forms.BooleanField(
 )
 ```
 
-### PluginForm.get_hierarchy()
+## PluginForm.get_hierarchy()
 
 Define hierarchy to deactivate options depending on the state of other options
 returns a dictionary
