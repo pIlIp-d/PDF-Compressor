@@ -1,11 +1,9 @@
 # Django App
 
-
 ## System Overview
 ![Diagram of all Components and Relations](diagrams/images/components.png)
 
-## How it works
-
+See more diagrams [here](diagrams)
 
 ## Django
 Python Web-Backend
