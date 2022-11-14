@@ -5,7 +5,7 @@ box Server #pink
     participant Django
     database DB
 end box
-box Server-TaskScheduler
+box TaskScheduler Thread
     participant Task
     participant TaskScheduler
     participant TaskExecuterDaemon
