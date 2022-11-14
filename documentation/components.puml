@@ -2,30 +2,31 @@
 
     title Most important Components
     component Browser #pink
-    component Django
-    database models.sqlite3{
-        file UploadedFiles
+    component Django #lightblue
+    component TaskScheduler #violet
+    component Processors
+    database ProcessingFilesRequest{
         file ProcessedFiles
-        file Requests
+        file UploadedFiles
     }
-    Django -> models.sqlite3: uses
-
+    component Plugin {
+        component ProcessingTask
+        component PluginForm
+    }
     database tasks.sqlite3 {
         node Tasks
     }
-    Browser -down-> Django: requests
-    component TaskScheduler
-    TaskScheduler -up-> Tasks: runs / schedules
+
+    Django -down-> ProcessingFilesRequest: creates
+    Browser -right-> Django: requests
+    TaskScheduler -> Tasks: runs / schedules
     Tasks --> [ProcessingEventHandler]: signal events
-    ProcessingEventHandler -right-> Django: sends requests
+    ProcessingEventHandler --> Django: sends requests
 
-    component Plugin {
-        component ProcesingTask
-        component PluginForm
-    }
-    ProcesingTask -up-> Tasks: extends
-    component Processors
-    Tasks -left-> Processors: runs
-    Django --> Tasks: creates
-
+    ProcessingTask -down-|> Tasks
+    Tasks --> Processors: runs
+    Django -down-> ProcessingTask: creates
+    PluginForm -up-> Django: serves formular
+    Processors --> UploadedFiles: processes
+    Processors -> ProcessedFiles: creates
 @enduml
