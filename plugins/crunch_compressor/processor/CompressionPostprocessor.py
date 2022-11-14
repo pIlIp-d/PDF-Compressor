@@ -14,7 +14,7 @@ class CompressionPostprocessor(Postprocessor, ABC):
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
         # page_number is the first number in the filename
-        page_nuber = re.search(r'\d+', OsUtility.get_filename(source_file))[0]
+        page_nuber = re.search(r'\d+', OsUtility.get_filename(source_file))[0]  # toto filename with number inside
         ConsoleUtility.print(
             f"** - Compressed Page {page_nuber} with {self.__compressor_name}"
         )
