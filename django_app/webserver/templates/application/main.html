@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <script src="{{ dir }}static/dropzone/dropzone.js"></script>
     <link rel="stylesheet" href="{{ dir }}static/dropzone/dropzone.css">
-
     <link rel="stylesheet" href="{{ dir }}static/style.css">
     <link rel="stylesheet" href="{{ dir }}static/variables.css">
     <link rel="stylesheet" href="{{ dir }}static/helptext.css">
@@ -13,12 +12,13 @@
     <script defer src="{{ dir }}static/script/forms.js"></script>
     <script defer src="{{ dir }}static/script/changeable.js"></script>
     <script defer src="{{ dir }}static/script/dropzone_form.js"></script>
-    <noscript><p>Your Browser doesn't support JavaScript.</p></noscript>
 
     <title>Croco-File-Crusher</title>
 </head>
 
 <body>
+<noscript><p>Your Browser doesn't support JavaScript.</p></noscript>
+
 <script>
     let allowed_file_endings = [];
     let ROOT_DIR = "{{ dir }}";
