@@ -11,11 +11,10 @@
       3. [Plugin Form](#Plugin-Form)
 4. [TODOs](#TODOs)
 
-## start the web-app
-
-`python3 manage.py runserver`
-
 _____
+
+# System Overview
+![All Components and Relations](components.puml)
 
 ## UML diagrams
 diagrams are using the PlantUML integration plugin / syntax  
