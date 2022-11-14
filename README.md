@@ -42,15 +42,15 @@ python3 manage.py runserver
 ----
 # More Documentation
 
+How to create your own Plugin is documented [here](documentation/Plugin.md).  
 More Documentation can be found [here](documentation/README.md).  
-How to create your own Plugin is documented [here](documentation/Plugin.md).
 
 
 ----
 
 # List of known Plugins
 
-| Plugin Name      | Description                                                                                                        | Path                                                              | Credits         |
-|------------------|--------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|-----------------|
-| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_ompressor](plugins/crunch_compressor/README.md) | [Philip Dell](https://github.com/pIlIp-d) |
+| Plugin Name      | Description                                                                                                        | Path                                                               | Credits                                   |
+|------------------|--------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|-------------------------------------------|
+| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_compressor](plugins/crunch_compressor/README.md) | [Philip Dell](https://github.com/pIlIp-d) |
 
