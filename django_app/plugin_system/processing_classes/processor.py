@@ -154,7 +154,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         raise ValueError("If 'can_merge' is set to True the class must provide a _merge_files implementation.")
 
     def _destination_path_string_is_file(self, path) -> bool:
-        return path.lower().endswith(self._file_type_to.lower())
+        return not os.path.isdir(path) and path.lower().endswith(self._file_type_to.lower())
 
     def _get_sources_files_by_file_type_from(self, source_path) -> list[str]:
         return list(set(reduce(
@@ -282,11 +282,10 @@ class Processor(Postprocessor, Preprocessor, ABC):
             event_handler.started_processing()
 
         # create destination directory
-        if self._destination_path_string_is_file(temporary_destination_file_list[0]):
+        if self._destination_path_string_is_file(temporary_destination_file_list[0]) and not is_splitting:
             os.makedirs(os.path.dirname(temporary_destination_file_list[0]), exist_ok=True)
         else:
-            os.makedirs(temporary_destination_file_list[0]
-                        , exist_ok=True)
+            os.makedirs(temporary_destination_file_list[0], exist_ok=True)
 
         # run processing
         if self._run_multi_threaded:
@@ -295,8 +294,10 @@ class Processor(Postprocessor, Preprocessor, ABC):
             self._process_file_list(source_file_list, temporary_destination_file_list)
 
         if is_merging:
-            # move merge result to destination
-            self._merge_files(sorted(temporary_destination_file_list), temporary_merge_file)
+            if is_splitting:
+                self._merge_files(sorted(OsUtility.get_file_list(temporary_destination_file_list[0])), temporary_merge_file)
+            else:
+                self._merge_files(sorted(temporary_destination_file_list), temporary_merge_file)
 
         if is_merging:
             end_size = OsUtility.get_file_size(temporary_merge_file)
@@ -305,7 +306,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         ConsoleUtility.print_stats(sum(orig_sizes), end_size)
 
-        if is_merging and not is_splitting:
+        if is_merging:
             OsUtility.move_file(temporary_merge_file, destination_path)
         elif is_splitting:
             for file in OsUtility.get_file_list(temporary_destination_file_list[0]):
