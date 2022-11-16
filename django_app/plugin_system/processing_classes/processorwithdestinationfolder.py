@@ -16,6 +16,6 @@ class ProcessorWithDestinationFolder(Processor, ABC):
             output_path = source_path + self._processed_files_appendix if destination_path == "default" else destination_path
 
         if self._destination_path_string_is_file(output_path):
-            return sources, [os.path.dirname(output_path) for _ in sources], True, False
+            return sources, [os.path.dirname(output_path) for _ in sources], True, True
         else:
             return sources, [output_path for _ in sources], False, True
