@@ -217,9 +217,13 @@ class TestProcessorProcess(ProcessTestCase):
                                                         os.path.abspath("./TestData/resultFolder"))
 
     def test_valid_destination_folder_looks_like_file(self):
-        destination_file = "./TestData/resultFolderLikeFile.txt"
-        self._run_test_processing_to_destination_file("./TestData/testFile.txt", destination_file)
-        self._run_test_processing_to_destination_file("./TestData/testFolder", destination_file, can_merge=True)
+        destination_folder = "./TestData/resultFolderLikeFile.txt"
+        if os.path.isfile(destination_folder):
+            os.remove(destination_folder)
+        os.makedirs(destination_folder, exist_ok=True)
+        self._run_test_processing_to_destination_folder("./TestData/testFile.txt", destination_folder)
+        os.makedirs(destination_folder, exist_ok=True)
+        self._run_test_processing_to_destination_folder("./TestData/testFolder", destination_folder, can_merge=True)
 
     def test_valid_destination_path_with_special_chars(self):
         self._run_test_processing_to_destination_file("./TestData/testFile.txt",
