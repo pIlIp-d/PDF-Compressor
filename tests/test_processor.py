@@ -45,7 +45,7 @@ class TestProcessor(TestCase):
     ) -> None:
         destination_path = os.path.join(".", "TestData", "outputFolder")
         event_handler = TestingEventHandler()
-        processor_class([event_handler for _ in range(amount_of_event_handlers)]).process(
+        processor_class(event_handlers=[event_handler for _ in range(amount_of_event_handlers)]).process(
             source_path, destination_path
         )
         if os.path.isfile(destination_path):
