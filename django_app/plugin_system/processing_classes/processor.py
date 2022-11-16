@@ -260,7 +260,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
             raise ValueError("Merging is not supported for this Processor. " + str(self))
 
         if len(source_file_list) == 0:
-            raise FileNotFoundError("No files to Processed were found in the source_path.")
+            raise FileNotFoundError("No files to Process were found in the source_path.")
 
         # save size for comparison at the end
         orig_sizes = OsUtility.get_filesize_list(source_file_list)
