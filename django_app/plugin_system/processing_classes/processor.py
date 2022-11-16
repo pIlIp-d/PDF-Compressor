@@ -1,4 +1,5 @@
 import os
+import pathlib
 import uuid
 from abc import ABC, abstractmethod
 from concurrent.futures import ProcessPoolExecutor
@@ -230,6 +231,17 @@ class Processor(Postprocessor, Preprocessor, ABC):
         :param destination_path: path to a file, folder, "default" or "merge"
         specific behavior is defined by _get_files_and_extra_info() and can be changed by overwriting the method
         """
+        def is_valid_path(path):
+            try:
+                pathlib.Path(path).resolve()
+                return True
+            except (OSError, RuntimeError):
+                return False
+
+        if not is_valid_path(source_path):
+            raise ValueError("Source Path %s is invalid." % source_path)
+        if not is_valid_path(destination_path):
+            raise ValueError("Destination Path %s is invalid." % destination_path)
         if not os.path.exists(source_path):
             raise FileNotFoundError(f"No File or Folder was found at the given source_path. '{source_path}'")
 
