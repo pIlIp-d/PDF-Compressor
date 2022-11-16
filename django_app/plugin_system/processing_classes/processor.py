@@ -231,7 +231,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         specific behavior is defined by _get_files_and_extra_info() and can be changed by overwriting the method
         """
         if not os.path.exists(source_path):
-            raise ValueError(f"No File or Folder was found at the given source_path. '{source_path}'")
+            raise FileNotFoundError(f"No File or Folder was found at the given source_path. '{source_path}'")
 
         # get usable lists of source, destination files
         force_merge = destination_path == "merge"
@@ -248,7 +248,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
             raise ValueError("Merging is not supported for this Processor. " + str(self))
 
         if len(source_file_list) == 0:
-            raise ValueError("No files to Processed were found in the source_path.")
+            raise FileNotFoundError("No files to Processed were found in the source_path.")
 
         # save size for comparison at the end
         orig_sizes = OsUtility.get_filesize_list(source_file_list)

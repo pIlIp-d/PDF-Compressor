@@ -86,7 +86,7 @@ class TestProcessor(TestCase):
 
     def test_started_processed_with_no_files(self):
         self.assertRaises(
-            ValueError, self.__execute_simple_processing_from_folder,
+            FileNotFoundError, self.__execute_simple_processing_from_folder,
             source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_started_processing_calls)
@@ -117,7 +117,7 @@ class TestProcessor(TestCase):
 
     def test_finished_all_files_with_no_files(self):
         self.assertRaises(
-            ValueError, self.__execute_simple_processing_from_folder,
+            FileNotFoundError, self.__execute_simple_processing_from_folder,
             source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_finished_all_files_calls)
@@ -148,7 +148,7 @@ class TestProcessor(TestCase):
 
     def test_preprocess_with_no_files(self):
         self.assertRaises(
-            ValueError, self.__execute_simple_processing_from_folder,
+            FileNotFoundError, self.__execute_simple_processing_from_folder,
             source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_preprocess_calls)
@@ -179,7 +179,7 @@ class TestProcessor(TestCase):
 
     def test_postprocess_with_no_files(self):
         self.assertRaises(
-            ValueError, self.__execute_simple_processing_from_folder,
+            FileNotFoundError, self.__execute_simple_processing_from_folder,
             source_folder=os.path.join(".", "TestData", "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_postprocess_calls)
