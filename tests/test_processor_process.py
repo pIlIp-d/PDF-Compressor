@@ -334,8 +334,13 @@ class TestProcessorWithDestinationFolderProcess(ProcessTestCase):
     def test_valid_output_folder_from_input_file(self):
         self._run_test_processing_to_destination_folder("./TestData/testFile.txt", "./TestData/resultFolder")
 
-    def test_valid_output_folder_from_input_folder(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder")
+    def test_valid_output_folder_from_input_folder_with_can_merge(self):
+        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder",
+                                                        can_merge=True)
+
+    def test_valid_output_folder_from_input_folder_without_can_merge(self):
+        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder",
+                                                        can_merge=False)
 
     # TODO
     # ProcessorWithDestinationFolder
