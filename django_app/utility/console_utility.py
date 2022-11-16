@@ -30,7 +30,7 @@ class ConsoleUtility:
             orig_size = str(round(orig / 1000000, 2))
             result_size = str(round(result / 1000000, 2))
             percentage = 0 if orig == 0 else str(-1 * round(100 - (result / orig * 100), 2))
-            cls.print_green(f"Compressed Files. Size: from {orig_size}mb to {result_size}mb ({percentage}%)\n")
+            cls.print_green(f"Processed Files. Size: from {orig_size}mb to {result_size}mb ({percentage}%)\n")
 
     @classmethod
     def print_error(cls, string: str) -> None:
