@@ -73,7 +73,7 @@ class ErrorProcessor(Processor):
 
 
 class DestinationFolderSubClass(ProcessorWithDestinationFolder):
-    def __init__(self, event_handlers, **kwargs):
+    def __init__(self, event_handlers=None, **kwargs):
         if event_handlers is None:
             event_handlers = []
         super().__init__(event_handlers, ["txt"], "txt", **kwargs)
