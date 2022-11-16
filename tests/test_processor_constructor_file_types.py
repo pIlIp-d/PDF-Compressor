@@ -35,7 +35,7 @@ class TestProcessorConstructorFileTypes(TestCase):
         self.assertEqual(amount_of_result_files, counted_output_files)
 
     def test_processor_with_file_from_type_is_empty_list(self):
-        self.assertRaises(ValueError, self.__execute_processor, file_type_from=[])
+        self.assertRaises(FileNotFoundError, self.__execute_processor, file_type_from=[])
 
     def test_processor_with_file_from_type_is_list_of_empty_string(self):
         self.__execute_processor(file_type_from=[""], amount_of_result_files=3)
@@ -47,10 +47,10 @@ class TestProcessorConstructorFileTypes(TestCase):
         self.__execute_processor(file_type_from=["txt", "md"], amount_of_result_files=3)
 
     def test_processor_with_file_from_type_is_single_invalid_value(self):
-        self.assertRaises(ValueError, self.__execute_processor, file_type_from=["pdf"])
+        self.assertRaises(FileNotFoundError, self.__execute_processor, file_type_from=["pdf"])
 
     def test_processor_with_file_from_type_are_multiple_invalid_values(self):
-        self.assertRaises(ValueError, self.__execute_processor, file_type_from=["png", "pdf"])
+        self.assertRaises(FileNotFoundError, self.__execute_processor, file_type_from=["png", "pdf"])
 
     def test_processor_with_file_from_type_are_mixed_valid_and_invalid_values(self):
         self.__execute_processor(file_type_from=["md", "png"], amount_of_result_files=1)
@@ -63,7 +63,7 @@ class TestProcessorConstructorFileTypes(TestCase):
 
     def test_processor_with_file_from_type_and_no_file_found(self):
         self.assertRaises(
-            ValueError,
+            FileNotFoundError,
             self.__execute_processor,
             file_type_from=["md"],
             amount_of_result_files=0,
