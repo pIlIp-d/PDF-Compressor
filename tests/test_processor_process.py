@@ -278,7 +278,7 @@ class TestProcessorProcess(ProcessTestCase):
                                                       "./TestData/resultFile_+-special_Chars.txt")
 
     def test_valid_destination_path_with_space(self):
-        self._run_test_processing_to_destination_file("./TestData/testFile.txt", "./ TestData / result File.txt")
+        self._run_test_processing_to_destination_file("./TestData/testFile.txt", "./TestData/result File.txt")
 
     def test_invalid_destination_path_with_not_allowed_special_chars(self):
         if os.name == "nt":
