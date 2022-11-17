@@ -90,7 +90,7 @@ class TestOsUtility(TestCase):
 
     # clean_up_folder
     def test_clean_up_folder_with_empty_folder(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "emptyFolder")
+        folder_dir = os.path.join(".", "TestData", "newEmptyFolder")
         self.create_folder(folder_dir)
 
         OsUtility.clean_up_folder(folder_dir)
@@ -98,7 +98,7 @@ class TestOsUtility(TestCase):
         self.assertFalse(os.path.exists(folder_dir))
 
     def test_clean_up_folder_with_files_in_folder(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "filledFolder")
+        folder_dir = os.path.join(".", "TestData", "filledCreatedFolder")
         self.create_folder(folder_dir)
 
         self.create_file(os.path.join(folder_dir, "testFile1.png"))
@@ -109,13 +109,10 @@ class TestOsUtility(TestCase):
         self.assertFalse(os.path.exists(folder_dir))
 
     def test_clean_up_folder_with_not_existing_folder(self):
-        self.assertRaises(
-            FileNotFoundError,
-            OsUtility.clean_up_folder, "./TestData/notAFolder"
-        )
+        OsUtility.clean_up_folder("./TestData/noFolder")
 
     def test_clean_up_folder_with_relative_path_to_existing_file(self):
-        file = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "fileToDelete.png")
+        file = os.path.join(".", "TestData", "createdFile.txt")
         self.create_file(file)
         self.assertRaises(
             ValueError,
@@ -123,8 +120,15 @@ class TestOsUtility(TestCase):
         )
         os.remove(file)
 
+    def test_clean_up_folder_with_relative_path_to_existing_folder(self):
+        folder_dir = os.path.join(".", "TestData", "createdFolder")
+        self.create_folder(folder_dir)
+
+        OsUtility.clean_up_folder(folder_dir)
+        self.assertFalse(os.path.exists(folder_dir))
+
     def test_clean_up_folder_with_absolute_path_to_existing_file(self):
-        file = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "fileToDelete.png")
+        file = os.path.join(".", "TestData", "createdFile.txt")
         self.create_file(file)
         self.assertRaises(
             ValueError,
@@ -132,25 +136,15 @@ class TestOsUtility(TestCase):
         )
         os.remove(file)
 
-    def test_clean_up_folder_with_relative_path_to_existing_folder(self):
-        folder_dir = os.path.abspath(os.path.join("", "../plugins/crunch_compressor/tests/TestData", "existingFolder"))
-        self.create_folder(folder_dir)
-
-        OsUtility.clean_up_folder(folder_dir)
-        self.assertFalse(os.path.exists(folder_dir))
-
     def test_clean_up_folder_with_absolute_path_to_existing_folder(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "existingFolder")
+        folder_dir = os.path.join(".", "TestData", "createdFolder")
         self.create_folder(folder_dir)
 
         OsUtility.clean_up_folder(folder_dir)
         self.assertFalse(os.path.exists(folder_dir))
 
     def test_clean_up_folder_with_empty_path_string(self):
-        self.assertRaises(
-            FileNotFoundError,
-            OsUtility.clean_up_folder, ""
-        )
+        OsUtility.clean_up_folder("")
 
     # get_filename
     def test_get_filename_with_file_without_file_ending(self):
