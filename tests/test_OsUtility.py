@@ -156,19 +156,19 @@ class TestOsUtility(TestCase):
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
     def test_get_filename_with_absolute_path_to_file(self):
-        file = os.path.join(os.path.abspath("../plugins/crunch_compressor/tests/TestData/singlePagePdf.pdf"))
+        file = os.path.join(os.path.abspath("./TestData/singlePagePdf.pdf"))
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
     def test_get_filename_with_relative_path_to_folder(self):
-        file = os.path.join("../plugins/crunch_compressor/tests/TestData/TestFolder")
+        file = os.path.join("./TestData/TestFolder")
         self.assertEqual("TestFolder", OsUtility.get_filename(file))
 
     def test_get_filename_with_absolute_path_to_folder(self):
-        file = os.path.join(os.path.abspath(os.path.join("", "../plugins/crunch_compressor/tests/TestData", "TestFolder")))
+        file = os.path.join(os.path.abspath(os.path.join(".", "TestData", "TestFolder")))
         self.assertEqual("TestFolder", OsUtility.get_filename(file))
 
     def test_get_filename_with_invalid_path(self):
-        file = os.path.join(os.path.abspath("../plugins/crunch_compressor/tests/TestData/singlePagePdf.pdf"))
+        file = os.path.join(os.path.abspath("./TestData/singlePagePdf.pdf"))
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
         file2 = os.path.join(os.path.abspath("SomeRubbishTest-LALA-File_folder(jjkn)"))
