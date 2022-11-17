@@ -79,7 +79,13 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
         super().__init__(event_handlers, ["txt"], "txt", **kwargs)
 
     def process_file(self, source_file: str, destination_path: str) -> None:
-        simple_copy_process_file(self, source_file, os.path.join(destination_path, os.path.basename(source_file)))
+        self.preprocess(source_file, destination_path)
+        with open(source_file) as file:
+            file_content = file.read()
+            for line_num, line in enumerate(file_content.split("\n")):
+                with open(os.path.join(destination_path, os.path.basename(source_file)[:-4] + "_line_%s.txt" % line_num), "w") as new_file:
+                    new_file.write(line)
+        self.postprocess(source_file, destination_path)
 
     def _merge_files(self, file_list: list[str], merged_result_file: str) -> None:
         simple_merge_files(self, file_list, merged_result_file)
