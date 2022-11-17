@@ -1,4 +1,3 @@
-import mimetypes
 import os
 import re
 import shutil
@@ -8,17 +7,17 @@ from django_app.utility.console_utility import ConsoleUtility
 
 class OsUtility:
     @classmethod
-    def get_file_list(cls, folder: str, ending: str = "") -> list:
+    def get_file_list(cls, file: str, ending: str = "") -> list:
         def valid_filename(filename):
             return filename.lower().endswith(ending.lower())
 
-        if not os.path.exists(folder):
+        if not os.path.exists(file):
             return []
-        if os.path.isfile(folder):
-            return [folder] if valid_filename(folder) else []
+        if os.path.isfile(file):
+            return [file] if valid_filename(file) else []
         # get all the png files in temporary folder <=> all pdf pages
         files = []
-        for r, _, f in os.walk(folder):
+        for r, _, f in os.walk(file):
             for file_name in f:
                 if not valid_filename(file_name):
                     continue
