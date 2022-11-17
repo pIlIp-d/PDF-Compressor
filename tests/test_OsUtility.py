@@ -23,173 +23,70 @@ class TestOsUtility(TestCase):
         os.mkdir(folder_path)
 
     # get_file_list
-    def test_get_file_list_from_empty_folder(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "emptyFolder")
-        self.create_folder(folder_dir)
-        file_list = OsUtility.get_file_list(folder_dir)
-        shutil.rmtree(folder_dir)
-        self.assertEqual(0, len(file_list))
+    def test_get_file_list_with_empty_folder_as_path(self):
+        folder = "./TestData/newEmptyFolder"
+        self.create_folder(folder)
+        file_list = OsUtility.get_file_list(folder)
+        shutil.rmtree(folder)
+        self.assertEqual([], file_list)
 
-    def test_get_file_list_from_single_file_in_folder(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "singleFileFolder")
-        self.create_folder(folder_dir)
+    def test_get_file_list_with_single_file_as_path(self):
+        self.assertEqual(1, len(OsUtility.get_file_list("./TestData/testFile.txt")))
 
-        file = os.path.join(folder_dir, "testFile.png")
-        self.create_file(file)
+    def test_get_file_list_with_single_file_in_folder_as_path(self):
+        self.assertEqual(1, len(OsUtility.get_file_list("./TestData/testFolderWithOneFile")))
 
-        file_list = OsUtility.get_file_list(folder_dir)
-        shutil.rmtree(folder_dir)
+    def test_get_file_list_with_multiple_files_in_folder_as_path(self):
+        self.assertEqual(2, len(OsUtility.get_file_list("./TestData/testFolder", ".txt")))
 
-        self.assertEqual(1, len(file_list))
-        self.assertEqual(file, file_list[0])
+    def test_get_file_list_with_no_path_indication_at_start_as_path(self):
+        self.assertEqual(1, len(OsUtility.get_file_list("TestData/testFile.txt")))
 
-    def test_get_file_list_from_multiple_files_in_folder(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "singleFileFolder")
-        self.create_folder(folder_dir)
+    def test_get_file_list_path_doesnt_exist_as_path(self):
+        self.assertEqual(0, len(OsUtility.get_file_list("TestData/noFolder")))
 
-        file1 = os.path.join(folder_dir, "testFile1.png")
-        self.create_file(file1)
-        file2 = os.path.join(folder_dir, "testFile2.png")
-        self.create_file(file2)
-        file3 = os.path.join(folder_dir, "testFile3.png")
-        self.create_file(file3)
+    def test_get_file_list_with_empty_string_as_path(self):
+        self.assertEqual(0, len(OsUtility.get_file_list("", ".txt")))
 
-        file_list = OsUtility.get_file_list(folder_dir)
-        shutil.rmtree(folder_dir)
+    def test_get_file_list_from_absolute_path(self):
+        self.assertEqual(1, len(OsUtility.get_file_list(os.path.abspath("./TestData/testFile.txt"), ".txt")))
 
-        self.assertEqual(3, len(file_list))
-        self.assertTrue(file1 in file_list)
-        self.assertTrue(file2 in file_list)
-        self.assertTrue(file3 in file_list)
-
-    def test_get_file_list_invalid_path(self):
-        self.assertRaises(
-            FileNotFoundError,
-            OsUtility.get_file_list, os.path.join("", "../plugins/crunch_compressor/tests/TestData", "moreFilesFolder")
-        )
-
-    def test_get_file_list_from_not_existing_folder(self):
-        self.assertRaises(
-            FileNotFoundError,
-            OsUtility.get_file_list, os.path.join("", "../plugins/crunch_compressor/tests/TestData", "notExistingFolder")
-        )
-
-    def test_get_file_list_with_empty_string_as_folder(self):
-        self.assertRaises(
-            FileNotFoundError,
-            OsUtility.get_file_list, ""
-        )
-
-    def test_get_file_list_with_relative_folder_path(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "singleFileFolder")
-        self.create_folder(folder_dir)
-
-        file = os.path.join(folder_dir, "testFile.png")
-        self.create_file(file)
-
-        file_list = OsUtility.get_file_list(folder_dir)
-        shutil.rmtree(folder_dir)
-
-        self.assertEqual(1, len(file_list))
-
-    def test_get_file_list_with_absolute_folder_path(self):
-        folder_dir = os.path.abspath(os.path.join("", "../plugins/crunch_compressor/tests/TestData", "singleFileFolder"))
-        self.create_folder(folder_dir)
-
-        file = os.path.join(folder_dir, "testFile.png")
-        self.create_file(file)
-
-        file_list = OsUtility.get_file_list(folder_dir)
-        shutil.rmtree(folder_dir)
-
-        self.assertEqual(1, len(file_list))
-
-    def test_get_file_list_with_file_as_folder_path(self):
-        self.assertRaises(
-            ValueError,
-            OsUtility.get_file_list, os.path.join("", "../plugins/crunch_compressor/tests/TestData", "singlePagePdf.pdf")
-        )
+    def test_get_file_list_with_default_ending(self):
+        self.assertEqual(3, len(OsUtility.get_file_list("./TestData/testFolder")))
 
     def test_get_file_list_with_empty_ending(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "moreFilesFolder")
-        self.create_folder(folder_dir)
-
-        file1 = os.path.join(folder_dir, "testFile1.png")
-        self.create_file(file1)
-        file2 = os.path.join(folder_dir, "testFile2.pdf")
-        self.create_file(file2)
-        file3 = os.path.join(folder_dir, "testFile3.svg")
-        self.create_file(file3)
-
-        file_list = OsUtility.get_file_list(folder_dir, "")
-        shutil.rmtree(folder_dir)
-
-        self.assertEqual(3, len(file_list))
-        self.assertTrue(file1 in file_list)
-        self.assertTrue(file2 in file_list)
-        self.assertTrue(file3 in file_list)
+        self.assertEqual(3, len(OsUtility.get_file_list("./TestData/testFolder", "")))
 
     def test_get_file_list_with_custom_ending(self):
-        folder_dir = os.path.abspath(os.path.join("", "../plugins/crunch_compressor/tests/TestData", "moreFilesFolder"))
-        self.create_folder(folder_dir)
+        self.assertEqual(2, len(OsUtility.get_file_list("./TestData/testFolder", ".txt")))
+        self.assertEqual(1, len(OsUtility.get_file_list("./TestData/testFolder", ".md")))
 
-        file1 = os.path.join(folder_dir, "testFile1.png")
-        self.create_file(file1)
-        file2 = os.path.join(folder_dir, "testFile2.pdf")
-        self.create_file(file2)
-        file3 = os.path.join(folder_dir, "testFile3.svg")
-        self.create_file(file3)
-
-        file_list = OsUtility.get_file_list(folder_dir, ".svg")
-        shutil.rmtree(folder_dir)
-
-        self.assertEqual(1, len(file_list))
-        self.assertTrue(file3 in file_list)
-
-    def test_get_file_list_with_dot_as_ending(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "moreFilesFolder")
-        self.create_folder(folder_dir)
-
-        file1 = os.path.join(folder_dir, "testFile1.png")
-        self.create_file(file1)
-        file2 = os.path.join(folder_dir, "testFile2.pdf")
-        self.create_file(file2)
-
-        file_list = OsUtility.get_file_list(folder_dir, ".")
-
-        self.assertEqual(0, len(file_list))
-
-        file3 = os.path.join(folder_dir, "testFile3.")
-        self.create_file(file3)
-
-        file_list = OsUtility.get_file_list(folder_dir, ".")
-
+    def test_get_file_list_with_only_dot_as_ending(self):
+        self.assertEqual(0, len(OsUtility.get_file_list("./TestData/testFolder", ".")))
         if os.name == "nt":
-            self.fail("Not Supported for windows")
-
+            self.fail("dots as file ending are not supported on windows.")
+        folder = "./TestData/createdFolder"
+        self.create_folder(folder)
+        file = os.path.join(folder, "file_with_dot.")
+        self.create_file(file)
+        file_list = OsUtility.get_file_list(folder, ".")
+        shutil.rmtree(folder)
         self.assertEqual(1, len(file_list))
-        shutil.rmtree(folder_dir)
 
-    def test_get_file_with_text_as_ending(self):
-        folder_dir = os.path.join("", "../plugins/crunch_compressor/tests/TestData", "moreFilesFolder")
-        self.create_folder(folder_dir)
-
-        file1 = os.path.join(folder_dir, "testFile1.png")
+    def test_get_file_list_with_some_text_as_ending(self):
+        self.assertEqual(0, len(OsUtility.get_file_list("./TestData/testFolder", "endsWithSomeText")))
+        folder = "./TestData/createdFolder"
+        self.create_folder(folder)
+        file1 = os.path.join(folder, "file_endsWithSomeText")
+        file2 = os.path.join(folder, "some_other_file")
         self.create_file(file1)
-        file2 = os.path.join(folder_dir, "testFile2.pdf")
         self.create_file(file2)
-
-        file_list = OsUtility.get_file_list(folder_dir, "endswithText")
-
-        self.assertEqual(0, len(file_list))
-
-        file3 = os.path.join(folder_dir, "testFile3endswithText")
-        self.create_file(file3)
-
-        file_list = OsUtility.get_file_list(folder_dir, "endswithText")
-
+        file_list = OsUtility.get_file_list(folder, "endsWithSomeText")
+        shutil.rmtree(folder)
         self.assertEqual(1, len(file_list))
-        shutil.rmtree(folder_dir)
+
+    def test_get_file_list_with_no_file_found_by_ending(self):
+        self.assertEqual(0, len(OsUtility.get_file_list("./TestData/testFolder", ".svg")))
 
     # clean_up_folder
     def test_clean_up_folder_with_empty_folder(self):
