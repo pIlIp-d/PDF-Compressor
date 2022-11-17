@@ -1,4 +1,7 @@
 import os.path
+import shutil
+from abc import abstractmethod
+from glob import glob
 from unittest import TestCase
 
 from django_app.plugin_system.processing_classes.processor import Processor
@@ -26,10 +29,19 @@ class ProcessTestCase(TestCase):
             os.remove(destination)
         return exists
 
-    @classmethod
-    def _run_process(cls, source_path: str, destination_path: str, **kwargs):
-        processor = ProcessTestProcessor(**kwargs)
-        processor.process(source_path, destination_path)
+    @abstractmethod
+    def _run_process(self, source_path: str, destination_path: str, **kwargs):
+        pass
+
+    @abstractmethod
+    def _run_test_processing_for_default_or_merge_destination(self, source_path: str, destination: str,
+                                                              expected_amount_of_result_files: int, **kwargs):
+        pass
+
+    @abstractmethod
+    def _run_test_processing_to_destination_folder(self, source_path: str,
+                                                   destination_folder: str = "./TestData/resultFolder", **kwargs):
+        pass
 
     @classmethod
     def _get_file_content_and_remove_file(cls, path: str):
@@ -46,26 +58,62 @@ class ProcessTestCase(TestCase):
                 result_content = f.read()
         return result_content
 
-    def _run_test_processing_to_destination_folder(self, source_path: str,
-                                                   destination_folder: str = "./TestData/resultFolder", **kwargs):
-        self._run_process(source_path, destination_folder, **kwargs)
-        # check if for each source file a destination file has been created
-        source_files = OsUtility.get_file_list(source_path, ".txt")
-        results: list[bool] = list()
-        for file in source_files:
-            destination_file = os.path.join(destination_folder, os.path.basename(file))
-            results.append(self._remove_if_exists(destination_file))
-        os.removedirs(destination_folder)
-        for result in results:
-            self.assertTrue(result)
-
     def _run_test_processing_to_destination_file(self, source_path: str, destination_file: str, **kwargs):
         self._run_process(source_path, destination_file, **kwargs)
         self.assertTrue(os.path.exists(destination_file))
         os.remove(destination_file)
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        clean_up_after_class()
+        merged_result_files = glob("./TestData/*_merged*") + glob("./TestData/*_processed.txt")
+
+        for file in merged_result_files:
+            os.remove(file)
+        processed_directories = glob("./TestData/*_processed")
+        for folder in processed_directories:
+            shutil.rmtree(folder)
+
 
 class TestProcessorProcess(ProcessTestCase):
+    def _run_test_processing_for_default_or_merge_destination(self, source_path: str, destination: str,
+                                                              expected_amount_of_result_files: int, **kwargs):
+        self._run_process(source_path, destination, **kwargs)
+
+        # create full path for default values
+        destination_folder = (source_path if os.path.isdir(source_path) else source_path[:-4]) + "_processed"
+
+        if os.path.isfile(source_path) and destination == "merge":
+            destination_files = glob("./TestData/*_merged*")
+        elif os.path.isfile(source_path) and destination == "default":
+            destination_files = glob("./TestData/*_processed.txt")
+        else:
+            destination_files = OsUtility.get_file_list(destination_folder, ".txt")
+        # actually assert the results -> folder is definitely removed, even if assertion fails
+        for file in destination_files:
+            os.remove(file)
+        self.assertEqual(expected_amount_of_result_files, len(destination_files))
+
+    def _run_test_processing_to_destination_folder(self, source_path: str,
+                                                   destination_folder: str = "./TestData/resultFolder", **kwargs):
+        self._run_process(source_path, destination_folder, **kwargs)
+
+        source_files = OsUtility.get_file_list(source_path, ".txt")
+        results: list[bool] = list()
+        # check if for each source_file a destination_file has been created
+        for file in source_files:
+            destination_file = os.path.join(destination_folder, os.path.basename(file))
+            results.append(self._remove_if_exists(destination_file))
+
+        # check if the right amount of files were created
+        shutil.rmtree(destination_folder)
+        for result in results:
+            self.assertTrue(result)
+
+    def _run_process(self, source_path: str, destination_path: str, **kwargs):
+        processor = ProcessTestProcessor(**kwargs)
+        processor.process(source_path, destination_path)
+
     def test_valid_relative_input_file(self):
         self._run_test_processing_to_destination_folder("./TestData/testFile.txt")
 
@@ -284,30 +332,96 @@ class TestProcessorProcess(ProcessTestCase):
     def test_valid_output_folder_from_input_folder(self):
         self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder")
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        clean_up_after_class()
+    def test_valid_with_default_output_folder_and_can_merge_from_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFile.txt", "default", 1,
+                                                                   can_merge=True)
+
+    def test_valid_with_default_output_folder_and_without_can_merge_from_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFile.txt", "default", 1,
+                                                                   can_merge=False)
+
+    def test_valid_with_default_output_folder_and_can_merge_from_input_folder(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolder", "default", 2,
+                                                                   can_merge=True)
+
+    def test_valid_with_default_output_folder_and_without_can_merge_from_input_folder(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolder", "default", 2,
+                                                                   can_merge=False)
+
+    def test_valid_with_default_merge_output_and_can_merge_from_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFile.txt", "merge", 1,
+                                                                   can_merge=True)
+
+    def test_valid_with_default_output_and_without_can_merge_from_input_file(self):
+        self.assertRaises(
+            ValueError,
+            self._run_test_processing_for_default_or_merge_destination,
+            "./TestData/testFile.txt", "merge", 1, can_merge=False
+        )
+
+    def test_valid_with_default_merge_output_and_can_merge_from_input_folder(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolder", "merge", 1, can_merge=True)
+
+    def test_valid_with_default_output_and_without_can_merge_from_input_folder(self):
+        self.assertRaises(
+            ValueError,
+            self._run_test_processing_for_default_or_merge_destination,
+            "./TestData/testFolder", "merge", 1, can_merge=False
+        )
+
+    def test_valid_with_default_merge_output_and_can_merge_from_folder_with_single_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolderWithOneFile", "merge", 1,
+                                                                   can_merge=True)
 
 
 class TestProcessorWithDestinationFolderProcess(ProcessTestCase):
-    @classmethod
-    def _run_process(cls, source_path: str, destination_path: str, **kwargs):
+    def _run_test_processing_for_default_or_merge_destination(self, source_path: str, destination: str,
+                                                              expected_amount_of_result_files: int, **kwargs):
+        self._run_process(source_path, destination, **kwargs)
+
+        # create full path for default values
+        destination_folder = (source_path if os.path.isdir(source_path) else source_path[:-4]) + "_processed"
+
+        if os.path.isfile(source_path) and destination == "merge":
+            destination_files = glob("./TestData/*_merged*")
+
+        else:
+            destination_files = OsUtility.get_file_list(destination_folder, ".txt")
+        # actually assert the results -> folder is definitely removed, even if assertion fails
+        for file in destination_files:
+            os.remove(file)
+        self.assertEqual(expected_amount_of_result_files, len(destination_files))
+
+    def _run_test_processing_to_destination_folder(self, source_path: str,
+                                                   destination_folder: str = "./TestData/resultFolder",
+                                                   expected_amount_of_result_files: int = None, **kwargs):
+        self._run_process(source_path, destination_folder, **kwargs)
+        if expected_amount_of_result_files is None:
+            expected_amount_of_result_files = len(OsUtility.get_file_list(source_path, ".txt"))
+
+        # actually assert the results -> folder is definitely removed, even if assertion fails
+        destination_files = OsUtility.get_file_list(destination_folder, ".txt")
+        shutil.rmtree(destination_folder)
+        self.assertEqual(expected_amount_of_result_files, len(destination_files))
+
+    def _run_process(self, source_path: str, destination_path: str, **kwargs):
         processor = DestinationFolderSubClass(**kwargs)
         processor.process(source_path, destination_path)
 
     def test_valid_input_folder_that_looks_like_file(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFolderLooksLikeFile.txt")
+        self._run_test_processing_to_destination_folder("./TestData/testFolderLooksLikeFile.txt",
+                                                        expected_amount_of_result_files=2)
 
     def test_valid_input_file(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFile.txt")
+        self._run_test_processing_to_destination_folder("./TestData/testFile.txt", expected_amount_of_result_files=3)
 
     def test_valid_input_folder(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFolder")
+        self._run_test_processing_to_destination_folder("./TestData/testFolder", expected_amount_of_result_files=2)
 
     def test_valid_output_folder_that_looks_like_file(self):
         destination = "./TestData/resultFolderLikeFile.txt"
         os.makedirs(destination, exist_ok=True)
-        self._run_test_processing_to_destination_folder("./TestData/testFile.txt", destination)
+        self._run_test_processing_to_destination_folder("./TestData/testFile.txt", destination, 3)
 
     def test_invalid_output_path_is_empty_string(self):
         self.assertRaises(
@@ -332,15 +446,56 @@ class TestProcessorWithDestinationFolderProcess(ProcessTestCase):
         )
 
     def test_valid_output_folder_from_input_file(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFile.txt", "./TestData/resultFolder")
+        self._run_test_processing_to_destination_folder("./TestData/testFile.txt", "./TestData/resultFolder", 3)
 
     def test_valid_output_folder_from_input_folder_with_can_merge(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder",
+        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder", 2,
                                                         can_merge=True)
 
     def test_valid_output_folder_from_input_folder_without_can_merge(self):
-        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder",
+        self._run_test_processing_to_destination_folder("./TestData/testFolder", "./TestData/resultFolder", 2,
                                                         can_merge=False)
+
+    def test_valid_with_default_output_folder_and_can_merge_from_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFile.txt", "default", 3,
+                                                                   can_merge=True)
+
+    def test_valid_with_default_output_folder_and_without_can_merge_from_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFile.txt", "default", 3,
+                                                                   can_merge=False)
+
+    def test_valid_with_default_output_folder_and_can_merge_from_input_folder(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolder", "default", 2,
+                                                                   can_merge=True)
+
+    def test_valid_with_default_output_folder_and_without_can_merge_from_input_folder(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolder", "default", 2,
+                                                                   can_merge=False)
+
+    def test_valid_with_default_merge_output_and_can_merge_from_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFile.txt", "merge", 1,
+                                                                   can_merge=True)
+
+    def test_valid_with_default_output_and_without_can_merge_from_input_file(self):
+        self.assertRaises(
+            ValueError,
+            self._run_test_processing_for_default_or_merge_destination,
+            "./TestData/testFile.txt", "merge", 1, can_merge=False
+        )
+
+    def test_valid_with_default_merge_output_and_can_merge_from_input_folder(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolder", "merge", 1, can_merge=True)
+
+    def test_valid_with_default_output_and_without_can_merge_from_input_folder(self):
+        self.assertRaises(
+            ValueError,
+            self._run_test_processing_for_default_or_merge_destination,
+            "./TestData/testFolder", "merge", 1, can_merge=False
+        )
+
+    def test_valid_with_default_merge_output_and_can_merge_from_folder_with_single_input_file(self):
+        self._run_test_processing_for_default_or_merge_destination("./TestData/testFolderWithOneFile", "merge", 1,
+                                                                   can_merge=True)
 
     # TODO
     # ProcessorWithDestinationFolder
