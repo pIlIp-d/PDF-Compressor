@@ -6,6 +6,9 @@ from django_app.plugin_system.processing_classes.event_handler import EventHandl
 from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
 
+TESTDATA_DIR = os.path.join(os.path.relpath(os.path.dirname(__file__)), "TestData")
+TESTDATA_DIR_WITHOUT_RELATIVE = "/".join(TESTDATA_DIR.split(os.path.sep))
+
 
 def simple_copy_process_file(self, source_file: str, destination_path: str) -> None:
     self.preprocess(source_file, destination_path)
@@ -83,7 +86,9 @@ class DestinationFolderSubClass(ProcessorWithDestinationFolder):
         with open(source_file) as file:
             file_content = file.read()
             for line_num, line in enumerate(file_content.split("\n")):
-                with open(os.path.join(destination_path, os.path.basename(source_file)[:-4] + "_line_%s.txt" % line_num), "w") as new_file:
+                result_file = os.path.join(destination_path,
+                                           os.path.basename(source_file)[:-4] + "_line_%s.txt" % line_num)
+                with open(result_file, "w") as new_file:
                     new_file.write(line)
         self.postprocess(source_file, destination_path)
 

@@ -6,6 +6,7 @@ import jsons
 
 from django_app.utility.os_utility import OsUtility
 from plugins.crunch_compressor.config import get_config
+from tests.help_classes import TESTDATA_DIR
 
 
 class TestOsUtility(TestCase):
@@ -24,45 +25,45 @@ class TestOsUtility(TestCase):
 
     # get_file_list
     def test_get_file_list_with_empty_folder_as_path(self):
-        folder = "./TestData/newEmptyFolder"
+        folder = os.path.join(TESTDATA_DIR, "newEmptyFolder")
         self.create_folder(folder)
         file_list = OsUtility.get_file_list(folder)
         shutil.rmtree(folder)
         self.assertEqual([], file_list)
 
     def test_get_file_list_with_single_file_as_path(self):
-        self.assertEqual(1, len(OsUtility.get_file_list("./TestData/testFile.txt")))
+        self.assertEqual(1, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFile.txt"))))
 
     def test_get_file_list_with_single_file_in_folder_as_path(self):
-        self.assertEqual(1, len(OsUtility.get_file_list("./TestData/testFolderWithOneFile")))
+        self.assertEqual(1, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolderWithOneFile"))))
 
     def test_get_file_list_with_multiple_files_in_folder_as_path(self):
-        self.assertEqual(2, len(OsUtility.get_file_list("./TestData/testFolder", ".txt")))
+        self.assertEqual(2, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), ".txt")))
 
     def test_get_file_list_with_no_path_indication_at_start_as_path(self):
-        self.assertEqual(1, len(OsUtility.get_file_list("TestData/testFile.txt")))
+        self.assertEqual(1, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFile.txt"))))
 
     def test_get_file_list_path_doesnt_exist_as_path(self):
-        self.assertEqual(0, len(OsUtility.get_file_list("TestData/noFolder")))
+        self.assertEqual(0, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "noFolder"))))
 
     def test_get_file_list_with_empty_string_as_path(self):
         self.assertEqual(0, len(OsUtility.get_file_list("", ".txt")))
 
     def test_get_file_list_from_absolute_path(self):
-        self.assertEqual(1, len(OsUtility.get_file_list(os.path.abspath("./TestData/testFile.txt"), ".txt")))
+        self.assertEqual(1, len(OsUtility.get_file_list(os.path.abspath(os.path.join(TESTDATA_DIR, "testFile.txt")), ".txt")))
 
     def test_get_file_list_with_default_ending(self):
-        self.assertEqual(3, len(OsUtility.get_file_list("./TestData/testFolder")))
+        self.assertEqual(3, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"))))
 
     def test_get_file_list_with_empty_ending(self):
-        self.assertEqual(3, len(OsUtility.get_file_list("./TestData/testFolder", "")))
+        self.assertEqual(3, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), "")))
 
     def test_get_file_list_with_custom_ending(self):
-        self.assertEqual(2, len(OsUtility.get_file_list("./TestData/testFolder", ".txt")))
-        self.assertEqual(1, len(OsUtility.get_file_list("./TestData/testFolder", ".md")))
+        self.assertEqual(2, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), ".txt")))
+        self.assertEqual(1, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), ".md")))
 
     def test_get_file_list_with_only_dot_as_ending(self):
-        self.assertEqual(0, len(OsUtility.get_file_list("./TestData/testFolder", ".")))
+        self.assertEqual(0, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), ".")))
         if os.name == "nt":
             self.fail("dots as file ending are not supported on windows.")
         folder = "./TestData/createdFolder"
@@ -74,8 +75,8 @@ class TestOsUtility(TestCase):
         self.assertEqual(1, len(file_list))
 
     def test_get_file_list_with_some_text_as_ending(self):
-        self.assertEqual(0, len(OsUtility.get_file_list("./TestData/testFolder", "endsWithSomeText")))
-        folder = "./TestData/createdFolder"
+        self.assertEqual(0, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), "endsWithSomeText")))
+        folder = os.path.join(TESTDATA_DIR, "createdFolder")
         self.create_folder(folder)
         file1 = os.path.join(folder, "file_endsWithSomeText")
         file2 = os.path.join(folder, "some_other_file")
@@ -86,11 +87,11 @@ class TestOsUtility(TestCase):
         self.assertEqual(1, len(file_list))
 
     def test_get_file_list_with_no_file_found_by_ending(self):
-        self.assertEqual(0, len(OsUtility.get_file_list("./TestData/testFolder", ".svg")))
+        self.assertEqual(0, len(OsUtility.get_file_list(os.path.join(TESTDATA_DIR, "testFolder"), ".svg")))
 
     # clean_up_folder
     def test_clean_up_folder_with_empty_folder(self):
-        folder_dir = os.path.join(".", "TestData", "newEmptyFolder")
+        folder_dir = os.path.join(TESTDATA_DIR, "newEmptyFolder")
         self.create_folder(folder_dir)
 
         OsUtility.clean_up_folder(folder_dir)
@@ -98,7 +99,7 @@ class TestOsUtility(TestCase):
         self.assertFalse(os.path.exists(folder_dir))
 
     def test_clean_up_folder_with_files_in_folder(self):
-        folder_dir = os.path.join(".", "TestData", "filledCreatedFolder")
+        folder_dir = os.path.join(TESTDATA_DIR, "filledCreatedFolder")
         self.create_folder(folder_dir)
 
         self.create_file(os.path.join(folder_dir, "testFile1.png"))
@@ -109,10 +110,10 @@ class TestOsUtility(TestCase):
         self.assertFalse(os.path.exists(folder_dir))
 
     def test_clean_up_folder_with_not_existing_folder(self):
-        OsUtility.clean_up_folder("./TestData/noFolder")
+        OsUtility.clean_up_folder(os.path.join(TESTDATA_DIR, "noFolder"))
 
     def test_clean_up_folder_with_relative_path_to_existing_file(self):
-        file = os.path.join(".", "TestData", "createdFile.txt")
+        file = os.path.join(TESTDATA_DIR, "createdFile.txt")
         self.create_file(file)
         self.assertRaises(
             ValueError,
@@ -121,14 +122,14 @@ class TestOsUtility(TestCase):
         os.remove(file)
 
     def test_clean_up_folder_with_relative_path_to_existing_folder(self):
-        folder_dir = os.path.join(".", "TestData", "createdFolder")
+        folder_dir = os.path.join(TESTDATA_DIR, "createdFolder")
         self.create_folder(folder_dir)
 
         OsUtility.clean_up_folder(folder_dir)
         self.assertFalse(os.path.exists(folder_dir))
 
     def test_clean_up_folder_with_absolute_path_to_existing_file(self):
-        file = os.path.join(".", "TestData", "createdFile.txt")
+        file = os.path.join(TESTDATA_DIR, "createdFile.txt")
         self.create_file(file)
         self.assertRaises(
             ValueError,
@@ -137,7 +138,7 @@ class TestOsUtility(TestCase):
         os.remove(file)
 
     def test_clean_up_folder_with_absolute_path_to_existing_folder(self):
-        folder_dir = os.path.join(".", "TestData", "createdFolder")
+        folder_dir = os.path.join(TESTDATA_DIR, "createdFolder")
         self.create_folder(folder_dir)
 
         OsUtility.clean_up_folder(folder_dir)
@@ -148,27 +149,27 @@ class TestOsUtility(TestCase):
 
     # get_filename
     def test_get_filename_with_file_without_file_ending(self):
-        file = os.path.join("./TestData/fileWithoutFileEnding")
+        file = os.path.join(TESTDATA_DIR, "fileWithoutFileEnding")
         self.assertEqual("fileWithoutFileEnding", OsUtility.get_filename(file))
 
     def test_get_filename_with_relative_path_to_file(self):
-        file = os.path.join("./singlePagePdf.pdf")
+        file = os.path.join(TESTDATA_DIR, "singlePagePdf.pdf")
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
     def test_get_filename_with_absolute_path_to_file(self):
-        file = os.path.join(os.path.abspath("./TestData/singlePagePdf.pdf"))
+        file = os.path.abspath(os.path.join(TESTDATA_DIR, "singlePagePdf.pdf"))
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
     def test_get_filename_with_relative_path_to_folder(self):
-        file = os.path.join("./TestData/TestFolder")
-        self.assertEqual("TestFolder", OsUtility.get_filename(file))
+        folder = os.path.join(TESTDATA_DIR, "TestFolder")
+        self.assertEqual("TestFolder", OsUtility.get_filename(folder))
 
     def test_get_filename_with_absolute_path_to_folder(self):
-        file = os.path.join(os.path.abspath(os.path.join(".", "TestData", "TestFolder")))
+        file = os.path.abspath(os.path.join(TESTDATA_DIR, "TestFolder"))
         self.assertEqual("TestFolder", OsUtility.get_filename(file))
 
     def test_get_filename_with_invalid_path(self):
-        file = os.path.join(os.path.abspath("./TestData/singlePagePdf.pdf"))
+        file = os.path.abspath(os.path.join(TESTDATA_DIR, "singlePagePdf.pdf"))
         self.assertEqual("singlePagePdf", OsUtility.get_filename(file))
 
         file2 = os.path.join(os.path.abspath("SomeRubbishTest-LALA-File_folder(jjkn)"))
@@ -218,27 +219,27 @@ class TestOsUtility(TestCase):
         self.assertEqual(0, OsUtility.get_file_size(os.path.join("", "noFile.txt")))
 
     def test_os_utility_get_file_size_relative_path(self):
-        self.assertTrue(0 < OsUtility.get_file_size(os.path.join(".", "TestData", "testFile.txt")))
+        self.assertTrue(0 < OsUtility.get_file_size(os.path.join(TESTDATA_DIR, "testFile.txt")))
 
     def test_os_utility_get_file_size_absolute_path(self):
-        self.assertNotEqual(0, OsUtility.get_file_size(os.path.abspath(os.path.join(".", "TestData", "testFile.txt"))))
+        self.assertNotEqual(0, OsUtility.get_file_size(os.path.abspath(os.path.join(TESTDATA_DIR, "testFile.txt"))))
 
     def test_os_utility_get_file_size_compare_results(self):
         self.assertTrue(
-            OsUtility.get_file_size(os.path.join(".", "TestData", "empty.txt"))
+            OsUtility.get_file_size(os.path.join(TESTDATA_DIR, "empty.txt"))
             <
-            OsUtility.get_file_size(os.path.join(".", "TestData", "testFile.txt"))
+            OsUtility.get_file_size(os.path.join(TESTDATA_DIR, "testFile.txt"))
         )
 
     def test_os_utility_get_file_size_on_filled_folder(self):
         self.assertEqual(0, OsUtility.get_file_size(os.path.join(".", "TestData")))
 
     def test_os_utility_get_file_size_on_empty_folder(self):
-        empty_dir = os.path.join(".", "TestData", "emptyFolder")
+        empty_dir = os.path.join(TESTDATA_DIR, "emptyFolder")
         self.assertEqual(0, OsUtility.get_file_size(empty_dir))
 
     def test_os_utility_get_file_size_on_not_existing_folder(self):
-        empty_dir = os.path.join(".", "TestData", "not_existing_folder")
+        empty_dir = os.path.join(TESTDATA_DIR, "not_existing_folder")
         if os.path.isdir(empty_dir):
             os.removedirs(empty_dir)
         self.assertEqual(0, OsUtility.get_file_size(empty_dir))

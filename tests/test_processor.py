@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from tests.help_classes import SimpleExampleProcessor, ErrorProcessor, DestinationFolderSubClass, \
-    FailedProcessingException, clean_up_after_class
+    FailedProcessingException, clean_up_after_class, TESTDATA_DIR
 
 manager = multiprocessing.Manager()
 ns = manager.Namespace()
@@ -43,7 +43,7 @@ class TestProcessor(TestCase):
             amount_of_event_handlers: int,
             processor_class
     ) -> None:
-        destination_path = os.path.join(".", "TestData", "outputFolder")
+        destination_path = os.path.join(TESTDATA_DIR, "outputFolder")
         event_handler = TestingEventHandler()
         processor_class(event_handlers=[event_handler for _ in range(amount_of_event_handlers)]).process(
             source_path, destination_path
@@ -56,24 +56,24 @@ class TestProcessor(TestCase):
             self.fail("no result created")
 
     def __execute_simple_processing_from_file(self, amount_of_event_handlers: int = 1):
-        source_path = os.path.join(".", "TestData", "empty.txt")
+        source_path = os.path.join(TESTDATA_DIR, "empty.txt")
         self.__execute_monitored_processing(
             source_path, amount_of_event_handlers, SimpleExampleProcessor
         )
 
     def __execute_simple_processing_from_folder(
-            self, amount_of_event_handlers: int = 1, source_folder: str = os.path.join(".", "TestData", "testFolder")
+            self, amount_of_event_handlers: int = 1, source_folder: str = os.path.join(TESTDATA_DIR, "testFolder")
     ):
         self.__execute_monitored_processing(
             source_folder, amount_of_event_handlers, SimpleExampleProcessor
         )
 
     def __execute_monitored_error_processor(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
+        source_path = os.path.join(TESTDATA_DIR, "empty.txt")
         self.__execute_monitored_processing(source_path, 1, ErrorProcessor)
 
     def __execute_monitored_processor_with_destination_folder_sub_class(self):
-        source_path = os.path.join(".", "TestData", "empty.txt")
+        source_path = os.path.join(TESTDATA_DIR, "empty.txt")
         self.__execute_monitored_processing(source_path, 1, DestinationFolderSubClass)
 
     def test_started_processed_with_single_file(self):
@@ -87,7 +87,7 @@ class TestProcessor(TestCase):
     def test_started_processed_with_no_files(self):
         self.assertRaises(
             FileNotFoundError, self.__execute_simple_processing_from_folder,
-            source_folder=os.path.join(".", "TestData", "emptyFolder")
+            source_folder=os.path.join(TESTDATA_DIR, "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_started_processing_calls)
 
@@ -118,7 +118,7 @@ class TestProcessor(TestCase):
     def test_finished_all_files_with_no_files(self):
         self.assertRaises(
             FileNotFoundError, self.__execute_simple_processing_from_folder,
-            source_folder=os.path.join(".", "TestData", "emptyFolder")
+            source_folder=os.path.join(TESTDATA_DIR, "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_finished_all_files_calls)
 
@@ -149,7 +149,7 @@ class TestProcessor(TestCase):
     def test_preprocess_with_no_files(self):
         self.assertRaises(
             FileNotFoundError, self.__execute_simple_processing_from_folder,
-            source_folder=os.path.join(".", "TestData", "emptyFolder")
+            source_folder=os.path.join(TESTDATA_DIR, "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_preprocess_calls)
 
@@ -180,7 +180,7 @@ class TestProcessor(TestCase):
     def test_postprocess_with_no_files(self):
         self.assertRaises(
             FileNotFoundError, self.__execute_simple_processing_from_folder,
-            source_folder=os.path.join(".", "TestData", "emptyFolder")
+            source_folder=os.path.join(TESTDATA_DIR, "emptyFolder")
         )
         self.assertEqual(0, ns.amount_of_postprocess_calls)
 

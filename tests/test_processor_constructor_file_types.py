@@ -4,7 +4,7 @@ import shutil
 from unittest import TestCase
 
 from django_app.utility.os_utility import OsUtility
-from tests.help_classes import SimpleProcessorForFileTypes, clean_up_after_class
+from tests.help_classes import SimpleProcessorForFileTypes, clean_up_after_class, TESTDATA_DIR
 
 manager = multiprocessing.Manager()
 ns = manager.Namespace()
@@ -20,8 +20,8 @@ class TestProcessorConstructorFileTypes(TestCase):
         if file_type_from is None:
             file_type_from = ["txt"]
         if source_path is None:
-            source_path = os.path.join(".", "TestData", "testFolder")
-        destination_path = os.path.join(".", "TestData", "outputFolder")
+            source_path = os.path.join(TESTDATA_DIR, "testFolder")
+        destination_path = os.path.join(TESTDATA_DIR, "outputFolder")
         SimpleProcessorForFileTypes(
             file_type_from, file_type_to
         ).process(source_path, destination_path)
@@ -67,7 +67,7 @@ class TestProcessorConstructorFileTypes(TestCase):
             self.__execute_processor,
             file_type_from=["md"],
             amount_of_result_files=0,
-            source_path=os.path.join(".", "TestData", "empty.txt")
+            source_path=os.path.join(TESTDATA_DIR, "empty.txt")
         )
 
     def test_process_file_type_to_is_empty_string(self):
