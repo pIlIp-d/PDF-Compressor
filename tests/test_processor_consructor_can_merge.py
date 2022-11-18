@@ -4,7 +4,7 @@ import shutil
 from unittest import TestCase
 
 from django_app.utility.os_utility import OsUtility
-from tests.help_classes import clean_up_after_class, SimpleMergeProcessor, SimpleFakeMergeProcessor
+from tests.help_classes import clean_up_after_class, SimpleMergeProcessor, SimpleFakeMergeProcessor, TESTDATA_DIR
 
 
 class TestProcessorConstructorCanMerge(TestCase):
@@ -12,14 +12,14 @@ class TestProcessorConstructorCanMerge(TestCase):
     @staticmethod
     def __get_path_variations() -> list[list[str]]:
         for variation in [
-            [os.path.join(".", "TestData", "empty.txt"), os.path.join(".", "TestData", "output.txt"), False],
-            [os.path.join(".", "TestData", "testFolder"), os.path.join(".", "TestData", "output.txt"), True],
-            [os.path.join(".", "TestData", "empty.txt"), os.path.join(".", "TestData", "outputFolder"), False],
-            [os.path.join(".", "TestData", "testFolder"), os.path.join(".", "TestData", "outputFolder"), False],
-            [os.path.join(".", "TestData", "empty.txt"), "merge", True],
-            [os.path.join(".", "TestData", "testFolder"), "merge", True],
-            [os.path.join(".", "TestData", "empty.txt"), "default", False],
-            [os.path.join(".", "TestData", "testFolder"), "default", False],
+            [os.path.join(TESTDATA_DIR, "empty.txt"), os.path.join(TESTDATA_DIR, "output.txt"), False],
+            [os.path.join(TESTDATA_DIR, "testFolder"), os.path.join(TESTDATA_DIR, "output.txt"), True],
+            [os.path.join(TESTDATA_DIR, "empty.txt"), os.path.join(TESTDATA_DIR, "outputFolder"), False],
+            [os.path.join(TESTDATA_DIR, "testFolder"), os.path.join(TESTDATA_DIR, "outputFolder"), False],
+            [os.path.join(TESTDATA_DIR, "empty.txt"), "merge", True],
+            [os.path.join(TESTDATA_DIR, "testFolder"), "merge", True],
+            [os.path.join(TESTDATA_DIR, "empty.txt"), "default", False],
+            [os.path.join(TESTDATA_DIR, "testFolder"), "default", False],
         ]:
             yield variation
 
@@ -30,7 +30,7 @@ class TestProcessorConstructorCanMerge(TestCase):
             if os.path.isfile(destination_path):
                 os.remove(destination_path)
             else:
-                shutil.rmtree(os.path.join(".", "TestData", "outputFolder"))
+                shutil.rmtree(os.path.join(TESTDATA_DIR, "outputFolder"))
         else:
             result_path = self.__get_default_result_path(source_path)
             if os.path.isfile(source_path):
@@ -40,7 +40,7 @@ class TestProcessorConstructorCanMerge(TestCase):
 
     def __get_default_result_path(self, source_path):
         if os.path.isfile(source_path):
-            merged_files = glob.glob(os.path.join(".", "TestData", "*_merged_*"))
+            merged_files = glob.glob(os.path.join(TESTDATA_DIR, "*_merged_*"))
             if len(merged_files) > 0:
                 return merged_files[0]
             else:

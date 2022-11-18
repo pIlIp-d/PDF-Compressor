@@ -4,13 +4,13 @@ import time
 from unittest import TestCase
 
 from django_app.utility.os_utility import OsUtility
-from tests.help_classes import clean_up_after_class, SimpleMultiThreadTestProcessor
+from tests.help_classes import clean_up_after_class, SimpleMultiThreadTestProcessor, TESTDATA_DIR
 from tests.test_processor import TestingEventHandler
 from tests.test_processor import ns as test_processor_ns
 
 
 class TestProcessorConstructorRunMultiThreaded(TestCase):
-    source_folder = os.path.join(".", "TestData", "manyFiles")
+    source_folder = os.path.join(TESTDATA_DIR, "manyFiles")
 
     def __run_processing_for_many_files(self, multi_threaded: bool) -> float:
         # create Test Data
@@ -20,7 +20,7 @@ class TestProcessorConstructorRunMultiThreaded(TestCase):
         for i in range(100):
             with open(os.path.join(self.source_folder, str(i) + ".txt"), "w+") as f:
                 f.write(str(i))
-        destination_folder = os.path.join(".", "TestData", "outputFiles")
+        destination_folder = os.path.join(TESTDATA_DIR, "outputFiles")
         start_time = time.time()
         SimpleMultiThreadTestProcessor(
             [TestingEventHandler()], multi_threaded
