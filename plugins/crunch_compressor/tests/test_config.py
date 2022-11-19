@@ -6,7 +6,7 @@ import jsons
 
 
 class ConfigTest(TestCase):
-    CONFIG_FILE: str = os.path.abspath(os.path.join("..", "config.json"))
+    CONFIG_FILE: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config.json"))
 
     def test_os_utility_get_config_file_not_found(self):
         shutil.move(self.CONFIG_FILE, self.CONFIG_FILE + ".tmp")
