@@ -9,7 +9,7 @@ The diagrams are made with [PlanUML](https://plantuml.com).
 3. [Task Scheduler](#Task-Scheduler)
 4. [Processor](#Processor)
    1. [Processor Class Diagram](#Processor-Class-Diagram)
-   2. [Processor.process()](#Processor.process())
+   2. [Processor.process()](#Processor.process)
 
 _____
 
@@ -47,7 +47,7 @@ _____
 ![processor class diagram](images/processor/processor_classdiagram.png)  
 [source/processor/processor_classdiagram.puml](source/processor/processor_classdiagram.puml)  
 
-### Processor.process()
+### Processor.process
 ![processor.process() flow diagram](images/processor/processor.process.png)  
 [source/processor/processor.process.puml](source/processor/processor.process.puml)  
 _____
