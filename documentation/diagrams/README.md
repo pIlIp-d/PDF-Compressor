@@ -9,7 +9,7 @@ The diagrams are made with [PlanUML](https://plantuml.com).
 3. [Task Scheduler](#Task-Scheduler)
 4. [Processor](#Processor)
    1. [Processor Class Diagram](#Processor-Class-Diagram)
-   2. [Processor.process()](#Processorprocess)
+   2. [Processor.process()](#processorprocess)
 
 _____
 
