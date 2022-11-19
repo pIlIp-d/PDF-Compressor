@@ -3,9 +3,9 @@ The diagrams are made with [PlanUML](https://plantuml.com).
 
 1. [Components](#Components)
 2. [Requests](#Requests)
-   1. [Api View](#Api View)
-   2. [Download View](#Download View)
-   3. [Main View](#Main View)
+   1. [Api View](#Api-View)
+   2. [Download View](#Download-View)
+   3. [Main View](#Main-View)
 3. [Task Scheduler](#Task-Scheduler)
 4. [Processor](#Processor)
    1. [Processor Class Diagram](#Processor-Class-Diagram)
