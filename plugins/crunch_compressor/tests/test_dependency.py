@@ -153,3 +153,5 @@ class TestDependency(TestCase):
     def tearDown(self) -> None:
         # restore the original config file
         OsUtility.move_file(os.path.abspath(self.temp_config_file), os.path.abspath(self.config_file))
+        if os.path.isfile(self.result_path):
+            os.remove(self.result_path)
