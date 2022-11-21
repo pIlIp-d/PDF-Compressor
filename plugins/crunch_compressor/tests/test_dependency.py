@@ -1,47 +1,47 @@
 import os
-import sys
 from unittest import TestCase
-from io import StringIO
 import jsons
 
-from plugins.crunch_compressor.tests.TestCaseUtility import run_subprocess_and_get_output
+from plugins.crunch_compressor.pdfcompressor import PDFCompressor
 from django_app.utility.os_utility import OsUtility
+from tests.help_classes import get_console_buffer
 
 
 class TestDependency(TestCase):
-    config_file = "../config.json"
+    config_file = os.path.join(os.path.dirname(__file__), "..", "config.json")
+    temp_config_file = config_file + ".tmp"
 
-    program_path: str = os.path.abspath('../../..')
-    source_path = os.path.join("", "TestData", "singlePagePdf.pdf")
-    result_path = os.path.join("", "TestData", "singlePagePdf_compressed.pdf")
+    test_data_dir = os.path.join(os.path.dirname(__file__), "TestData")
+    source_path = os.path.join(test_data_dir, "singlePagePdf.pdf")
+    result_path = os.path.join(test_data_dir, "singlePagePdf_processed.pdf")
 
     @staticmethod
-    def get_console_buffer() -> StringIO:
-        console_buffer = StringIO()
-        sys.stdout = console_buffer
-        return console_buffer
+    def _run_pdf_compressor(**kwargs):
+        if "default_pdf_dpi" not in kwargs:
+            kwargs["default_pdf_dpi"] = 20
+        PDFCompressor(**kwargs).compress()
 
-    def __run_simple_compression(self, assume_success: bool, simple_and_lossless: bool) -> tuple[str, str, int]:
+    def __run_simple_compression(self, assume_success: bool, simple_and_lossless: bool) -> None:
         if os.path.isfile(self.result_path):
             os.remove(self.result_path)
 
-        args = [
-            "python3", self.program_path,
-            "-p", self.source_path
-        ]
+        args = {"source_path": self.source_path}
         if simple_and_lossless:
-            args.append("--simple-and-lossless")
+            args["simple_and_lossless"] = True
+        std_err_buffer = get_console_buffer("stderr")
+        self._run_pdf_compressor(**args)
 
-        return_code, output_str, err_str = run_subprocess_and_get_output(args)
+        # return_code, output_str, err_str =
         if assume_success or simple_and_lossless:
-            self.assertTrue(os.path.exists(self.result_path))
-            os.remove(self.result_path)
-            self.assertEqual(0, return_code)
+            path_exists = os.path.exists(self.result_path)
+            if path_exists:
+                os.remove(self.result_path)
+            self.assertTrue(path_exists)
+            # self.assertEqual(0, return_code)
             if not assume_success:
-                self.assertEqual("", err_str)
+                self.assertEqual("", std_err_buffer)
         else:
-            self.assertNotEqual("", err_str)
-        return output_str, err_str, return_code
+            self.assertNotEqual("", std_err_buffer)
 
     def __get_config(self):
         with open(self.config_file, "r") as f:
@@ -118,15 +118,12 @@ class TestDependency(TestCase):
         if os.path.isfile(self.result_path):
             os.remove(self.result_path)
 
-        args = [
-            "python3", self.program_path,
-            "-p", self.source_path,
-            "--simple-and-lossless"
-        ]
-        return_code, output_str, err_str = run_subprocess_and_get_output(args)
+        args = {
+            "source_path": self.source_path,
+            "simple_and_lossless": True
+        }
+        self.assertRaises(ValueError, self._run_pdf_compressor, **args)
         self.assertFalse(os.path.exists(self.result_path))
-        self.assertNotEqual(0, return_code)
-        self.assertTrue("Error:" in err_str)
 
     def test_with_tesseract_path_is_empty(self):
         self.__change_to_empty_path("tesseract_path")
@@ -136,18 +133,14 @@ class TestDependency(TestCase):
         self.__change_to_invalid_path("tesseract_path")
         self.__run_simple_compression(False, False)
 
+    # TODO precondition
     def test_with_tessdata_prefix_is_empty(self):
-        # TODO precondition
-        # self.__change_to_empty_path("tessdata_prefix")
-        # self.__run_simple_compression(False, False)
-        self.fail("Not fully implemented yet")
+        self.fail("Not implemented yet")
 
     def test_with_tessdata_prefix_is_valid(self):
         self.fail("Not implemented yet")
 
     def test_with_tessdata_prefix_is_invalid(self):
-        # self.__change_to_invalid_path("tessdata_prefix")
-        # self.__run_simple_compression(False, False)
         self.fail("Not implemented yet")
 
     def test_tesseract_with_no_ocr(self):
@@ -155,8 +148,8 @@ class TestDependency(TestCase):
 
     def setUp(self) -> None:
         # save the original config file as a copy
-        OsUtility.copy_file(self.config_file, self.config_file + "_tmp")
+        OsUtility.copy_file(self.config_file, self.temp_config_file)
 
     def tearDown(self) -> None:
         # restore the original config file
-        OsUtility.move_file(self.config_file + "_tmp", self.config_file)
+        OsUtility.move_file(os.path.abspath(self.temp_config_file), os.path.abspath(self.config_file))
