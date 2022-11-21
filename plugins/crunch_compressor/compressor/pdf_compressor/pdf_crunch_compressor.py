@@ -1,6 +1,7 @@
 import os
 import shutil
 
+from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
 from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
 from django_app.plugin_system.processing_classes.abstract_pdf_compressor import AbstractPdfProcessor
@@ -8,51 +9,73 @@ from plugins.crunch_compressor.compressor.pdf_compressor.cpdf_sqeeze_compressor 
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
 from django_app.utility.console_utility import ConsoleUtility
 from django_app.utility.os_utility import OsUtility
+from plugins.crunch_compressor.config import get_config
 
 
 class PDFCrunchCompressor(AbstractPdfProcessor):
     def __init__(
             self,
-            pngquant_path: str,
-            advpng_path: str,
-            pngcrush_path: str,
-            cpdf_squeeze_compressor: CPdfSqueezeCompressor,
-            compression_mode: int,
+            compression_mode: int = 5,
+            force_ocr: bool = False,
+            no_ocr: bool = False,
+            tesseract_language: str = "deu",
+            simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
-            event_handlers=None
+            event_handlers: list[EventHandler] = None
     ):
+        if event_handlers is None:
+            event_handlers = list()
         super().__init__(event_handlers, True)
-        self.__png_crunch_compressor = PNGCrunchCompressor(pngquant_path, advpng_path, pngcrush_path, compression_mode)
         self.__tessdata_prefix = None
-        self.__tesseract_path = None
-        self.__tesseract_language = None
-        self.__force_ocr = False
-        self.__no_ocr = True
-        self.__cpdf_squeeze_compressor = cpdf_squeeze_compressor
+        self.__force_ocr = force_ocr
+        self.__simple_and_lossless = simple_and_lossless
+        if self.__force_ocr and no_ocr:
+            raise ValueError("option force_ocr and no_ocr can't be used together")
         if default_pdf_dpi < 0:
             raise ValueError("default dpi needs to be greater than 0")
         self.__default_pdf_dpi = default_pdf_dpi
 
-    def enable_tesseract(
-            self,
-            tesseract_path: str,
-            force_ocr: bool = False,
-            no_ocr: bool = False,
-            tesseract_language: str = "deu",
-            tessdata_prefix: str = ""
-    ) -> None:
+        # configure compressors
+        config_paths = get_config()
+        try:
+            # lossless compressor
+            self.__cpdf_squeeze_compressor = CPdfSqueezeCompressor(
+                config_paths.cpdfsqueeze_path,
+                config_paths.wine_path,
+                event_handlers=event_handlers if simple_and_lossless else list()
+            )
+        except ValueError as error:
+            print(str(error) + " -> skipped compression with cpdfsqueeze.")
+            self.__cpdf_squeeze_compressor = None
+            if simple_and_lossless:
+                raise ValueError("when forcing cpdf with simple_and_lossless the cpdf path must be valid!")
 
-        if not os.path.exists(tesseract_path):
-            if force_ocr:
-                raise ValueError(
-                    "tesseract_path not found. If force-ocr is active tesseract needs to be configured correctly.")
-            else:
-                tesseract_path = None
-        self.__tesseract_path = tesseract_path
-        self.__force_ocr = force_ocr
-        self.__no_ocr = no_ocr
-        self.__tesseract_language = tesseract_language
-        self.__tessdata_prefix = tessdata_prefix
+        if not simple_and_lossless:
+            tesseract_path = None
+            if not no_ocr:
+                # enable tesseract
+                if os.path.exists(config_paths.tesseract_path):
+                    tesseract_path = config_paths.tesseract_path
+                else:
+                    if force_ocr:
+                        raise ValueError(
+                            "tesseract_path not found."
+                            "If force-ocr is active tesseract needs to be configured correctly."
+                        )
+            # init lossy compressor
+            self.__png_crunch_compressor = PNGCrunchCompressor(
+                config_paths.pngquant_path,
+                config_paths.advpng_path,
+                config_paths.pngcrush_path,
+                compression_mode
+            )
+            self.__image_to_pdf_converter = ImagesToPdfConverter(
+                tesseract_path,
+                self.__force_ocr,
+                no_ocr,
+                tesseract_language,
+                config_paths.tessdata_prefix
+            )
 
     @classmethod
     def __get_new_temp_path(cls, file: str) -> str:
@@ -80,14 +103,7 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
 
     def __custom_postprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         # merge images/pages into new pdf and optionally apply OCR
-        ImagesToPdfConverter(
-            self.__tesseract_path,
-            self.__force_ocr,
-            self.__no_ocr,
-            self.__tesseract_language,
-            self.__tessdata_prefix
-        ).process(temp_folder, destination_file)
-
+        self.__image_to_pdf_converter.process(temp_folder, destination_file)
         OsUtility.clean_up_folder(temp_folder)
 
         # console output control and finishing compression
@@ -117,6 +133,12 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
                 ))
         ConsoleUtility.quiet_mode = quiet_mode_buffer
         super().postprocess(source_file, destination_file)
+
+    def process(self, source_path, destination_path="default"):
+        if self.__simple_and_lossless:
+            self.__cpdf_squeeze_compressor.process(source_path, destination_path)
+        else:
+            super().process(source_path, destination_path)
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         temp_folder = self._get_and_create_temp_folder()
