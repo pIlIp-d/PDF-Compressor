@@ -35,7 +35,7 @@ def check_existence(path, error_message) -> str:
     if not os.path.exists(path):
         error = ConsoleUtility.get_error_string(error_message)
         if os.name != "nt":
-            error += " If you're running it with sudo try it without."
+            error += " If you're running the configuration with sudo, try it without."
         ConsoleUtility.print(error)
         return ""  # Not Found
     else:
@@ -109,7 +109,7 @@ def main():
         )
         tessdata_prefix = ""
 
-    with open("config.json", "w") as config_file:
+    with open(os.path.join(os.path.dirname(__file__), "config.json"), "w") as config_file:
         config_string = "{" + rf'''
         "advpng_path" : "{advpng_path}",
         "pngquant_path" : "{pngquant_path}",
@@ -120,7 +120,7 @@ def main():
         "wine_path" : "{wine_path}"
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
-    print("Config finished and saved to config.json")
+    ConsoleUtility.print_green(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
 
 
 if __name__ == "__main__":
