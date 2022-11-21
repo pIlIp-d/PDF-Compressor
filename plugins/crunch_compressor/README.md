@@ -66,11 +66,13 @@ include the following lines into settings.py `PROCESSOR_PLUGINS` if you want to 
 ```python
 from plugins.crunch_compressor.plugin_config.plugin_config \
 import PdfCompressorPlugin, PngCompressorPlugin, ImageToPdfConvertPlugin, PdfToImageConvertPlugin
-
-PdfCompressorPlugin("pdf_compressor"),
-PngCompressorPlugin("png_compressor"),
-ImageToPdfConvertPlugin("png_to_pdf_converter"),
-PdfToImageConvertPlugin("pdf_to_image_converter")
+PROCESSOR_PLUGINS = [
+    # ... other plugins #
+    PdfCompressorPlugin("pdf_compressor"),
+    PngCompressorPlugin("png_compressor"),
+    ImageToPdfConvertPlugin("png_to_pdf_converter"),
+    PdfToImageConvertPlugin("pdf_to_image_converter")
+]
 ```
 
 -------------------------------------------------------------------------
