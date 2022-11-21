@@ -3,7 +3,6 @@ from types import SimpleNamespace
 
 import jsons
 
-from django_app.utility.console_utility import ConsoleUtility
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), ".", "config.json")
 FORCE_WINE = False
@@ -120,7 +119,7 @@ def main():
         "wine_path" : "{wine_path}"
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
-    ConsoleUtility.print_green(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
+    print(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
 
 
 if __name__ == "__main__":
