@@ -5,16 +5,27 @@
     <meta charset="UTF-8">
     <script src="{{ dir }}static/dropzone/dropzone.js"></script>
     <link rel="stylesheet" href="{{ dir }}static/dropzone/dropzone.css">
-
     <link rel="stylesheet" href="{{ dir }}static/style.css">
     <link rel="stylesheet" href="{{ dir }}static/variables.css">
     <link rel="stylesheet" href="{{ dir }}static/helptext.css">
-
+    <script defer src="{{ dir }}static/script/script.js"></script>
+    <script defer src="{{ dir }}static/script/forms.js"></script>
+    <script defer src="{{ dir }}static/script/changeable.js"></script>
+    <script defer src="{{ dir }}static/script/dropzone_form.js"></script>
 
     <title>Croco-File-Crusher</title>
 </head>
 
 <body>
+<noscript><p>Your Browser doesn't support JavaScript.</p></noscript>
+
+<script>
+    let allowed_file_endings = [];
+    let ROOT_DIR = "{{ dir }}";
+    let USER_ID = "{{ user_id }}";
+    let REQUEST_ID = "{{ request_id }}";
+    let current_plugin = "{{ plugin }}";
+</script>
 
 <div id="header">
     <h1 id="heading"> Croco-File-Crusher </h1>
@@ -25,51 +36,20 @@
     <!----- Dropzone -------------------------------------------------------------------------------------------------->
     <form id="my-dropzone" action="{{ dir }}api/upload_file/" method="post" class="dropzone">
         {% csrf_token %}
+        <input type="hidden" name="request_id" value="{{ request_id }}"/>
     </form>
 
     <!----- compression options --------------------------------------------------------------------------------------->
-    <form action="{{ dir }}{{ processing_action }}" method="post" name="compression_options_form" id="compression_options_form">
+    <form action="{{ dir }}start_processing_and_show_download_view/" method="post" name="compression_options_form"
+          id="compression_options_form">
         {% csrf_token %}
+        <label for="destination_type_select">-></label>
+        <select name="destination_type_select" id="destination_type_select">
+            <option value="null">Choose a Result File Type</option>
+        </select>
+        <input type="hidden" name="request_id" value="{{ request_id }}"/>
 
-        <div class="form_element" id="id_merge_pdfs">
-            <span class="helptext">{{ form.merge_pdfs.help_text }}</span>
-            <span>{{ form.merge_pdfs.label }}</span>
-            {{ form.merge_pdfs }}
-        </div>
-        <div class="form_element" id="id_processing_file_extension">
-            <span class="helptext">{{ form.processing_file_extension.help_text }}</span>
-            <span>{{ form.processing_file_extension.label }}</span>
-            {{ form.processing_file_extension }}
-        </div>
-        <div class="form_element" id="id_simple_and_lossless">
-            <span class="helptext">{{ form.simple_and_lossless.help_text }}</span>
-            <span>{{ form.simple_and_lossless.label }}</span>
-            {{ form.simple_and_lossless }}
-        </div>
-        <div class="form_logic_container" id="not_lossless_container">
-            <div class="form_element" id="id_compression_mode">
-                <span class="helptext">{{ form.compression_mode.help_text }}</span>
-                <span>{{ form.compression_mode.label }}</span>
-                {{ form.compression_mode }}
-            </div>
-            <div class="form_element" id="id_default_pdf_dpi">
-                <span class="helptext">{{ form.default_pdf_dpi.help_text }}</span>
-                <span>{{ form.default_pdf_dpi.label }}</span>
-                {{ form.default_pdf_dpi }}
-            </div>
-            <div class="form_element" id="id_ocr_mode">
-                <span class="helptext">{{ form.ocr_mode.help_text }}</span>
-                <span>{{ form.ocr_mode.label }}</span>
-                {{ form.ocr_mode }}
-            </div>
-            <div class="form_logic_container" id="no_ocr_container">
-                <div class="form_element" id="id_tesseract_language">
-                    <span class="helptext">{{ form.tesseract_language.help_text }}</span>
-                    <span>{{ form.tesseract_language.label }}</span>
-                    {{ form.tesseract_language }}
-                </div>
-            </div>
-        </div>
+        <div id="form_content"></div>
     </form>
 
 </div>
@@ -87,113 +67,7 @@
     to have a look at the Croco-File-Crusher.
 </footer>
 
-<script>
 
-    document.addEventListener("DOMContentLoaded", init);
-    function init() {
-        // add onchange functions for special form elements which deactivate other options when checked
-        let simple_and_lossless = document.getElementsByName("simple_and_lossless")[0];
-        simple_and_lossless.onchange = function(){
-            update_visibility_of_container("not_lossless_container", this.checked);
-        }
-        let ocr_mode = document.getElementsByName("ocr_mode")[0];
-        ocr_mode.onchange = function(){
-            update_visibility_of_container("no_ocr_container", this.value === "off");
-        };
-        // call them once to initiate css classes from default values
-        simple_and_lossless.onchange();
-        ocr_mode.onchange();
-    }
 
-    function update_visibility_of_container(container_id, disabled){
-        let container = document.getElementById(container_id);
-        let DISABLED_CLASS = "disabled_container";
-        if (disabled){
-            container.classList.add(DISABLED_CLASS);
-        }
-        else{
-            container.classList.remove(DISABLED_CLASS);
-        }
-    }
-
-    let compress_button = document.getElementById("compress_button");
-    let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-
-    Dropzone.options.maxFiles = 100;
-    Dropzone.options.myDropzone = {
-        // Prevents Dropzone from uploading dropped files immediately
-        autoProcessQueue: true,
-        init: function () {
-            let _this = this;
-            this.on("addedfile", function (file) {
-                if (!correct_file_ending(file.name)) {
-                    this.removeFile(file);
-                    showUnsupportedFileAnimation()
-                    deactivate_compression_button();
-                    return;
-                } else {
-                    deactivate_compression_button();
-                }
-                let removeButton = Dropzone.createElement("<button class='remove-button'>Remove file</button>");
-                removeButton.addEventListener("click", function (e) {
-                    // Make sure the button click doesn't submit the form:
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Remove the file preview.
-                    _this.removeFile(file);
-                });
-                file.previewElement.appendChild(removeButton);
-                //if (this.dropzone.getQueuedFiles().length === null) //TODO
-                deactivate_compression_button()
-            });
-            this.on("queuecomplete", function () {
-                activate_compression_button();
-            });
-        }
-    };
-
-    function activate_compression_button() {
-        compress_button.classList.remove("disabled");
-        compress_button.classList.add("enabled");
-        compress_button.disabled = false;
-        compress_button.addEventListener("click", submit_compression_options_form);
-    }
-
-    function deactivate_compression_button() {
-        compress_button.classList.remove("enabled");
-        compress_button.classList.add("disabled");
-        compress_button.disabled = true;
-        compress_button.removeEventListener("click", submit_compression_options_form);
-    }
-
-    function submit_compression_options_form() {
-        document.getElementById("compression_options_form").submit();
-    }
-
-    function correct_file_ending(filename) {
-        let allowed_file_ending = [
-            {% for ending in allowed_file_endings %}
-                "{{ ending }}",
-            {% endfor %}
-        ];
-
-        for (let ending in allowed_file_ending) {
-            if (ending != null && filename.endsWith(allowed_file_ending[ending])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Animations
-    function showUnsupportedFileAnimation() {
-        let dropzone = document.getElementById("my-dropzone");
-        dropzone.classList.add("wiggle");
-        setTimeout(function () {
-            dropzone.classList.remove("wiggle");
-        }, 1000); //At least the time the animation lasts
-    }
-
-</script>
 
 </body>

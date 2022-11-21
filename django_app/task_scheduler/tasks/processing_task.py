@@ -1,13 +1,11 @@
 from abc import ABC
 
 from django_app.task_scheduler.tasks.task import Task
-from django_app.task_scheduler.event_handler.process_stats_event_handler import ProcessStatsEventHandler
+from django_app.task_scheduler.processing_event_handler import ProcessingEventHandler
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.webserver.models.uploaded_file import UploadedFile
-from django_app.webserver.string_utility import StringUtility
+from django_app.utility.string_utility import StringUtility
 
 
-# TODO document all options, destination_file is in [file, folder, merge, split]
 class ProcessingTask(Task, ABC):
     def __init__(
             self,
@@ -20,9 +18,9 @@ class ProcessingTask(Task, ABC):
         self._source_path = StringUtility.get_local_absolute_path(processing_request.get_source_dir())
         # destination is either merged file or directory
         self._destination_path = "merge" if self._request_parameters.get("merge_files") else \
-            StringUtility.get_local_absolute_path(processing_request.get_destination_dir())
+            StringUtility.get_local_absolute_path(processing_request.get_destination_dir())  # TODO replace with only "merge" or "default"
 
-    def _get_event_handler(self) -> list[ProcessStatsEventHandler]:
+    def _get_event_handler(self) -> list[ProcessingEventHandler]:
         return [
-            ProcessStatsEventHandler(self._request_id)
+            ProcessingEventHandler(self._request_id)
         ]

@@ -1,41 +1,76 @@
 # Django App
 
-### Table of Content
-1. [Frontend](#Django-Webapp-(UI-and-Backend))
-2. [Backend](#Processing-(Backend))
-3. [Plugins](#Plugins)
-   1. [Add a new Plugin](#Add-a-new-Plugin)
-      1. [Plugin Class](#Plugin-Class)
-      2. [Processing Task](#Processing-Task)
-         1. [Event Handler Class](#Event-Handler-Class)
-      3. [Plugin Form](#Plugin-Form)
-4. [TODOs](#TODOs)
+## System Overview
+![Diagram of all Components and Relations](diagrams/images/components.png)
 
-## Django Webapp (UI and Backend)
+See more diagrams [here](diagrams)
 
-the django python package is used as webserver.  
-It displays the website, handles requests and forwards the processing request to the task_scheduler.
+## Django
+Python Web-Backend
+It displays the website, handles requests and saves the processingTasks that are executed by the TaskScheduler.
 
 * `django_app/webserver` holds the views for user interaction
 * `django_app/api` holds the views that deliver data to js or handle form-requests
+* `django_app/media` holds all the uploaded and processed files
 
 ## Processing (Backend)
 
-The `TaskScheduler` class checks for changes in the tasks db and if changes are detected,  
-it starts Tasks/processing by using the data/parameters given in the `django_app/task_scheduler/tasks.db` tasks table.
+The taskScheduler class checks for changes in the tasks.db and if changes are detected
+it starts processing (e.g. Compressing) by executing the Task object inside `django_app/task_scheduler/tasks.sqlite3`
 
 ## New Tasks
 
 A Task can be added by constructing a subclass of `django_app.task_scheduler.tasks.task.Task` and call the create() method.
 After that the `Task.run()` method is executed automatically.
 
-It works by creating a db entry in tasks.db tasks table, which is then executed by the task_scheduler.
+```python
+from django_app.task_scheduler.tasks.task import Task
 
-### **ProcessingTask**
-Is a Task class that is used for File Request Processing (mainly of the plugins).  
-Delivers default `_source_path`, `_destination_path`, `_request_parameters` attributes to subclasses.
-These values can be used to run `<Processor>.process()` for your Plugin.  
-`_request_parameters` includes all form parameters of your custom form.
+class MyCustomTask(Task):
+   def run(self):
+      pass # do stuff
+
+# add the task
+MyCustomTask().create()
+```
+
+### ProcessingTask (extends Task)
+
+used for File Processing (mainly of the plugins).
+
+delivers default values that you can use, when its used as plugin Task
+* `_source_path` folder inside `django_app/media` where the uploaded files of your request are
+* `_destination_path` folder inside `django_app/media` where the result files should end up
+* `_request_parameters` includes all form parameters of your custom form.
+
+These values can be used to run `YourProcessor.process()` for your Plugin.  
+
+
+## Event Handler Class
+
+every task should trigger certain events, that can be used by the program to determine progress or to apply different processing like zipping or console logging
+
+```python
+class EventHandler(...):
+    # is called before your processing task starts
+    def started_processing(self): pass
+    # is called after all processing has been finished and the result files exist in the destination directory
+    def finished_all_files(self): pass
+    # call before each processing of a file
+    def preprocess(self, source_file: str, destination_file: str) -> None: pass
+    # call after each processing of a file has been finished with source_file as the unchanged starting file
+    # and destination_file the processed file
+    def postprocess(self, source_file: str, destination_file: str) -> None: pass
+```
+
+### ProcessingEventHandler (extends EventHandler)
+is used inside every ProcessingTask to assure the Processing Pipeline works.  
+you can get an instance with `event_handler = super()._get_event_handler()` inside ProcessingTask  
+After `finished_all_files()` is called the finished files are shown to the user on the download view.
+
+## UML diagrams
+diagrams are using the PlantUML integration plugin / syntax  
+syntax can be found here: [https://plantuml.com](https://plantuml.com)
 
 # TODOs
 
