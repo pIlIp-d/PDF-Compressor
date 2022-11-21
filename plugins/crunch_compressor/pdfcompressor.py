@@ -50,11 +50,11 @@ class PDFCompressor:
         os.chdir(pdf_dir)
 
         if not os.path.exists(self.__source_path):
-            raise ValueError("option -p/--path must be a valid path to a file or folder.")
+            raise ValueError("option source_path must be a valid path to a file or folder.")
         if compression_mode < 1 or compression_mode > 5:
-            raise ValueError("option -m/--mode must be in range 1 to 5.")
+            raise ValueError("option mode must be in range 1 to 5.")
         if self.__force_ocr and no_ocr:
-            raise ValueError("option -f/--force-ocr and -n/--no-ocr can't be used together")
+            raise ValueError("option force_ocr and no_ocr can't be used together")
 
         # configure compressors
         config_paths = get_config()
