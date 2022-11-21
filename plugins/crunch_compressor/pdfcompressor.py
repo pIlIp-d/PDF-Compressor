@@ -69,7 +69,10 @@ class PDFCompressor:
         except ValueError as error:
             print(str(error) + " -> skipped compression with cpdfsqueeze.")
             self.__cpdf = None
-        if not self.__simple_and_lossless:
+        if self.__simple_and_lossless:
+            if self.__cpdf is None:
+                raise ValueError("when forcing cpdf with simple_and_lossless the cpdf path must be valid!")
+        else:
             # lossy compressor
             self.__pdf_crunch = self.__get_and_configure_pdf_crunch(config_paths, self.__cpdf)
 
