@@ -1,22 +1,10 @@
-import sys
-from io import StringIO
 from unittest import TestCase
 
 from django_app.utility.console_utility import ConsoleUtility
 
 
 class ConsoleUtilityTest(TestCase):
-    @staticmethod
-    def get_console_buffer(std_type: str) -> StringIO:
-        console_buffer = StringIO()
-        if std_type == "stdout":
-            sys.stdout = console_buffer
-        elif std_type == "stderr":
-            sys.stderr = console_buffer
-        else:
-            raise ValueError("unsupported std_type")
-        return console_buffer
-
+    
     def test_print_quiet_mode_is_not_active(self):
         console_buffer = ConsoleUtilityTest.get_console_buffer("stdout")
         ConsoleUtility.quiet_mode = False

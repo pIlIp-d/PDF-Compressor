@@ -1,6 +1,8 @@
 import os
 import shutil
+import sys
 import time
+from io import StringIO
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from django_app.plugin_system.processing_classes.processor import Processor
@@ -8,6 +10,17 @@ from django_app.plugin_system.processing_classes.processorwithdestinationfolder 
 
 TESTDATA_DIR = os.path.join(os.path.relpath(os.path.dirname(__file__)), "TestData")
 TESTDATA_DIR_WITHOUT_RELATIVE = "/".join(TESTDATA_DIR.split(os.path.sep))
+
+
+def get_console_buffer(std_type: str) -> StringIO:
+    console_buffer = StringIO()
+    if std_type == "stdout":
+        sys.stdout = console_buffer
+    elif std_type == "stderr":
+        sys.stderr = console_buffer
+    else:
+        raise ValueError("unsupported std_type")
+    return console_buffer
 
 
 def simple_copy_process_file(self, source_file: str, destination_path: str) -> None:
