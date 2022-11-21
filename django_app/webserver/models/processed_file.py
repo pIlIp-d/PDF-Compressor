@@ -42,7 +42,7 @@ class ProcessedFile(models.Model):
         return processed_file
 
     @classmethod
-    def get_all_processing_files(cls, user_id: str, request_id: str):
+    def get_all_processing_files(cls, user_id: str, request_id: str = None):
 
         def ___get_json(file_obj, filename: str, filename_path: str, request_id: int, file_origin: str):
             file_is_present = os.path.isfile(StringUtility.get_local_absolute_path(filename_path))
@@ -82,7 +82,10 @@ class ProcessedFile(models.Model):
                     ))
             return files
 
-        all_user_requests = ProcessingFilesRequest.objects.filter(user_id=user_id, id=request_id)
+        args = {"user_id": user_id}
+        if request_id is not None:
+            args["id"] = request_id
+        all_user_requests = ProcessingFilesRequest.objects.filter(**args)
         all_files = []
         for processing_request in all_user_requests:
             all_files += ___get_source_files(processing_request)
