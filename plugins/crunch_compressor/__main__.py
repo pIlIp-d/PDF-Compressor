@@ -2,6 +2,8 @@ import argparse
 import os.path
 import shutil
 
+from django_app.utility.console_utility import ConsoleUtility
+from plugins.crunch_compressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from plugins.crunch_compressor.pdfcompressor import PDFCompressor
 
 
@@ -79,18 +81,19 @@ def get_args():
 if __name__ == '__main__':
     try:
         args = get_args()
-        pdf_compressor = PDFCompressor(
+        ConsoleUtility.quiet_mode = args["quiet_mode"]
+
+        PDFCrunchCompressor(
+            compression_mode=args["mode"],
+            force_ocr=args["force_ocr"],
+            no_ocr=args["no_ocr"],
+            tesseract_language=args["tesseract_language"],
+            simple_and_lossless=args["simple_and_lossless"],
+            default_pdf_dpi=args["dpi"]
+        ).process(
             args["path"],
-            args["output_path"],
-            args["mode"],
-            args["force_ocr"],
-            args["no_ocr"],
-            args["quiet_mode"],
-            args["tesseract_language"],
-            args["simple_and_lossless"],
-            args["dpi"]
+            args["output_path"]
         )
-        pdf_compressor.compress()
 
     except KeyboardInterrupt:
         while True:

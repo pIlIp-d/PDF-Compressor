@@ -2,6 +2,7 @@ import os
 from unittest import TestCase
 import jsons
 
+from plugins.crunch_compressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from plugins.crunch_compressor.pdfcompressor import PDFCompressor
 from django_app.utility.os_utility import OsUtility
 from tests.help_classes import get_console_buffer
@@ -19,7 +20,8 @@ class TestDependency(TestCase):
     def _run_pdf_compressor(**kwargs):
         if "default_pdf_dpi" not in kwargs:
             kwargs["default_pdf_dpi"] = 20
-        PDFCompressor(**kwargs).compress()
+        source_path = kwargs.pop("source_path")
+        PDFCrunchCompressor(**kwargs).process(source_path)
 
     def __run_simple_compression(self, assume_success: bool, simple_and_lossless: bool) -> None:
         if os.path.isfile(self.result_path):
