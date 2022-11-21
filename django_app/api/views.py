@@ -44,7 +44,6 @@ def started_processing(request):
 @require_http_methods(["GET"])
 @requires_parameters("GET", ["request_id"])
 def finished_all_files(request):
-    print("LLLLL: finished_all_files")
     processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
     processing_request.finished = True
     processing_request.save()
