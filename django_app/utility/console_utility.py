@@ -11,14 +11,17 @@ class ConsoleUtility:
     show_errors_always: bool = False
 
     @classmethod
+    def get_ansi_colored_string(cls, ansi_color_string: str, string: str) -> str:
+        # returns colored string for ANSI compatible shells
+        return ansi_color_string + string + cls.END
+
+    @classmethod
     def get_error_string(cls, string: str) -> str:
-        # returns string but in red for ANSI compatible shells
-        return cls.RED + string + cls.END
+        return cls.get_ansi_colored_string(cls.RED, string)
 
     @classmethod
     def get_file_string(cls, file: str) -> str:
-        # returns string but in yellow for ANSI compatible shells
-        return cls.YELLOW + str(file) + cls.END
+        return cls.get_ansi_colored_string(cls.YELLOW, file)
 
     @classmethod
     def print_stats(cls, orig: int, result: int) -> None:
@@ -40,7 +43,7 @@ class ConsoleUtility:
     @classmethod
     def print_ansi_colored_string(cls, ansi_color_string: str, string: str, force_print: bool = False) -> None:
         if not cls.quiet_mode or force_print:
-            cls.print(ansi_color_string + string + cls.END)
+            cls.print(cls.get_ansi_colored_string(ansi_color_string, string))
 
     @classmethod
     def print_green(cls, string: str) -> None:
