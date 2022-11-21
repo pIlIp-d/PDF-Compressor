@@ -1,0 +1,95 @@
+@startuml
+title MAIN VIEW
+
+box Client #f5f5f5
+    actor Browser
+    entity DOM #red
+    entity DestinationTypeSelect #purple
+    entity ProcessingButton #green
+end box
+box Server #pink
+    participant Django
+end box
+
+Browser o-> Django: GET render_main_view()
+    activate Django
+        Django --> Browser: main.html
+    deactivate Django
+    activate Browser
+        Browser -> DOM: DOMContentLoaded
+    deactivate Browser
+    activate DOM
+        DOM -> DestinationTypeSelect: init()
+    deactivate DOM
+    activate DestinationTypeSelect #lightgray
+        DestinationTypeSelect -[#purple]> DestinationTypeSelect ++ : update_options()
+
+        deactivate DestinationTypeSelect
+        DestinationTypeSelect -> DestinationTypeSelect: addEventListener("onchange")
+
+        DestinationTypeSelect [#red]->o DOM : dispatch SELECT.onchange Event
+    deactivate DestinationTypeSelect
+
+
+====
+-[#purple]> DestinationTypeSelect: SELECT.update_options()
+    activate DestinationTypeSelect
+        DestinationTypeSelect -> ProcessingButton: deactivate()
+        DestinationTypeSelect -> Django: get_possible_destination_file_types
+    deactivate DestinationTypeSelect
+    activate Django
+        Django --> DestinationTypeSelect: possible_file_types
+    deactivate Django
+        activate DestinationTypeSelect #lightgray
+        DestinationTypeSelect -> DestinationTypeSelect ++ : add_options()
+        DestinationTypeSelect -> DestinationTypeSelect: clear()
+        loop for option in possible_options
+           DestinationTypeSelect -> DOM: add option to select
+        end
+        alt if current_plugin is valid option
+            note over DestinationTypeSelect: selected_option = current_plugin
+        else
+            note over DestinationTypeSelect: selected_option = 'null'
+        end
+        deactivate DestinationTypeSelect
+         alt if select.isEmpty()
+            DestinationTypeSelect -> DOM: set_form_content(No Processing available for these files.)
+        end
+        DestinationTypeSelect -[#green]>o ProcessingButton: update()
+    deactivate DestinationTypeSelect
+
+====
+-[#red]> DOM: SELECT.onchange()
+    deactivate DestinationTypeSelect
+    activate DOM
+        DOM -> Browser: save_plugin_in_url()
+        DOM -> ProcessingButton: update()
+        DOM -> DestinationTypeSelect: update_allowed_input_file_types(selected_option)
+    deactivate DOM
+    activate DestinationTypeSelect
+        DestinationTypeSelect -> Django: get_allowed_input_file_types
+    deactivate DestinationTypeSelect
+    activate Django
+        Django --> DestinationTypeSelect: allowed_file_types
+    deactivate Django
+    activate DestinationTypeSelect
+        DestinationTypeSelect -> DestinationTypeSelect: save new allowed_file_types
+        alt if successful selected_option === "null"
+            DestinationTypeSelect -> ProcessingButton: deactivate()
+        else else a plugin was selected
+            DestinationTypeSelect -> Django: get_form_html_for_web_view
+            deactivate DestinationTypeSelect
+            activate Django
+                Django --> DestinationTypeSelect: form_html, form_script
+            deactivate Django
+            activate DestinationTypeSelect
+            DestinationTypeSelect -> Browser: set_form_content
+            DestinationTypeSelect -> Browser: set_form_script
+            DestinationTypeSelect -[#purple]> DestinationTypeSelect: update_options()
+        end
+    deactivate DestinationTypeSelect
+
+
+
+
+@enduml

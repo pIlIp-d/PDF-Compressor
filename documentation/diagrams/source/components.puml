@@ -1,0 +1,32 @@
+@startuml
+
+    title Most important Components
+    component Browser #pink
+    component Django #lightblue
+    component TaskScheduler #violet
+    component Processors
+    database ProcessingFilesRequest{
+        file ProcessedFiles
+        file UploadedFiles
+    }
+    component Plugin {
+        component ProcessingTask
+        component PluginForm
+    }
+    database tasks.sqlite3 {
+        node Tasks
+    }
+
+    Django -down-> ProcessingFilesRequest: creates
+    Browser -right-> Django: requests
+    TaskScheduler -> Tasks: runs / schedules
+    Tasks --> [ProcessingEventHandler]: signal events
+    ProcessingEventHandler --> Django: sends requests
+
+    ProcessingTask -down-|> Tasks
+    Tasks --> Processors: runs
+    Django -down-> ProcessingTask: creates
+    PluginForm -up-> Django: serves formular
+    Processors --> UploadedFiles: processes
+    Processors -> ProcessedFiles: creates
+@enduml

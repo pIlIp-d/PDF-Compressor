@@ -1,0 +1,97 @@
+@startuml
+title API views
+
+
+group api
+    Client o-[#blue]> Django: get_possible_destination_file_types
+    activate Django
+        alt if request_id in request.GET
+            Django -> DB: get_uploaded_file_list_of_current_request()
+            activate DB
+            DB --> Django: files_of_request
+            deactivate DB
+            note over Django: from_file_types =  [mime_type() for file in files_of_request]
+        else
+            note over Django: from_file_types = [None]
+        end
+    Django --[#blue]> Client: possible_file_types
+    deactivate Django
+====
+    Client o-[#blue]> Django: get_allowed_input_file_types
+    activate Django
+        Django -> Plugin: get_input_file_types of all plugins/ the specified Plugin
+        activate Plugin
+        Plugin --> Django: list of types
+        deactivate Plugin
+        Django --[#blue]> Client: allowed_file_types
+    deactivate Django
+
+====
+    Client o-[#blue]> Django: get_form_html_for_web_view
+    activate Django
+        Django -> Plugin: get_form_html_and_script() of plugin
+        activate Plugin
+            Plugin --> Django: form_html and form_script
+        deactivate Plugin
+        Django --[#blue]> Client: form_html, form_script
+    deactivate Django
+
+    ====
+    Client o-[#blue]> Django: remove_file
+    activate Django
+        Django -> DB: get file by id
+        activate DB
+            DB --> Django: file or null
+        deactivate DB
+        alt if file != null && owned by current user
+            Django -> DB: file.delete()
+            Django -[#blue]-> Client: successfully deleted file
+        else
+            Django -[#blue]-> Client: no file found
+            deactivate Django
+       end
+====
+
+    Client o-[#blue]> Django: get_all_files_request_ids
+    activate Django
+    Django -> DB: get ProcessingFileRequests of user
+    activate DB
+    DB --> Django: list of ProcessingFileRequests
+    deactivate DB
+    Django -[#blue]-> Client: list of request_ids
+    deactivate Django
+
+====
+    Client o-[#blue]> Django: get_all_files_of_request -> request_id
+    activate Django
+    Django -> DB: ProcessedFile.get_all_processing_files(user_id, request_id)
+    activate DB
+    DB --> Django: json of files
+    deactivate DB
+    Django -[#blue]-> Client: json of files
+    deactivate Django
+
+====
+    Client o-[#blue]> Django: upload_file
+    activate Django
+        Django -> DB: create UploadedFile
+        activate DB
+        DB --> Django: fileobject
+        deactivate DB
+    Django -[#blue]-> Client: file id
+    deactivate Django
+
+====
+    Client o-[#blue]> Django: get_possible_destination_file_types
+    activate Django
+        alt if request_id in request parameters
+            Django -[#blue]-> Client: possible_file_types of all plugins\n that accept the file types of all UploadedFiles of the current request
+        else
+            Django -[#blue]-> Client: possible_file_types of all plugins
+            deactivate Django
+        end
+end
+
+
+
+@enduml

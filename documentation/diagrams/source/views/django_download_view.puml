@@ -1,0 +1,25 @@
+@startuml
+title DOWNLOAD VIEW
+
+box Client #f5f5f5
+    actor Browser
+end box
+box Server #pink
+    participant Django
+end box
+
+Browser o-> Django: GET render_download_view()
+activate Django
+    Django --> Browser: download.html
+deactivate Django
+loop every x seconds
+    activate Browser
+        Browser -> Django: GET get_all_files/
+    activate Django
+        Django --> Browser: json list of file infos
+    deactivate Django
+        Browser -> Browser: update_html()
+end
+deactivate Browser
+
+@enduml
