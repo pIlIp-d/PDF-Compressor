@@ -3,8 +3,6 @@ from types import SimpleNamespace
 
 import jsons
 
-from django_app.utility.console_utility import ConsoleUtility
-
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), ".", "config.json")
 FORCE_WINE = False
 
@@ -33,10 +31,9 @@ def get_config(config_file: str = CONFIG_FILE):
 
 def check_existence(path, error_message) -> str:
     if not os.path.exists(path):
-        error = ConsoleUtility.get_error_string(error_message)
         if os.name != "nt":
-            error += " If you're running the configuration with sudo, try it without."
-        ConsoleUtility.print(error)
+            error_message += " If you're running the configuration with sudo, try it without."
+        print(error_message)
         return ""  # Not Found
     else:
         return path
@@ -120,7 +117,7 @@ def main():
         "wine_path" : "{wine_path}"
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
-    ConsoleUtility.print_green(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
+    print(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
 
 
 if __name__ == "__main__":
