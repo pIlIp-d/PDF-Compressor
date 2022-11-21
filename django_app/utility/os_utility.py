@@ -37,11 +37,10 @@ class OsUtility:
 
     @classmethod  # todo unitTest
     def move_file(cls, from_file: str, to_file: str):
-        if os.path.isfile(from_file):
-            cls.copy_file(from_file, to_file)
-            os.remove(from_file)
-        else:
-            ConsoleUtility.print_error(f"FileNotFoundError from_file: {from_file}, to_file:{to_file}")
+        if not os.path.isfile(from_file):
+            raise FileNotFoundError(f"from_file: {from_file}, to_file:{to_file}")
+        cls.copy_file(from_file, to_file)
+        os.remove(from_file)
 
     @classmethod  # todo unitTest
     def copy_file(cls, from_file: str, to_file: str):
