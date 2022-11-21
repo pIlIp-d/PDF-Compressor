@@ -223,7 +223,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         return self.__get_files_and_extra_info_from_input_folder(source_path, destination_path) if os.path.isdir(
             source_path) else self.__get_files_and_extra_info_from_input_file(source_path, destination_path)
 
-    def process(self, source_path, destination_path):
+    def process(self, source_path, destination_path="default"):
         """
         implements advanced checks, behaviour, optimization for process_file<br>
         supports different situations and improves compatibility
