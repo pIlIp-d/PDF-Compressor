@@ -29,11 +29,6 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
         self.__tessdata_prefix = None
         self.__force_ocr = force_ocr
         self.__simple_and_lossless = simple_and_lossless
-        if self.__force_ocr and no_ocr:
-            raise ValueError("option force_ocr and no_ocr can't be used together")
-        if default_pdf_dpi < 0:
-            raise ValueError("default dpi needs to be greater than 0")
-        self.__default_pdf_dpi = default_pdf_dpi
 
         # configure compressors
         config_paths = get_config()
@@ -50,8 +45,8 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
             if simple_and_lossless:
                 raise ValueError("when forcing cpdf with simple_and_lossless the cpdf path must be valid!")
 
+        tesseract_path = None
         if not simple_and_lossless:
-            tesseract_path = None
             if not no_ocr:
                 # enable tesseract
                 if os.path.exists(config_paths.tesseract_path):
@@ -62,20 +57,21 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
                             "tesseract_path not found."
                             "If force-ocr is active tesseract needs to be configured correctly."
                         )
-            # init lossy compressor
-            self.__png_crunch_compressor = PNGCrunchCompressor(
-                config_paths.pngquant_path,
-                config_paths.advpng_path,
-                config_paths.pngcrush_path,
-                compression_mode
-            )
-            self.__image_to_pdf_converter = ImagesToPdfConverter(
-                tesseract_path,
-                self.__force_ocr,
-                no_ocr,
-                tesseract_language,
-                config_paths.tessdata_prefix
-            )
+        # init lossy compressor
+        self.__png_crunch_compressor = PNGCrunchCompressor(
+            config_paths.pngquant_path,
+            config_paths.advpng_path,
+            config_paths.pngcrush_path,
+            compression_mode
+        )
+        self.__image_to_pdf_converter = ImagesToPdfConverter(
+            tesseract_path,
+            self.__force_ocr,
+            no_ocr,
+            tesseract_language,
+            config_paths.tessdata_prefix
+        )
+        self.__pdf_to_image_converter = PdfToImageConverter("png", default_pdf_dpi)
 
     @classmethod
     def __get_new_temp_path(cls, file: str) -> str:
@@ -99,7 +95,7 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
         os.makedirs(temp_folder)
 
         # split pdf into images that can be compressed using crunch
-        PdfToImageConverter("png", self.__default_pdf_dpi).process(source_file, temp_folder)
+        self.__pdf_to_image_converter.process(source_file, temp_folder)
 
     def __custom_postprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         # merge images/pages into new pdf and optionally apply OCR
