@@ -32,11 +32,10 @@ class ImagesToPdfConverter(Processor):
             pytesseract_path: str = None,
             force_ocr: bool = False,
             no_ocr: bool = False,
-            tesseract_language: str = "deu",
+            tesseract_language: str = "eng",
             tessdata_prefix: str = "",
             event_handlers=None,
             file_types: list[str] = None
-
     ):
         if file_types is None:
             file_types = possible_files_endings

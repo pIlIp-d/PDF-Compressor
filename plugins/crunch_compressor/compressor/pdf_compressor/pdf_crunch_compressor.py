@@ -18,7 +18,7 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
             compression_mode: int = 5,
             force_ocr: bool = False,
             no_ocr: bool = False,
-            tesseract_language: str = "deu",
+            tesseract_language: str = "eng",
             simple_and_lossless: bool = False,
             default_pdf_dpi: int = 400,
             event_handlers: list[EventHandler] = None
