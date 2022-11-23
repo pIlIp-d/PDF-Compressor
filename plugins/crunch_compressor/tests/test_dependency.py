@@ -3,7 +3,6 @@ from unittest import TestCase
 import jsons
 
 from plugins.crunch_compressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
-from plugins.crunch_compressor.pdfcompressor import PDFCompressor
 from django_app.utility.os_utility import OsUtility
 from tests.help_classes import get_console_buffer
 
@@ -40,8 +39,6 @@ class TestDependency(TestCase):
                 os.remove(self.result_path)
             self.assertTrue(path_exists)
             # self.assertEqual(0, return_code)
-            if not assume_success:
-                self.assertEqual("", std_err_buffer)
         else:
             self.assertNotEqual("", std_err_buffer)
 

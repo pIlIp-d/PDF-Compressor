@@ -26,7 +26,7 @@ class PngQuantCompressor(AbstractPngCompressor):
             If conversion results in quality below the min quality the image won't be saved
         :event_handlers - list of EventHandler
         """
-        super().__init__(event_handlers)
+        super().__init__(event_handlers, True)
         self.__pngquant_path = pngquant_path
 
         if not os.path.isfile(self.__pngquant_path):

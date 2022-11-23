@@ -40,10 +40,11 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
                 event_handlers=event_handlers if simple_and_lossless else list()
             )
         except ValueError as error:
-            print(str(error) + " -> skipped compression with cpdfsqueeze.")
             self.__cpdf_squeeze_compressor = None
             if simple_and_lossless:
                 raise ValueError("when forcing cpdf with simple_and_lossless the cpdf path must be valid!")
+            else:
+                print(str(error) + " -> skipping compression with cpdfsqueeze.")
 
         tesseract_path = None
         if not simple_and_lossless:
