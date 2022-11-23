@@ -5,6 +5,8 @@ from .pngquant_compressor import PngQuantCompressor
 from ...processor.CompressionPostprocessor import CompressionPostprocessor
 from django_app.utility.console_utility import ConsoleUtility
 
+# TODO redo scheduling logic for processing
+
 
 class PNGCrunchCompressor(AbstractPngCompressor):
     def __init__(
@@ -15,7 +17,7 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             compression_mode: int = 3,
             event_handlers=None
     ):
-        super().__init__(event_handlers, False)
+        super().__init__(event_handlers, True)
 
         if compression_mode <= 0 or compression_mode >= 6:
             raise ValueError("Compression mode must be in range 1-5")
@@ -63,22 +65,10 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             self.__pngcrush = None
 
     def process_file(self, source_file: str, destination_path: str) -> None:
-        self.preprocess(source_file, destination_path)
-
-        # run single file compress
+        # run compress tools on single file
         if self.__pngquant is not None:
             self.__pngquant.process_file(source_file, destination_path)
         if self.__advcomp is not None:
             self.__advcomp.process_file(destination_path, destination_path)
         if self.__pngcrush is not None:
             self.__pngcrush.process_file(source_file, destination_path)
-        self.postprocess(source_file, destination_path)
-
-    def _process_file_list(self, source_files: list, destination_files: list) -> None:
-        # run optimized compress
-        if self.__pngquant is not None:
-            self.__pngquant.process_file_list_multi_threaded(source_files, destination_files)
-        if self.__advcomp is not None:
-            self.__advcomp.process_file_list_multi_threaded(source_files, destination_files)
-        if self.__pngcrush is not None:
-            self.__pngcrush.process_file_list_multi_threaded(source_files, destination_files)
