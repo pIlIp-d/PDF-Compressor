@@ -1,9 +1,12 @@
+import time
+
 from .abstract_png_compressor import AbstractPngCompressor
 from .advpng_compressor import AdvanceCompressor
 from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
 from ...processor.CompressionPostprocessor import CompressionPostprocessor
 from django_app.utility.console_utility import ConsoleUtility
+
 
 # TODO redo scheduling logic for processing
 
@@ -68,7 +71,9 @@ class PNGCrunchCompressor(AbstractPngCompressor):
         # run compress tools on single file
         if self.__pngquant is not None:
             self.__pngquant.process_file(source_file, destination_path)
+            time.sleep(0)
         if self.__advcomp is not None:
             self.__advcomp.process_file(destination_path, destination_path)
+            time.sleep(0)
         if self.__pngcrush is not None:
             self.__pngcrush.process_file(source_file, destination_path)
