@@ -73,7 +73,7 @@ diagrams are using the PlantUML integration plugin / syntax
 syntax can be found here: [https://plantuml.com](https://plantuml.com)
 
 # TODOs
-
+* settings presets for plugin forms
 * **add remove all files button (per User) to download page**
 * Selenium Tests
 * POST value validating with django forms (inside webserver/views.py)**
