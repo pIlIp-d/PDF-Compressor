@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 from plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
-    ImageToPdfConvertPlugin, PdfToImageConvertPlugin
+    ImageToPdfConvertPlugin, PdfToImageConvertPlugin, GoodNotesCompressorPlugin
 from plugins.minimal_plugin_example.plugin_config import RenamePngPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -142,5 +142,6 @@ PROCESSOR_PLUGINS = {
     PngCompressorPlugin("png_compressor"),
     ImageToPdfConvertPlugin("png_to_pdf_converter"),
     PdfToImageConvertPlugin("pdf_to_image_converter"),
+    GoodNotesCompressorPlugin("goodnotes_compressor"),
     # RenamePngPlugin("rename_png"),
 }

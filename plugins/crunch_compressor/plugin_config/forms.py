@@ -85,6 +85,13 @@ class PdfCompressorForm(PluginForm):
         return ["compression_mode", "merge_files", "ocr_mode", "simple_and_lossless", "default_pdf_dpi", "simple_and_lossless",
                 "tesseract_language"]
 
+class GoodNotesCompressorForm(PdfCompressorForm):
+    def __init__(self):
+        super().__init__()
+        self.fields['simple_and_lossless'].initial = False
+        self.fields['compression_mode'].initial = 1
+        self.fields['default_pdf_dpi'].initial = 200
+
 
 class PngCompressorForm(PluginForm):
     compression_mode = forms.TypedChoiceField(

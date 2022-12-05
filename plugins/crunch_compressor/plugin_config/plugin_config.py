@@ -3,11 +3,13 @@ from django_app.plugin_system.plugin import Plugin
 
 class PdfCompressorPlugin(Plugin):
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, form: str = None):
+        if form is None:
+            form = "plugins.crunch_compressor.plugin_config.forms.PdfCompressorForm"
         super().__init__(
             name,
             [self.PDF_MIME_TYPE],
-            "plugins.crunch_compressor.plugin_config.forms.PdfCompressorForm",
+            form,
             "plugins.crunch_compressor.plugin_config.tasks.PdfCompressionTask"
         )
 
@@ -16,6 +18,10 @@ class PdfCompressorPlugin(Plugin):
         if from_file_type == self.PDF_MIME_TYPE:
             result.append(self.COMPRESSION_TYPE)
         return result
+
+class GoodNotesCompressorPlugin(PdfCompressorPlugin):
+    def __init__(self, name: str):
+        super().__init__(name, "plugins.crunch_compressor.plugin_config.forms.GoodNotesCompressorForm")
 
 
 class PngCompressorPlugin(Plugin):
