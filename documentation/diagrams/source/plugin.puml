@@ -1,0 +1,14 @@
+@startuml
+title "Plugin Architecture"
+
+component Processors
+component Django #lightblue
+component Plugin #lightgreen {
+    component PluginForm
+    component PluginTask
+}
+
+
+PluginTask -right.> Processors: has
+PluginForm -left-> Django: serves formular
+@enduml

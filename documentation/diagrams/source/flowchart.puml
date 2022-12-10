@@ -1,0 +1,86 @@
+@startuml
+title "General Flow of interaction"
+
+box "FrontEnd"
+    participant Browser #pink
+endbox
+
+box "Backend" #lightpink
+    participant Django #lightblue
+    participant Plugin #lightgreen
+    participant models.sqlite3
+    participant tasks.sqlite3
+    participant TaskScheduler #violet
+    participant Processors
+    participant ProcessingEventHandler
+endbox
+====
+
+Browser -> Django: main-view (GET)
+activate Browser
+    activate Django
+        Django -> Browser: main-view (HTML)
+    deactivate Django
+    Browser -> Browser: select Plugin
+    activate Browser
+        Browser -> Django: get formular of selected plugin (GET)
+        activate Django
+            Django -> Plugin: get formular
+            activate Plugin
+                Plugin -> Django: formular
+            deactivate Plugin
+            Django -> Browser: formular
+        deactivate Django
+    deactivate Browser
+
+    Browser -> Django: Upload File (POST)
+    activate Django
+        Django -> models.sqlite3: save file
+    deactivate Django
+    Browser -> Django: Start processing (POST)
+deactivate Browser
+activate Django
+    Django -> tasks.sqlite3: create and insert task
+deactivate Django
+
+====
+Browser -> Django: download-view (GET)
+activate Browser
+    activate Django
+        Django -> Browser: download view template (HTML)
+    deactivate Django
+    Browser -> Django: get files of user (GET)
+    activate Django
+        Django -> models.sqlite3: get files of user
+        activate models.sqlite3
+            models.sqlite3 -> Django: files
+        deactivate models.sqlite3
+        Django -> Browser: files (JSON)
+    deactivate Django
+    Browser -> Browser: creates Table
+    Browser -> Django: download file
+deactivate Browser
+
+====
+
+-> TaskScheduler: from Daemon Thread in background in regular intervals
+activate TaskScheduler
+    TaskScheduler -> tasks.sqlite3: check for unfinished tasks
+    TaskScheduler -> Processors: run unfinished Tasks/PluginTasks
+deactivate TaskScheduler
+
+====
+-> Processors: started from TaskScheduler
+activate Processors
+
+Processors -> ProcessingEventHandler: notify for started processing
+Processors -> models.sqlite3: get files to process
+Processors -> Processors: run processing
+Processors -> ProcessingEventHandler: notify for finished processing
+
+deactivate Processors
+
+====
+
+
+@enduml

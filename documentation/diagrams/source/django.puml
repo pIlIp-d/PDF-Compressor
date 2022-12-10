@@ -1,0 +1,28 @@
+@startuml
+
+title "Django Architecture"
+component Browser #pink
+component Plugin #lightgreen
+component ProcessingEventHandler
+database models.sqlite3
+database tasks.sqlite3
+component Django #lightblue {
+    component api
+    component webserver
+    component Models
+    api -left.> Models: uses
+    webserver -down.> Models: uses
+}
+
+Models --> models.sqlite3: creates
+api --> tasks.sqlite3: adds tasks
+webserver --> tasks.sqlite3: adds tasks
+Plugin -> api: serves formular
+
+ProcessingEventHandler --> api: sends requests
+Browser -right-> api: requests data
+Browser -right-> api: uploaded Files
+Browser -right-> webserver: shows templates
+Browser -right-> webserver: sends formular
+
+@enduml

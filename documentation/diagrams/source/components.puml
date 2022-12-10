@@ -15,7 +15,10 @@
     Plugin -> Django: serves formular
     Plugin -up.> Processors: has
 
-    Browser -> Django: requests
+    Browser -> Django: requests data
+    Browser -> Django: shows templates
+    Browser -> Django: uploaded Files
+    Browser -> Django: sends formular
     TaskScheduler -> Processors: runs / schedules
     TaskScheduler -> tasks.sqlite3: checks and executes
     ProcessingEventHandler -> Django: sends requests
