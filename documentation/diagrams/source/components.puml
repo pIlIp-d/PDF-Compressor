@@ -5,28 +5,21 @@
     component Django #lightblue
     component TaskScheduler #violet
     component Processors
-    database ProcessingFilesRequest{
-        file ProcessedFiles
-        file UploadedFiles
-    }
-    component Plugin {
-        component ProcessingTask
-        component PluginForm
-    }
-    database tasks.sqlite3 {
-        node Tasks
-    }
+    component Plugin #lightgreen
+    component ProcessingEventHandler
+    database models.sqlite3
+    database tasks.sqlite3
 
-    Django -down-> ProcessingFilesRequest: creates
-    Browser -right-> Django: requests
-    TaskScheduler -> Tasks: runs / schedules
-    Tasks --> [ProcessingEventHandler]: signal events
-    ProcessingEventHandler --> Django: sends requests
+    Django --> models.sqlite3: creates
+    Django --> tasks.sqlite3: adds tasks
+    Plugin -> Django: serves formular
+    Plugin -up.> Processors: has
 
-    ProcessingTask -down-|> Tasks
-    Tasks --> Processors: runs
-    Django -down-> ProcessingTask: creates
-    PluginForm -up-> Django: serves formular
-    Processors --> UploadedFiles: processes
-    Processors -> ProcessedFiles: creates
+    Browser -> Django: requests
+    TaskScheduler -> Processors: runs / schedules
+    TaskScheduler -> tasks.sqlite3: checks and executes
+    ProcessingEventHandler -> Django: sends requests
+
+    Processors -> [ProcessingEventHandler]: signal events
+    Processors -down-> models.sqlite3: processes
 @enduml
