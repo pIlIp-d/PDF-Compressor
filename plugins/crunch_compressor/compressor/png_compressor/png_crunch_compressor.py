@@ -1,3 +1,5 @@
+import os
+import shutil
 import time
 
 from .abstract_png_compressor import AbstractPngCompressor
@@ -68,12 +70,17 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             self.__pngcrush = None
 
     def process_file(self, source_file: str, destination_path: str) -> None:
+        current_source_file = source_file
         # run compress tools on single file
         if self.__pngquant is not None:
-            self.__pngquant.process_file(source_file, destination_path)
+            self.__pngquant.process_file(current_source_file, destination_path+".pngquant.png")
+            current_source_file = destination_path+".pngquant.png"
             time.sleep(0)
         if self.__advcomp is not None:
-            self.__advcomp.process_file(destination_path, destination_path)
+            self.__advcomp.process_file(current_source_file, destination_path+".advcomp.png")
+            os.remove(current_source_file)
+            current_source_file = destination_path+".advcomp.png"
             time.sleep(0)
         if self.__pngcrush is not None:
-            self.__pngcrush.process_file(source_file, destination_path)
+            self.__pngcrush.process_file(current_source_file, destination_path)
+            os.remove(current_source_file)
