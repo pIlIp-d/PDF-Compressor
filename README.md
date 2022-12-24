@@ -1,5 +1,5 @@
 # Pdf-Compressor
-An Modular File processing tool. Enables file upload processing via plugins and download.
+A Modular File processing tool. Enables file upload processing via plugins and download.
 
 # Installation
 
