@@ -1,3 +1,4 @@
+import json
 import os
 from types import SimpleNamespace
 
@@ -14,19 +15,32 @@ def get_config(config_file: str = CONFIG_FILE):
                                 "the necessary paths.")
 
     class Config:
-        def __init__(self, advpng_path, pngquant_path, pngcrush_path, cpdfsqueeze_path, tesseract_path, tessdata_prefix,
-                     wine_path):
-            self.advpng_path = advpng_path
-            self.pngquant_path = pngquant_path
-            self.pngcrush_path = pngcrush_path
-            self.cpdfsqueeze_path = cpdfsqueeze_path
-            self.tesseract_path = tesseract_path
-            self.tessdata_prefix = tessdata_prefix
-            self.wine_path = wine_path
+        def __init__(self, dict1):
+            needed_keys = [
+                "advpng_path",
+                "pngquant_path",
+                "pngcrush_path",
+                "cpdfsqueeze_path",
+                "tesseract_path",
+                "tessdata_prefix",
+                "wine_path"
+            ]
+            for key in needed_keys:
+                if key not in dict1:
+                    raise KeyError(f"Key {key} not found in config file.")
+            self.__dict__.update(dict1)
 
-    with open(config_path, "r") as config_file:
-        obj = jsons.loads(config_file.read(), object_hook=lambda d: SimpleNamespace(**d))
-    return Config(**obj)
+
+
+    def dict2obj(dict1):
+        # using json.loads method and passing json.dumps
+        # method and custom object hook as arguments
+        return json.loads(json.dumps(dict1), object_hook=Config)
+
+    return dict2obj(json.load(open(config_path, "r")))
+    # with open(config_path, "r") as cf:
+    #     obj = json.loads(cf.read(), object_hook=obj)
+    # return Config(**obj)
 
 
 def check_existence(path, error_message) -> str:

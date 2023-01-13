@@ -72,14 +72,21 @@ class PNGCrunchCompressor(AbstractPngCompressor):
         current_source_file = source_file
         # run compress tools on single file
         if self.__pngquant is not None:
-            self.__pngquant.process_file(current_source_file, destination_path+".pngquant.png")
-            current_source_file = destination_path+".pngquant.png"
+            new_destination = destination_path + ".pngquant.png"
+            self.__pngquant.process_file(current_source_file, new_destination)
+            current_source_file = new_destination
             time.sleep(0)
+
         if self.__advcomp is not None:
-            self.__advcomp.process_file(current_source_file, destination_path+".advcomp.png")
+            new_destination = destination_path + ".advcomp.png"
+            self.__advcomp.process_file(current_source_file, new_destination)
             os.remove(current_source_file)
-            current_source_file = destination_path+".advcomp.png"
+            current_source_file = new_destination
             time.sleep(0)
+
         if self.__pngcrush is not None:
             self.__pngcrush.process_file(current_source_file, destination_path)
+            os.remove(current_source_file)
+        else:
+            self._copy_file(current_source_file, destination_path)
             os.remove(current_source_file)

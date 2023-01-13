@@ -32,7 +32,7 @@ class ConfigTest(TestCase):
             json.pop("cpdfsqueeze_path", None)
             config_file.write(jsons.dumps(json))
         self.assertRaises(
-            TypeError,
+            KeyError,
             get_config,
             self.CONFIG_FILE
         )

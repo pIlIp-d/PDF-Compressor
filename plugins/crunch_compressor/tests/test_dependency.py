@@ -8,6 +8,7 @@ from plugins.crunch_compressor.tests.utility import TESTDATA_FOLDER
 from tests.help_classes import get_console_buffer
 
 
+# TODO combinations of missing dependencies (advpng and pdfcrunch, ...)
 class TestDependency(TestCase):
     config_file = os.path.join(os.path.dirname(__file__), "..", "config.json")
     temp_config_file = config_file + ".tmp"
@@ -61,14 +62,14 @@ class TestDependency(TestCase):
     def __change_to_invalid_path(self, path_to_change: str):
         self.__change_path(path_to_change, "some_invalid/path")
 
-    def test_with_advpng_path_is_empty(self):
+    def test_with_advpng_path_is_empty(self):####
         self.__change_to_empty_path("advpng_path")
         self.__run_simple_compression(False, False)
 
     def test_with_advpng_path_is_valid(self):
         self.__run_simple_compression(True, False)
 
-    def test_with_advpng_path_is_invalid(self):
+    def test_with_advpng_path_is_invalid(self):####
         self.__change_to_invalid_path("advpng_path")
         self.__run_simple_compression(False, False)
 
@@ -79,7 +80,7 @@ class TestDependency(TestCase):
         self.__change_to_invalid_path("advpng_path")
         self.__run_simple_compression(True, True)
 
-    def test_with_pngquant_path_is_empty(self): #####
+    def test_with_pngquant_path_is_empty(self):
         self.__change_to_empty_path("pngquant_path")
         self.__run_simple_compression(False, False)
 
