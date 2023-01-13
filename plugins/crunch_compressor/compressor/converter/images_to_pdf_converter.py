@@ -1,7 +1,8 @@
+import sys
+
 from PIL.Image import DecompressionBombError
 
 from django_app.plugin_system.processing_classes.processor import Processor
-from django_app.utility.console_utility import ConsoleUtility
 
 # package name PyMuPdf
 import fitz  # also imports convert() method
@@ -60,9 +61,9 @@ class ImagesToPdfConverter(Processor):
         # either initiates pytesseract or deactivate ocr if not possible
         try:
             if not os.path.isfile(self.pytesseract_path):
-                ConsoleUtility.print_error(r"[ ! ] - tesseract Path not found. Install "
-                                           "https://github.com/UB-Mannheim/tesseract/wiki or edit "
-                                           "'TESSERACT_PATH' to your specific tesseract executable")
+                print(r"[ ! ] - tesseract Path not found. Install "
+                      "https://github.com/UB-Mannheim/tesseract/wiki or edit "
+                      "'TESSERACT_PATH' to your specific tesseract executable", file=sys.stderr)
                 raise Exception()
             # set command (not sure why windows needs it differently)
             elif os.name == "nt":
@@ -72,8 +73,8 @@ class ImagesToPdfConverter(Processor):
 
         except Exception:
             if self.force_ocr:
-                ConsoleUtility.print_error("Tesseract Not Loaded, Can't create OCR."
-                                           "(leave out option '--ocr-force' to compress without ocr)")
+                print("Tesseract Not Loaded, Can't create OCR."
+                      "(leave out option '--ocr-force' to compress without ocr)", file=sys.stderr)
                 self.force_ocr = False
             raise ValueError("Tesseract (-> no OCR on pdfs)")
 
@@ -88,9 +89,6 @@ class ImagesToPdfConverter(Processor):
                 merger.insert_pdf(f)
             os.remove(file)
         merger.save(merged_result_file)
-        # TODO move print to extra Processor
-        # TODO maybe add event 'merged'
-        ConsoleUtility.print("finished merge")
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         # create destination directory if not already exists
@@ -107,7 +105,7 @@ class ImagesToPdfConverter(Processor):
             raise e
         except ValueError:  # if ocr/tesseract fails or is skipped on purpose
             result = convert(source_file)
-            ConsoleUtility.print_error("No OCR applied.")
+            print("No OCR applied.", file=sys.stderr)
 
         with open(destination_path, "wb") as f:
             f.write(result)

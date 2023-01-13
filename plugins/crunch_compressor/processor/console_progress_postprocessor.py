@@ -1,5 +1,4 @@
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
-from django_app.utility.console_utility import ConsoleUtility
 
 
 class ConsoleProgressPostprocessor(Postprocessor):
@@ -13,4 +12,4 @@ class ConsoleProgressPostprocessor(Postprocessor):
 
     def postprocess(self, source: str, destination: str) -> None:
         self.__progress += 1
-        ConsoleUtility.print(f"** - {self.__pre_message} {self.__progress}/{self.__max_amount} {self.__post_message}")
+        print(f"** - {self.__pre_message} {self.__progress}/{self.__max_amount} {self.__post_message}")

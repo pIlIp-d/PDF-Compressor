@@ -5,12 +5,12 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from functools import reduce
+from ansi.colour import fg
 
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
 from django_app.utility.string_utility import StringUtility
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
-from django_app.utility.console_utility import ConsoleUtility
 from django_app.utility.os_utility import OsUtility
 
 
@@ -197,6 +197,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
     def _get_merge_destination(self, source_path):
         def get_filename_ending():
             return "_merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
+
         if os.path.isdir(source_path):
             return os.path.join(source_path + "_processed", get_filename_ending())
         else:
@@ -231,6 +232,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
         :param destination_path: path to a file, folder, "default" or "merge"
         specific behavior is defined by _get_files_and_extra_info() and can be changed by overwriting the method
         """
+
         def is_valid_path(path):
             try:
                 pathlib.Path(path).resolve()
@@ -295,16 +297,19 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
         if is_merging:
             if is_splitting:
-                self._merge_files(sorted(OsUtility.get_file_list(temporary_destination_file_list[0])), temporary_merge_file)
+                self._merge_files(sorted(OsUtility.get_file_list(temporary_destination_file_list[0])),
+                                  temporary_merge_file)
             else:
                 self._merge_files(sorted(temporary_destination_file_list), temporary_merge_file)
+            for event_handler in self._event_handlers:
+                event_handler.finished_merge()
 
         if is_merging:
             end_size = OsUtility.get_file_size(temporary_merge_file)
         else:
             end_size = sum(OsUtility.get_filesize_list(temporary_destination_file_list))
 
-        ConsoleUtility.print_stats(sum(orig_sizes), end_size)
+        self.print_stats(sum(orig_sizes), end_size)
 
         if is_merging:
             OsUtility.move_file(temporary_merge_file, destination_path)
@@ -316,11 +321,20 @@ class Processor(Postprocessor, Preprocessor, ABC):
                 if os.path.isfile(temp_destination):
                     OsUtility.move_file(temp_destination, destination)
         if is_merging:
-            ConsoleUtility.print_green(
-                f"Merged All Files into {ConsoleUtility.get_file_string(destination_path)}"
-            )
+            print(fg.green(f"Merged All Files into {fg.yellow(destination_path)}"))
 
         OsUtility.clean_up_folder(temp_folder)
 
         for event_handler in self._event_handlers:
             event_handler.finished_all_files()
+
+    @classmethod
+    def print_stats(cls, orig: int, result: int) -> None:
+        if orig < 0:
+            raise ValueError("orig must be greater than or equal to 0")
+        if result < 0:
+            raise ValueError("result can't be less than 0")
+        orig_size = str(round(orig / 1000000, 2))
+        result_size = str(round(result / 1000000, 2))
+        percentage = 0 if orig == 0 else str(-1 * round(100 - (result / orig * 100), 2))
+        print(fg.green(f"Processed Files. Size: from {orig_size}mb to {result_size}mb ({percentage}%)\n"))

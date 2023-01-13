@@ -17,3 +17,6 @@ class EventHandler(Preprocessor, Postprocessor, ABC):
             is called after all processing has been finished and the result files exist in the destination directory
         """
         pass
+
+    def finished_merge(self):
+        pass

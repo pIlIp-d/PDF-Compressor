@@ -1,5 +1,4 @@
 from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
-from django_app.utility.console_utility import ConsoleUtility
 
 import os
 
@@ -27,8 +26,8 @@ class PdfToImageConverter(ProcessorWithDestinationFolder):
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         # create destination directory if not already exists
-
-        ConsoleUtility.print("--splitting pdf into images--")
+        # TODO create preprocessor/postprocessors for console output
+        print("--splitting pdf into images--")
 
         # open pdf and split it into rgb-pixel maps -> png
         doc = fitz.open(source_file)
@@ -39,7 +38,7 @@ class PdfToImageConverter(ProcessorWithDestinationFolder):
             return "0" * (chars_needed_for_highest_page_number - len(raw_num)) + raw_num
 
         for page in doc:
-            ConsoleUtility.print(f"** - Finished Page {page.number + 1}/{len(doc)}")
+            print(f"** - Finished Page {page.number + 1}/{len(doc)}")
             pix = page.get_pixmap(dpi=self.__dpi)
             page_number = get_page_number_string(page.number + 1)
             pix.save(os.path.join(destination_path, '%s_page_%s.%s' %

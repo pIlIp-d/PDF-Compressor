@@ -1,9 +1,9 @@
 import os
 import subprocess
+import sys
 from subprocess import CalledProcessError
 
 from plugins.crunch_compressor.compressor.png_compressor.abstract_png_compressor import AbstractPngCompressor
-from django_app.utility.console_utility import ConsoleUtility
 
 
 class PngcrushCompressor(AbstractPngCompressor):
@@ -39,9 +39,8 @@ class PngcrushCompressor(AbstractPngCompressor):
             if os.path.exists(result_file):
                 os.remove(result_file)
         except CalledProcessError as cpe:
-            ConsoleUtility.print_error(str(cpe))
-            ConsoleUtility.print_error("processing failed at the pngcrush stage. (IGNORE)\n")
-            pass
+            print(repr(cpe), file=sys.stderr)
+            print("processing failed at the pngcrush stage. (IGNORE)\n", file=sys.stderr)
         except Exception as e:
-            ConsoleUtility.print_error(repr(e))  # dont raise e
+            print(repr(e), file=sys.stderr)  # dont raise e
         self.postprocess(source_file, destination_path)

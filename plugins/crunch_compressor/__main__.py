@@ -1,11 +1,9 @@
 import argparse
 import os.path
 import shutil
+import sys
 
-from django_app.utility.console_utility import ConsoleUtility
 from plugins.crunch_compressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
-from plugins.crunch_compressor.pdfcompressor import PDFCompressor
-
 
 def get_args():
     all_args = argparse.ArgumentParser(
@@ -81,7 +79,9 @@ def get_args():
 if __name__ == '__main__':
     try:
         args = get_args()
-        ConsoleUtility.quiet_mode = args["quiet_mode"]
+        if args["quiet_mode"]:
+            sys.stdin.close()
+            sys.stdout.close()
 
         PDFCrunchCompressor(
             compression_mode=args["mode"],

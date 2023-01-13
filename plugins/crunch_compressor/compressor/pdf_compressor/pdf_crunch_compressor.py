@@ -1,5 +1,8 @@
 import os
 import shutil
+import sys
+from enum import Enum
+from io import TextIOWrapper
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
@@ -103,32 +106,30 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
         self.__image_to_pdf_converter.process(temp_folder, destination_file)
         OsUtility.clean_up_folder(temp_folder)
 
-        # console output control and finishing compression
-        quiet_mode_buffer = ConsoleUtility.quiet_mode
-        # supress normal cpdf outputs
-        ConsoleUtility.quiet_mode = True
+        # supress normal console outputs
+        stdin_buffer = sys.stdin
+        sys.stdin = TextIOWrapper(open(os.devnull, "w"))
+
         if self.__cpdf_squeeze_compressor is not None:
-            show_errors_buffer = ConsoleUtility.show_errors_always
-            if not quiet_mode_buffer:
-                ConsoleUtility.show_errors_always = True
             # compression with cpdf
             self.__cpdf_squeeze_compressor.process(destination_file, destination_file)
-            ConsoleUtility.show_errors_always = show_errors_buffer
 
         if not self.__force_ocr and OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
             if self.__cpdf_squeeze_compressor is not None:
                 self.__cpdf_squeeze_compressor.process_file(source_file, destination_file)
             if OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
-                ConsoleUtility.print(ConsoleUtility.get_error_string("File couldn't be compressed."))
+                print("File couldn't be compressed.", file=sys.stderr)
                 # copy source_file to destination_file
                 if not source_file == destination_file:
                     shutil.copy(source_file, destination_file)
             else:
-                ConsoleUtility.print(ConsoleUtility.get_error_string(
+                print(
                     "File couldn't be compressed using crunch cpdf combi. "
                     "However cpdf could compress it. -> No OCR was Created. (force ocr with option -f/--force-ocr)"
-                ))
-        ConsoleUtility.quiet_mode = quiet_mode_buffer
+                    , file=sys.stderr
+                )
+        # load normal stdin from buffer
+        sys.stdin = stdin_buffer
         super().postprocess(source_file, destination_file)
 
     def process(self, source_path, destination_path="default"):

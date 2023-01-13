@@ -8,12 +8,12 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 """
 
 import os
+import sys
 
 from django.core.wsgi import get_wsgi_application
 
 from django_app import settings
 from django_app.task_scheduler.task_scheduler import TaskExecutorDaemon
-from django_app.utility.console_utility import ConsoleUtility
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
@@ -29,4 +29,4 @@ try:
 except ImportError as e:
     if settings.DEBUG:
         raise e
-    ConsoleUtility.print_error(str(e))
+    print(str(e), file=sys.stderr)

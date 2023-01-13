@@ -27,7 +27,7 @@ class ProcessingFilesRequest(models.Model):
         return self.get_source_dir() + "_processed"
 
     def get_merged_destination_filename(self, datetime):
-        return StringUtility.get_merged_destination_filename(str(self.id), datetime)
+        return f"processed_files_{self.id}_{StringUtility.get_formatted_time(datetime)}"
 
     def get_merged_destination_path(self, datetime: strftime, file_ending_including_dot: str):
         return os.path.join(

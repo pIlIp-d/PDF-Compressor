@@ -1,5 +1,5 @@
 import os
-import shutil
+import sys
 import time
 
 from .abstract_png_compressor import AbstractPngCompressor
@@ -7,7 +7,6 @@ from .advpng_compressor import AdvanceCompressor
 from .pngcrush_compressor import PngcrushCompressor
 from .pngquant_compressor import PngQuantCompressor
 from ...processor.CompressionPostprocessor import CompressionPostprocessor
-from django_app.utility.console_utility import ConsoleUtility
 
 
 # TODO redo scheduling logic for processing
@@ -45,7 +44,7 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             )
             self.__advcomp.add_postprocessor(CompressionPostprocessor("advcomp"))
         except FileNotFoundError:
-            ConsoleUtility.print_error("Error: Program advcomp not found, skipped compression with advcomp.")
+            print("Error: Program advcomp not found, skipped compression with advcomp.", file=sys.stderr)
             self.__advcomp = None
 
         try:
@@ -57,7 +56,7 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             )
             self.__pngquant.add_postprocessor(CompressionPostprocessor("pngquant"))
         except FileNotFoundError:
-            ConsoleUtility.print_error("Error: Program pngquant not found, skipped compression with pngquant.")
+            print("Error: Program pngquant not found, skipped compression with pngquant.", file=sys.stderr)
             self.__pngquant = None
 
         try:
@@ -66,7 +65,7 @@ class PNGCrunchCompressor(AbstractPngCompressor):
             )
             self.__pngcrush.add_postprocessor(CompressionPostprocessor("pngcrush"))
         except FileNotFoundError:
-            ConsoleUtility.print_error("Error: Program pngcrush not found, skipped compression with pngcrush.")
+            print("Error: Program pngcrush not found, skipped compression with pngcrush.", file=sys.stderr)
             self.__pngcrush = None
 
     def process_file(self, source_file: str, destination_path: str) -> None:

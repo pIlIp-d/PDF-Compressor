@@ -2,8 +2,6 @@ import os
 import re
 import shutil
 
-from django_app.utility.console_utility import ConsoleUtility
-
 
 class OsUtility:
     @classmethod
