@@ -5,8 +5,6 @@ import os
 # package name PyMuPdf
 import fitz
 
-from django_app.utility.os_utility import OsUtility
-
 
 class PdfToImageConverter(ProcessorWithDestinationFolder):
     SUPPORTED_FILETYPES = ["png", "pnm", "pgm", "pbm", "ppm", "pam", "psd", "ps"]  # TODO test all possible types
@@ -42,4 +40,4 @@ class PdfToImageConverter(ProcessorWithDestinationFolder):
             pix = page.get_pixmap(dpi=self.__dpi)
             page_number = get_page_number_string(page.number + 1)
             pix.save(os.path.join(destination_path, '%s_page_%s.%s' %
-                                  (OsUtility.get_filename(source_file), page_number, self._file_type_to)))
+                                  (self._get_filename(source_file), page_number, self._file_type_to)))

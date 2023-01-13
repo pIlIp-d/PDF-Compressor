@@ -1,9 +1,10 @@
 import os
+import shutil
 from unittest import TestCase
 import jsons
 
 from plugins.crunch_compressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
-from django_app.utility.os_utility import OsUtility
+from plugins.crunch_compressor.tests.utility import TESTDATA_FOLDER
 from tests.help_classes import get_console_buffer
 
 
@@ -11,9 +12,8 @@ class TestDependency(TestCase):
     config_file = os.path.join(os.path.dirname(__file__), "..", "config.json")
     temp_config_file = config_file + ".tmp"
 
-    test_data_dir = os.path.join(os.path.dirname(__file__), "TestData")
-    source_path = os.path.join(test_data_dir, "singlePagePdf.pdf")
-    result_path = os.path.join(test_data_dir, "singlePagePdf_processed.pdf")
+    source_path = os.path.join(TESTDATA_FOLDER, "singlePagePdf.pdf")
+    result_path = os.path.join(TESTDATA_FOLDER, "singlePagePdf_processed.pdf")
 
     @staticmethod
     def _run_pdf_compressor(**kwargs):
@@ -79,7 +79,7 @@ class TestDependency(TestCase):
         self.__change_to_invalid_path("advpng_path")
         self.__run_simple_compression(True, True)
 
-    def test_with_pngquant_path_is_empty(self):
+    def test_with_pngquant_path_is_empty(self): #####
         self.__change_to_empty_path("pngquant_path")
         self.__run_simple_compression(False, False)
 
@@ -147,10 +147,10 @@ class TestDependency(TestCase):
 
     def setUp(self) -> None:
         # save the original config file as a copy
-        OsUtility.copy_file(self.config_file, self.temp_config_file)
+        shutil.copy(self.config_file, self.temp_config_file)
 
     def tearDown(self) -> None:
         # restore the original config file
-        OsUtility.move_file(os.path.abspath(self.temp_config_file), os.path.abspath(self.config_file))
+        shutil.move(os.path.abspath(self.temp_config_file), os.path.abspath(self.config_file))
         if os.path.isfile(self.result_path):
             os.remove(self.result_path)

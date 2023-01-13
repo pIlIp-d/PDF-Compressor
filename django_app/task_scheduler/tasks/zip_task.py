@@ -2,7 +2,6 @@ import os
 import shutil
 
 from django_app.task_scheduler.tasks.task import Task
-from django_app.utility.os_utility import OsUtility
 
 
 class ZipTask(Task):
@@ -12,8 +11,7 @@ class ZipTask(Task):
         self.__folder_path = folder_path
 
     def run(self):
-        filename_without_file_ending = OsUtility.get_filename(self.__zip_file_path)
-
+        filename_without_file_ending = ".".join(os.path.basename(self.__zip_file_path).split(".")[:-1])
         # create zip-archive
         compression_format = "zip"
         shutil.make_archive(

@@ -2,7 +2,6 @@ import os
 from abc import ABC
 
 from django_app.plugin_system.processing_classes.processor import Processor
-from django_app.utility.os_utility import OsUtility
 
 
 class ProcessorWithDestinationFolder(Processor, ABC):
@@ -10,7 +9,7 @@ class ProcessorWithDestinationFolder(Processor, ABC):
         sources = self._get_sources_files_by_file_type_from(source_path) if os.path.isdir(source_path) else [
             source_path]
         if os.path.isfile(source_path):
-            output_path = OsUtility.get_path_without_file_ending(
+            output_path = self.get_path_without_file_ending(
                 source_path) + self._processed_files_appendix if destination_path == "default" else destination_path
         else:
             output_path = source_path + self._processed_files_appendix if destination_path == "default" else destination_path

@@ -18,8 +18,7 @@ class ProcessingTask(Task, ABC):
         self._request_parameters = request_parameters
         self._source_path = os.path.join(MEDIA_ROOT, processing_request.get_source_dir())
         # destination is either merged file or directory
-        self._destination_path = "merge" if self._request_parameters.get("merge_files") else \
-            os.path.join(MEDIA_ROOT, processing_request.get_destination_dir())  # TODO TODO TODO replace with only "merge" or "default"
+        self._destination_path = "merge" if self._request_parameters.get("merge_files") else "default"
 
     def _get_event_handler(self) -> list[ProcessingEventHandler]:
         return [

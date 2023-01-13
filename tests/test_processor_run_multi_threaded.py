@@ -1,9 +1,9 @@
 import os
 import shutil
 import time
+from glob import glob
 from unittest import TestCase
 
-from django_app.utility.os_utility import OsUtility
 from tests.help_classes import clean_up_after_class, SimpleMultiThreadTestProcessor, TESTDATA_DIR
 from tests.test_processor import TestingEventHandler
 from tests.test_processor import ns as test_processor_ns
@@ -26,7 +26,7 @@ class TestProcessorConstructorRunMultiThreaded(TestCase):
             [TestingEventHandler()], multi_threaded
         ).process(self.source_folder, destination_folder)
         self.assertEqual(100, test_processor_ns.amount_of_postprocess_calls)
-        self.assertEqual(100, len(OsUtility.get_file_list(destination_folder)))
+        self.assertEqual(100, len(glob(os.path.join(destination_folder, "*"))))
         elapsed_time = time.time() - start_time
         # cleanup
         shutil.rmtree(destination_folder)

@@ -1,6 +1,8 @@
 import datetime
 import os
+import pathlib
 from functools import reduce
+from glob import glob
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -15,7 +17,6 @@ from django_app.webserver.validators import get_file_extension
 from django_app.task_scheduler.tasks.zip_task import ZipTask
 from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.utility.os_utility import OsUtility
 
 
 # TODO favicon.ico
@@ -61,7 +62,7 @@ def finished_all_files(request):
     ZipTask(folder, zip_path).run()
 
     # add files to download view
-    for file in reversed(OsUtility.get_file_list(folder)):
+    for file in reversed(glob(os.path.join(folder, "*"))):
         def get_media_normalized_path(absolute_path):
             absolute_media_path = os.path.abspath(MEDIA_ROOT)
             if not absolute_path.startswith(absolute_media_path):
@@ -72,6 +73,8 @@ def finished_all_files(request):
 
     return JsonResponse({"status": 200})
 
+k = pathlib.Path("")
+k.iterdir()
 
 @csrf_protect
 @require_http_methods(["GET"])

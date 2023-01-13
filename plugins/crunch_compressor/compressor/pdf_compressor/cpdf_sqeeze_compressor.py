@@ -4,7 +4,6 @@ import sys
 
 from django_app import settings
 from django_app.plugin_system.processing_classes.abstract_pdf_compressor import AbstractPdfProcessor
-from django_app.utility.os_utility import OsUtility
 
 
 class CPdfSqueezeCompressor(AbstractPdfProcessor):
@@ -53,5 +52,5 @@ class CPdfSqueezeCompressor(AbstractPdfProcessor):
             if settings.DEBUG:
                 print(e)
             print("[!] Compression Failed during CPdfSqueezeCompressor stage.", file=sys.stderr)
-            OsUtility.copy_file(source_file, destination_path)
+            self._copy_file(source_file, destination_path)
         self.postprocess(source_file, destination_path)

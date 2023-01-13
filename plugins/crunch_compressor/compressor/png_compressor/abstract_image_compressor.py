@@ -1,10 +1,8 @@
-import os
 from abc import ABC
 
 from PIL import Image
 
 from django_app.plugin_system.processing_classes.processor import Processor
-from django_app.utility.os_utility import OsUtility
 
 
 class AbstractImageCompressor(Processor, ABC):
@@ -33,13 +31,13 @@ class AbstractImageCompressor(Processor, ABC):
             return False
 
     def _compare_and_use_better_option(self, file_option_1: str, file_option_2: str, destination_file: str) -> None:
-        size_option_1 = OsUtility.get_file_size(file_option_1)
-        size_option_2 = OsUtility.get_file_size(file_option_2)
+        size_option_1 = self._get_file_size(file_option_1)
+        size_option_2 = self._get_file_size(file_option_2)
 
         # compression worked -> copy file to final destination
         if self._is_valid_image(file_option_2) and size_option_1 > size_option_2 or \
                 not self._is_valid_image(file_option_1):
-            OsUtility.copy_file(file_option_2, destination_file)
+            self._copy_file(file_option_2, destination_file)
         # error in output file -> copy source file to destination
         else:
-            OsUtility.copy_file(file_option_1, destination_file)
+            self._copy_file(file_option_1, destination_file)

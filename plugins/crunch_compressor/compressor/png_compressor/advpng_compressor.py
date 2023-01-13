@@ -4,7 +4,6 @@ import sys
 from subprocess import CalledProcessError
 
 from .abstract_png_compressor import AbstractPngCompressor
-from django_app.utility.os_utility import OsUtility
 
 
 class AdvanceCompressor(AbstractPngCompressor):
@@ -52,12 +51,12 @@ class AdvanceCompressor(AbstractPngCompressor):
 
     def preprocess(self, source_file: str, destination_file: str) -> None:
         super().preprocess(source_file, destination_file)
-        OsUtility.copy_file(source_file, destination_file)
+        self._copy_file(source_file, destination_file)
 
     def postprocess(self, source_file: str, destination_file: str) -> None:
-        if not self._is_valid_image(destination_file) or OsUtility.get_file_size(source_file) < OsUtility.get_file_size(
+        if not self._is_valid_image(destination_file) or self._get_file_size(source_file) < self._get_file_size(
                 destination_file):
-            OsUtility.copy_file(source_file, destination_file)
+            self._copy_file(source_file, destination_file)
 
         super().postprocess(source_file, destination_file)
 

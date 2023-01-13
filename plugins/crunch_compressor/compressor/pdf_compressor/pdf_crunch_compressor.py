@@ -10,12 +10,12 @@ from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter impor
 from django_app.plugin_system.processing_classes.abstract_pdf_compressor import AbstractPdfProcessor
 from plugins.crunch_compressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
-from django_app.utility.console_utility import ConsoleUtility
-from django_app.utility.os_utility import OsUtility
 from plugins.crunch_compressor.config import get_config
 
 
 class PDFCrunchCompressor(AbstractPdfProcessor):
+    Mode = Enum("Mode", ["AUTO", "LOSSLESS", "FORCE_OCR", "NO_OCR"])
+
     def __init__(
             self,
             compression_mode: int = 5,
@@ -89,7 +89,7 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
     @classmethod
     def __get_temp_path(cls, file: str) -> str:
         # spaces are replaced because crunch can't handle spaces consistently
-        return os.path.abspath(os.path.join("temporary_files", OsUtility.get_filename(file).replace(" ", "_") + "_tmp"))
+        return os.path.abspath(os.path.join("temporary_files", cls._get_filename(file).replace(" ", "_") + "_tmp"))
 
     def __custom_preprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         super().preprocess(source_file, destination_file)
@@ -104,8 +104,7 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
     def __custom_postprocess(self, source_file: str, destination_file: str, temp_folder: str) -> None:
         # merge images/pages into new pdf and optionally apply OCR
         self.__image_to_pdf_converter.process(temp_folder, destination_file)
-        OsUtility.clean_up_folder(temp_folder)
-
+        shutil.rmtree(temp_folder, ignore_errors=True)
         # supress normal console outputs
         stdin_buffer = sys.stdin
         sys.stdin = TextIOWrapper(open(os.devnull, "w"))
@@ -114,10 +113,10 @@ class PDFCrunchCompressor(AbstractPdfProcessor):
             # compression with cpdf
             self.__cpdf_squeeze_compressor.process(destination_file, destination_file)
 
-        if not self.__force_ocr and OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
+        if not self.__force_ocr and self._get_file_size(source_file) < self._get_file_size(destination_file):
             if self.__cpdf_squeeze_compressor is not None:
                 self.__cpdf_squeeze_compressor.process_file(source_file, destination_file)
-            if OsUtility.get_file_size(source_file) < OsUtility.get_file_size(destination_file):
+            if self._get_file_size(source_file) < self._get_file_size(destination_file):
                 print("File couldn't be compressed.", file=sys.stderr)
                 # copy source_file to destination_file
                 if not source_file == destination_file:
