@@ -3,7 +3,7 @@ from time import strftime
 
 from django.db import models
 
-from django_app.utility.string_utility import StringUtility
+from django_app.settings import TIME_FORMAT
 
 
 class ProcessingFilesRequest(models.Model):
@@ -27,7 +27,7 @@ class ProcessingFilesRequest(models.Model):
         return self.get_source_dir() + "_processed"
 
     def get_merged_destination_filename(self, datetime):
-        return f"processed_files_{self.id}_{StringUtility.get_formatted_time(datetime)}"
+        return f"processed_files_{self.id}_{datetime.strftime(TIME_FORMAT)}"
 
     def get_merged_destination_path(self, datetime: strftime, file_ending_including_dot: str):
         return os.path.join(

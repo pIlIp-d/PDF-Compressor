@@ -9,7 +9,7 @@ from ansi.colour import fg
 
 from django_app.plugin_system.processing_classes.postprocessor import Postprocessor
 from django_app.plugin_system.processing_classes.preprocessor import Preprocessor
-from django_app.utility.string_utility import StringUtility
+from django_app.settings import TIME_FORMAT
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
 from django_app.utility.os_utility import OsUtility
 
@@ -196,7 +196,7 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
     def _get_merge_destination(self, source_path):
         def get_filename_ending():
-            return "_merged_" + StringUtility.get_formatted_time(datetime.now()) + "." + self._file_type_to
+            return "_merged_" + datetime.now().strftime(TIME_FORMAT) + "." + self._file_type_to
 
         if os.path.isdir(source_path):
             return os.path.join(source_path + "_processed", get_filename_ending())

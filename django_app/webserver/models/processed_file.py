@@ -2,9 +2,9 @@ import os
 
 from django.db import models
 
+from django_app.settings import TIME_FORMAT, MEDIA_ROOT
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
-from django_app.utility.string_utility import StringUtility
 
 
 class ProcessedFile(models.Model):
@@ -43,20 +43,20 @@ class ProcessedFile(models.Model):
 
     @classmethod
     def get_all_processing_files(cls, user_id: str, request_id: str = None):
-
         def ___get_json(file_obj, filename: str, filename_path: str, request_id: int, file_origin: str):
-            file_is_present = os.path.isfile(StringUtility.get_local_absolute_path(filename_path))
+            abs_file_path = os.path.join(MEDIA_ROOT, filename_path)
+            file_is_present = os.path.isfile(abs_file_path)
             return {
                 "file_id": file_obj.id,
-                "filename": StringUtility.get_filename_with_ending(filename),
+                "filename": os.path.basename(filename),
                 "filename_path": os.path.join("media", filename_path),
                 "finished": file_is_present,
                 "request_id": request_id,
-                "date_of_upload": StringUtility.get_formatted_time(file_obj.date_of_upload),
+                "date_of_upload": file_obj.date_of_upload.strftime(TIME_FORMAT),
                 "file_origin": file_origin,
                 "size": "%.2fmb" % (
                     0 if not file_is_present
-                    else os.path.getsize(StringUtility.get_local_absolute_path(filename_path)) / 1000000)
+                    else os.path.getsize(abs_file_path) / 1000000)
             }
 
         def ___get_source_files(___processing_request):

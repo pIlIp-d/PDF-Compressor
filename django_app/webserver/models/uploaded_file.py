@@ -3,8 +3,8 @@ import os
 
 from django.db import models
 
+from django_app.settings import MEDIA_ROOT
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.utility.string_utility import StringUtility
 from django_app.webserver.validators import check_file_extension, check_file_size, get_file_extension
 
 
@@ -22,7 +22,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     # a file is present already
     filename_number = 1
     file_ending = get_file_extension(path)
-    while os.path.isfile(StringUtility.get_local_absolute_path(path)):
+    while os.path.isfile(os.path.join(MEDIA_ROOT, path)):
         path_without_file_ending = path[:-len(file_ending)]
 
         # path is already numbered .path/filename_00.xxx
@@ -52,7 +52,7 @@ class UploadedFile(models.Model):
         super(UploadedFile, self).delete(using, keep_parents)
 
     def get_mime_type(self):
-        return mimetypes.guess_type(StringUtility.get_local_absolute_path(self.uploaded_file.name))[0]
+        return mimetypes.guess_type(os.path.join(MEDIA_ROOT, self.uploaded_file.name))[0]
 
     @classmethod
     def get_uploaded_file_list_of_current_request(cls, request):

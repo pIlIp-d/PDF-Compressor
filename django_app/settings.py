@@ -29,8 +29,7 @@ SECRET_KEY = 'django-insecure-0e_mwlj(=tv2-bys5n)s%ak6lib*#+w@=z1ptq@t4l56w!a9mk
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
-
+TIME_FORMAT = "%d.%m.%Y-%H.%M.%S"
 
 # Application definition
 

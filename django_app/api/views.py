@@ -9,12 +9,12 @@ from django.views.decorators.http import require_http_methods
 from django_app import settings
 from django_app.api.decorators import only_for_localhost, requires_parameters
 from django_app.plugin_system.plugin import Plugin
+from django_app.settings import TIME_FORMAT, MEDIA_ROOT
 from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.validators import get_file_extension
 from django_app.task_scheduler.tasks.zip_task import ZipTask
 from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
-from django_app.utility.string_utility import StringUtility
 from django_app.utility.os_utility import OsUtility
 
 
@@ -48,11 +48,12 @@ def finished_all_files(request):
     processing_request.finished = True
     processing_request.save()
 
-    folder = StringUtility.get_local_absolute_path(
+    folder = os.path.join(
+        MEDIA_ROOT,
         os.path.join("uploaded_files", processing_request.user_id, str(processing_request.id) + "_processed")
     )
     zip_path = os.path.join(
-        folder, "processed_files_" + StringUtility.get_formatted_time(datetime.datetime.now()) + ".zip"
+        folder, "processed_files_" + datetime.datetime.now().strftime(TIME_FORMAT) + ".zip"
     )
     os.makedirs(folder, exist_ok=True)
 
@@ -61,7 +62,13 @@ def finished_all_files(request):
 
     # add files to download view
     for file in reversed(OsUtility.get_file_list(folder)):
-        ProcessedFile.add_processed_file(StringUtility.get_media_normalized_path(file), processing_request)
+        def get_media_normalized_path(absolute_path):
+            absolute_media_path = os.path.abspath(MEDIA_ROOT)
+            if not absolute_path.startswith(absolute_media_path):
+                raise ValueError("File is not inside the Media folder")
+            return absolute_path[len(absolute_media_path) + 1:]
+
+        ProcessedFile.add_processed_file(get_media_normalized_path(file), processing_request)
 
     return JsonResponse({"status": 200})
 
