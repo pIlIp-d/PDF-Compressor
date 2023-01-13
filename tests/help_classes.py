@@ -8,7 +8,7 @@ from django_app.plugin_system.processing_classes.event_handler import EventHandl
 from django_app.plugin_system.processing_classes.processor import Processor
 from django_app.plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
 
-TESTDATA_DIR = os.path.join(os.path.relpath(os.path.dirname(__file__)), "TestData")
+TESTDATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "TestData"))
 TESTDATA_DIR_WITHOUT_RELATIVE = "/".join(TESTDATA_DIR.split(os.path.sep))
 
 

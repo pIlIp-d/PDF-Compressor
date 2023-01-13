@@ -39,7 +39,7 @@ def check_existence(path, error_message) -> str:
         return path
 
 
-def main():
+if __name__ == "__main__":
     compressor_lib_path = os.path.abspath(os.path.join(
         os.path.dirname(__file__), "compressor", "compressor_lib"
     ))
@@ -118,7 +118,3 @@ def main():
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
     print(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
-
-
-if __name__ == "__main__":
-    main()
