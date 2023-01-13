@@ -5,8 +5,8 @@ from enum import Enum
 from io import TextIOWrapper
 
 from django_app.plugin_system.processing_classes.event_handler import EventHandler
-from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
-from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
+from plugins.crunch_compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
+from plugins.crunch_compressor.converter.pdf_to_image_converter import PdfToImageConverter
 from django_app.plugin_system.processing_classes.abstract_pdf_compressor import AbstractPdfProcessor
 from plugins.crunch_compressor.compressor.pdf_compressor.cpdf_sqeeze_compressor import CPdfSqueezeCompressor
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor

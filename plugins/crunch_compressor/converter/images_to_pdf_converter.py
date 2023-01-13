@@ -27,7 +27,6 @@ possible_files_endings = ['.jpc', '.xbm', '.j2k', '.icns', '.png', '.bmp', '.jp2
 
 
 class ImagesToPdfConverter(Processor):
-
     def __init__(
             self,
             pytesseract_path: str = None,

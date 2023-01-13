@@ -1,8 +1,8 @@
 import mimetypes
 
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from plugins.crunch_compressor.compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
-from plugins.crunch_compressor.compressor.converter.pdf_to_image_converter import PdfToImageConverter
+from plugins.crunch_compressor.converter.images_to_pdf_converter import ImagesToPdfConverter
+from plugins.crunch_compressor.converter.pdf_to_image_converter import PdfToImageConverter
 from plugins.crunch_compressor.compressor.pdf_compressor.pdf_crunch_compressor import PDFCrunchCompressor
 from plugins.crunch_compressor.compressor.png_compressor.png_crunch_compressor import PNGCrunchCompressor
 from plugins.crunch_compressor.config import get_config
