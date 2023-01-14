@@ -2,3 +2,5 @@
 .coverage
 venv
 */migrations/
+django_app/media/
+temporary_files/
