@@ -1,7 +1,7 @@
 import requests
 
 import manage
-from django_app.plugin_system.processing_classes.event_handler import EventHandler
+from plugin_system.processing_classes.event_handler import EventHandler
 
 
 class ProcessingEventHandler(EventHandler):

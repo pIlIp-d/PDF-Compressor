@@ -3,7 +3,7 @@ import shutil
 import multiprocessing
 from unittest import TestCase
 
-from django_app.plugin_system.processing_classes.event_handler import EventHandler
+from plugin_system.processing_classes.event_handler import EventHandler
 from tests.help_classes import SimpleExampleProcessor, ErrorProcessor, DestinationFolderSubClass, \
     FailedProcessingException, clean_up_after_class, TESTDATA_DIR
 

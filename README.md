@@ -58,5 +58,5 @@ More Documentation can be found [here](documentation/README.md).
 
 | Plugin Name      | Description                                                                                                        | Path, Info and Documentation                              | Credits                                   |
 |------------------|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|-------------------------------------------|
-| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_compressor](plugins/crunch_compressor/) | [Philip Dell](https://github.com/pIlIp-d) |
+| CrunchCompressor | Compression Plugin for Pdfs and Images that also enables Conversion from Pdfs to and from different Image Formats. | [./plugins/crunch_compressor](plugin_system/plugins/crunch_compressor/) | [Philip Dell](https://github.com/pIlIp-d) |
 

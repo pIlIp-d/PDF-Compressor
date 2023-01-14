@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 
-from plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
+from plugin_system.plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
     ImageToPdfConvertPlugin, PdfToImageConvertPlugin, GoodNotesCompressorPlugin
-from plugins.minimal_plugin_example.plugin_config import RenamePngPlugin
+from plugin_system.plugins.minimal_plugin_example.plugin_config import RenamePngPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

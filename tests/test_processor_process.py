@@ -4,7 +4,7 @@ from abc import abstractmethod
 from glob import glob
 from unittest import TestCase
 
-from django_app.plugin_system.processing_classes.processor import Processor
+from plugin_system.processing_classes.processor import Processor
 from tests.help_classes import clean_up_after_class, simple_copy_process_file, simple_merge_files, \
     DestinationFolderSubClass, TESTDATA_DIR, TESTDATA_DIR_WITHOUT_RELATIVE
 

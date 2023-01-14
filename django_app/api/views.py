@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from django_app import settings
 from django_app.api.decorators import only_for_localhost, requires_parameters
-from django_app.plugin_system.plugin import Plugin
+from plugin_system.plugin import Plugin
 from django_app.settings import TIME_FORMAT, MEDIA_ROOT
 from django_app.webserver.models.uploaded_file import UploadedFile
 from django_app.webserver.validators import get_file_extension
