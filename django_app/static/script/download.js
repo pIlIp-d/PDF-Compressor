@@ -1,3 +1,5 @@
+//TODO completely redesign
+
 let ACTIVE_CHECKBOXES = []; //holds requestId -> fileIDs
 let request_list = [];
 
