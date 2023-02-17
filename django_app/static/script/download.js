@@ -1,10 +1,12 @@
+let ACTIVE_CHECKBOXES = []; //holds requestId -> fileIDs
+let request_list = [];
 
 
 function download(link, filename) {
     // Create a new link for download
     const anchor = document.createElement('a');
     anchor.href = ROOT_DIR + link;
-    anchor.download = filename;
+    anchor.setAttribute("download", filename);
     document.body.appendChild(anchor);
     // click link to download the file
     anchor.click();
@@ -21,7 +23,7 @@ function deleteFile(file_id, file_origin) {
         }
     );
 }
-console.log("Djapdjad")
+
 // TODO add progress of request (loading circle etc.)
 MAIN_INTERVAL_TICK = 2000
 let main_interval_obj;
@@ -31,6 +33,42 @@ let current_sorting = "request";
 document.addEventListener("DOMContentLoaded", init);
 
 function init() {
+    document.getElementById("delete-all-button").addEventListener("click", (_)=>{
+        for (let i in request_list){
+            for (let file of request_list[i].files){
+                deleteFile(file.file_id, file.file_origin);
+            }
+        }
+    });
+    document.getElementById("download-selected-button").addEventListener("click", (_)=>{
+        for (let i in request_list) {
+            let request = request_list[i];
+            if (parseInt(request.request_id) in ACTIVE_CHECKBOXES) {
+                for (let file_id of ACTIVE_CHECKBOXES[request.request_id]) {
+                    for (let file of request_list[i].files){
+                        if (file.file_id === file_id){
+                            download(file.filename_path, file.filename);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    document.getElementById("delete-selected-button").addEventListener("click", (_)=>{
+        for (let i in request_list) {
+            let request = request_list[i];
+            if (parseInt(request.request_id) in ACTIVE_CHECKBOXES) {
+                for (let file_id of ACTIVE_CHECKBOXES[request.request_id]) {
+                    for (let file of request_list[i].files){
+                        if (file.file_id === file_id){
+                            deleteFile(file.file_id, file.file_origin);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     main_interval_obj = setInterval(main_interval, MAIN_INTERVAL_TICK)
 }
 
@@ -48,9 +86,19 @@ function update_files() {
         function () {
             if (this.readyState === 4 && this.status === 200) {
                 let new_file_list = JSON.parse(this.response).files;
-                if (file_list !== new_file_list) {
-                    file_list = new_file_list
-                    update_html(current_sorting);
+
+                let newRequest_list = [];
+                for (let file of new_file_list) {
+                    if (typeof newRequest_list[file.request_id] === "undefined") {
+                        newRequest_list[file.request_id] = {request_id: file.request_id, files: [], datetime: ""};
+                        newRequest_list[file.request_id].datetime = file.date_of_upload;
+                    }
+                    newRequest_list[file.request_id].files.push(file);
+                }
+                newRequest_list = newRequest_list.sort((a,b)=>a.request_id < b.request_id ? 1 : -1);
+                if (JSON.stringify(request_list) !== JSON.stringify(newRequest_list)) {
+                    request_list = newRequest_list;
+                    update_html();
                 }
             }
         }
@@ -109,7 +157,91 @@ function get_file_row(file) {
     return file_row;
 }
 
-function update_html(sort_by) {
+function changeSelectOnFile(request_id, fileId, newValue){
+    if (typeof ACTIVE_CHECKBOXES[request_id] === "undefined"){
+        ACTIVE_CHECKBOXES[request_id] = [];
+    }
+    if (newValue)
+        ACTIVE_CHECKBOXES[request_id].push(fileId);
+    else if (fileId in ACTIVE_CHECKBOXES[request_id].values)
+        ACTIVE_CHECKBOXES[request_id].remove(fileId);
+
+}
+
+function getRow(file){
+    let fileRow = document.createElement("div");
+    fileRow.classList.add("file-row");
+    fileRow.appendChild(getSpan(file.filename));
+    fileRow.appendChild(getSpan(file.size));
+
+    let button = document.createElement("button");
+    button.classList.add("material-element", "material-button", "small-material-button");
+    if (!file.finished) {
+        button.disabled = true;
+    } else {
+        button.onclick = () => download(file.filename_path, file.filename);
+    }
+    button.appendChild(document.createTextNode("Download"));
+    fileRow.appendChild(button);
+
+    let checkbox = document.createElement("input");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.onchange = (_) => changeSelectOnFile(file.request_id, file.file_id, checkbox.checked);
+    checkbox.classList.add("checkbox");
+    checkbox.id = file.file_id;
+    checkbox.checked = (typeof ACTIVE_CHECKBOXES[file.request_id] !== "undefined" && file.file_id in ACTIVE_CHECKBOXES[file.request_id]);
+    fileRow.appendChild(checkbox);
+    return fileRow;
+}
+
+function selectAll(newValue, request_id){
+    for (let i in request_list){
+        if (typeof request_list[i] !== "undefined" && request_list[i].request_id === request_id) {
+            for (let file of request_list[i].files) {
+                document.getElementById(file.file_id).checked = newValue;
+                changeSelectOnFile(request_id, file.file_id, newValue);
+            }
+        }
+    }
+}
+
+function getSpan(textValue){
+    let span = document.createElement("span");
+    span.appendChild(document.createTextNode(textValue));
+    return span;
+}
+
+function getContainerHeader(request){
+    let header = document.createElement("div");
+    header.classList.add("request_header");
+    let title = getSpan("Files from "+request.datetime);
+    let select_all = document.createElement("span");
+    select_all.appendChild(document.createTextNode("All"));
+    select_all.classList.add("select-all-container");
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.onchange = () => selectAll(checkbox.checked, request.request_id);
+
+    //TODO checkbox.checked = file.file_id in ACTIVE_CHECKBOXES[file.request_id];
+
+    select_all.appendChild(checkbox);
+    header.appendChild(title);
+    header.appendChild(select_all);
+    return header;
+}
+
+function getContainer(request){
+    let container = document.createElement("div");
+    container.classList.add("material-element");
+    container.classList.add("request-container");
+    container.appendChild(getContainerHeader(request));
+    for (let file of request.files){
+        container.appendChild(getRow(file));
+    }
+    return container;
+}
+
+function update_html() {
     let container = document.getElementById("content_container");
     let last_request_id = null;
 
@@ -117,16 +249,24 @@ function update_html(sort_by) {
     while (container.lastChild) {
         container.removeChild(container.lastChild);
     }
-
-    for (const file of file_list) {
-        if (file.request_id !== last_request_id) {
-            let table = document.createElement("table")
-            table.classList.add("request_files_container");
-            table.id = file.request_id;
-            table.appendChild(get_table_head());
-            container.appendChild(table);
-        }
-        container.lastElementChild.appendChild(get_file_row(file));
-        last_request_id = file.request_id;
+    if (file_list.length === 0){
+        document.getElementById("content_container").innerHTML = "<div style='margin: auto; text-align: center;'>Nothing here, yet.</div>";
     }
+
+    container.innerHTML = "";
+    for (let request in request_list){
+        container.appendChild(getContainer(request_list[request]));
+    }
+    //
+    // for (const file of file_list) {
+    //     if (file.request_id !== last_request_id) {
+    //         let table = document.createElement("table")
+    //         table.classList.add("request_files_container");
+    //         table.id = file.request_id;
+    //         table.appendChild(get_table_head());
+    //         container.appendChild(table);
+    //     }
+    //     container.lastElementChild.appendChild(get_file_row(file));
+    //     last_request_id = file.request_id;
+    // }
 }

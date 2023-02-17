@@ -1,13 +1,31 @@
-.content_container {
+body{
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
+}
+#header{
+    top: 0;
+    height: 20vh;
 }
 
-.request_files_container {
-    padding-bottom: 1rem;
-    width: 80%;
-    margin: auto;
-    border-spacing: 15px;
+#heading {
+    font-size: min(5vh, 4em);
+}
+
+#subheading {
+    font-size: min(3.5vh, 3em);
+}
+
+#content_container {
+    overflow-y: scroll;
+    height: 65vh;
+    width:100%;
+}
+
+.request-container {
+    margin: 12px auto;
+    width: 90%;
 }
 
 .button {
@@ -19,4 +37,87 @@
 
 .button:hover {
     scale: 0.98;
+}
+
+.select-all-container {
+    float: right;
+    padding-right: 12px;
+}
+
+footer {
+    height: 5vh;
+    width: 100%;
+    padding-top: 2vh;
+    justify-content: center;
+    grid-template-columns: 27% 27% 27%;
+    column-gap: 3%;
+    display: grid;
+}
+
+.request_header {
+    padding: 12px;
+    outline: none;
+    background-color: lightgray;
+    border-radius: 12px 12px 0 0;
+}
+.file-row {
+    padding:0;
+    margin: 5vw;
+    grid-template-columns: 50% min-content min-content min-content;
+    column-gap: 1%;
+    display: grid;
+    justify-content: space-around;
+    overflow-wrap: break-word;
+}
+
+/* Material Design Elements */
+.material-element {
+    border: 1px solid lightgrey;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    box-shadow: 0 0 20px -18px;
+    border-radius: 12px;
+}
+
+.material-left{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.material-right{
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.material-center{
+    border-radius: 0;
+}
+
+.material-button {
+    padding: 12px;
+    overflow-wrap: normal;
+}
+
+.material-button:hover {
+    border: 2px solid lightgrey;
+    box-shadow: 0 0 20px -17px;
+}
+
+.material-button:active {
+    transform: scale(0.95);
+}
+
+.material-button:focus {
+    border: 2px solid grey;
+}
+
+.material-button[disabled] {
+    transform: none;
+    box-shadow: 0 0 0 0;
+    border: 12px;
+}
+
+.small-material-button{
+    padding: 6px;
+    border-radius: 6px;
 }
