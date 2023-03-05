@@ -4,6 +4,7 @@ import shutil
 from glob import glob
 from unittest import TestCase
 
+from plugin_system.processing_classes.processing_exception import ProcessingException
 from tests.help_classes import SimpleProcessorForFileTypes, clean_up_after_class, TESTDATA_DIR
 
 manager = multiprocessing.Manager()
@@ -74,7 +75,7 @@ class TestProcessorConstructorFileTypes(TestCase):
         self.assertRaises(ValueError, self.__execute_processor, file_type_to="")
 
     def test_process_file_type_to_is_invalid_string(self):
-        self.assertRaises(ValueError, self.__execute_processor, file_type_to="pdf")
+        self.assertRaises(ProcessingException, self.__execute_processor, file_type_to="pdf")  # ValueError
 
     def test_process_file_type_to_is_valid_string(self):
         self.__execute_processor(file_type_to="txt")
