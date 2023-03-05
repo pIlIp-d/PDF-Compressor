@@ -184,7 +184,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
 
     def _get_sources_files_by_file_type_from(self, source_path) -> list[str]:
         return list(set(reduce(
-            lambda a, file_ending: a + glob(os.path.join(source_path, "*" + file_ending)),
+            lambda a, file_ending: a + glob(
+                os.path.join(source_path, file_ending if file_ending == "*" else ("*" + file_ending))),
             self._file_type_from, []
         )))
 

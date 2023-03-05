@@ -50,8 +50,11 @@ def start_processing_and_show_download_view(request):
     if len(input_file_list) < 1:
         return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
-    plugin.get_task()(
+    task_id = plugin.get_task()(
         request_parameters=request.POST,
         processing_request=processing_request,
     ).create()
+    processing_request.task_id = task_id
+    processing_request.save()
+
     return redirect("../download/")
