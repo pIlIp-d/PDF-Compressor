@@ -232,12 +232,22 @@ function getContainerHeader(request){
     return header;
 }
 
+function getErrorContainer(exception){
+    let error_container = document.createElement("span");
+    error_container.appendChild(document.createTextNode(exception));
+    error_container.classList.add("error-container");
+    return error_container;
+}
+
 function getContainer(request){
     let container = document.createElement("div");
     container.classList.add("material-element");
     container.classList.add("request-container");
     container.appendChild(getContainerHeader(request));
     for (let file of request.files){
+        if ("exception" in file && file.exception !== "") {
+            container.appendChild(getErrorContainer(file.exception));
+        }
         container.appendChild(getRow(file));
     }
     return container;

@@ -3,6 +3,7 @@ import threading
 import time
 from datetime import datetime
 
+from plugin_system.processing_classes.processing_exception import ProcessingException
 from .db_con import get_connection
 
 
@@ -19,7 +20,8 @@ class TaskScheduler:
             "id INTEGER primary key autoincrement,"
             "object TEXT NOT NULL,"
             "finished BOOL DEFAULT 0,"
-            "datetime DATETIME DEFAULT CURRENT_TIMESTAMP"
+            "datetime DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "exception VARCHAR NOT NULL DEFAULT ''"
             ")"
         )
         self.last_time = ""
@@ -28,14 +30,24 @@ class TaskScheduler:
     def run_unfinished_tasks(cls) -> None:
         def ___load_task(query_row):
             task_obj = pickle.loads(query_row["object"])
-            task_obj._task_id = query_row["id"]
+            task_obj.task_id = query_row["id"]
             return task_obj
 
         response = cls.__get_unfinished_tasks()
         for task in [___load_task(obj) for obj in response]:
             if not task.finished:
-                task.run()
-                task.finish_task()
+                try:
+                    task.run()
+                    task.finish_task()
+                except ProcessingException as e:
+                    conn = get_connection()
+                    cur = conn.cursor()
+                    cur.execute(
+                        "UPDATE task_objects SET exception = ? where `id` = ?;",
+                        ("Something has gone wrong with this file: " + e.source_file.split("/")[-1], task.task_id)
+                    )
+                    conn.commit()
+                    raise e.exception
 
     @classmethod
     def check_for_unfinished_tasks(cls) -> bool:

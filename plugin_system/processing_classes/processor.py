@@ -16,6 +16,7 @@ from plugin_system.processing_classes.postprocessor import Postprocessor
 from plugin_system.processing_classes.preprocessor import Preprocessor
 from django_app.settings import TIME_FORMAT
 from plugin_system.processing_classes.event_handler import EventHandler
+from plugin_system.processing_classes.processing_exception import ProcessingException
 
 
 # TODO TODO test if recursive folders are still working
@@ -79,16 +80,12 @@ class Processor(Postprocessor, Preprocessor, ABC):
             processor.postprocess(source_file, destination_file)
 
     @classmethod
-    def _custom_map_execute(cls, method, args_list: list) -> None:
+    def _custom_map_execute(cls, method, args_list: list) -> list:
         futures = []
         with ProcessPoolExecutor() as executor:
             for method_parameter in args_list:
                 futures.append(executor.submit(method, **method_parameter))
-        # finally raise occurred exceptions
-        for future in futures:
-            exception = future.exception()
-            if exception is not None:
-                raise exception
+        return futures
 
     @classmethod
     def _copy_file(cls, from_file: str, to_file: str):
@@ -141,7 +138,12 @@ class Processor(Postprocessor, Preprocessor, ABC):
         """
         args_list = [{"source_file": source, "destination_path": destination}
                      for source, destination in zip(source_files, destination_files)]
-        self._custom_map_execute(self.process_file, args_list)
+        futures = self._custom_map_execute(self.process_file, args_list)
+        # finally raise occurred exceptions
+        for i, future in enumerate(futures):
+            exception = future.exception()
+            if exception is not None:
+                raise ProcessingException(exception, args_list[i]["source_file"], args_list[i]["destination_path"])
 
     def _get_and_create_temp_folder(self) -> str:
         """

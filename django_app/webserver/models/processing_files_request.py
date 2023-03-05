@@ -13,6 +13,7 @@ class ProcessingFilesRequest(models.Model):
     date_of_request = models.DateTimeField(auto_now_add=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
+    task_id = models.IntegerField(default=-1)
 
     def __str__(self):
         return "Object(ProcessingFilesRequest): " + str(self.pk)

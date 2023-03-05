@@ -3,6 +3,7 @@ import os
 from django.db import models
 
 from django_app.settings import TIME_FORMAT, MEDIA_ROOT
+from django_app.task_scheduler.db_con import get_connection
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
 
@@ -20,7 +21,7 @@ class ProcessedFile(models.Model):
     def delete(self, using=None, keep_parents=False):
         def file_count():
             return len(UploadedFile.objects.filter(processing_request=self.processing_request)) \
-                   + len(ProcessedFile.objects.filter(processing_request=self.processing_request))
+                + len(ProcessedFile.objects.filter(processing_request=self.processing_request))
 
         file = str(self.processed_file_path)
         if os.path.isfile(file):
@@ -43,7 +44,7 @@ class ProcessedFile(models.Model):
 
     @classmethod
     def get_all_processing_files(cls, user_id: str, request_id: str = None):
-        def ___get_json(file_obj, filename: str, filename_path: str, request_id: int, file_origin: str):
+        def ___get_json(file_obj, filename: str, filename_path: str, request_id: int, file_origin: str, exception: str):
             abs_file_path = os.path.join(MEDIA_ROOT, filename_path)
             file_is_present = os.path.isfile(abs_file_path)
             return {
@@ -56,7 +57,8 @@ class ProcessedFile(models.Model):
                 "file_origin": file_origin,
                 "size": "%.2fmb" % (
                     0 if not file_is_present
-                    else os.path.getsize(abs_file_path) / 1000000)
+                    else os.path.getsize(abs_file_path) / 1000000),
+                "exception": exception
             }
 
         def ___get_source_files(___processing_request):
@@ -66,19 +68,26 @@ class ProcessedFile(models.Model):
                 files.append(___get_json(
                     file_obj=file, filename=file.uploaded_file.name + " (Original)",
                     filename_path=file.uploaded_file.name, request_id=___processing_request.id,
-                    file_origin="uploaded"
+                    file_origin="uploaded",
+                    exception=___get_task_exceptions(___processing_request.task_id)
                 ))
             return files
+
+        def ___get_task_exceptions(task_id: int):
+            cur = get_connection().cursor()
+            exception = cur.execute("SELECT exception FROM task_objects where `id` = ?;", (task_id,)).fetchone()
+            return "" if exception is None else exception[0]
 
         def ___get_processed_files(___processing_request):
             files = []
             for processed_file in ProcessedFile.objects.filter(processing_request=___processing_request).order_by(
-                    'date_of_upload'): # TODO reverse
+                    'date_of_upload'):  # TODO reverse
                 if processed_file.processing_request.id == ___processing_request.id:
                     files.append(___get_json(
                         file_obj=processed_file, filename=processed_file.processed_file_path,
                         filename_path=processed_file.processed_file_path,
-                        request_id=___processing_request.id, file_origin="processed"
+                        request_id=___processing_request.id, file_origin="processed",
+                        exception=___get_task_exceptions(processed_file.processing_request.task_id)
                     ))
             return files
 

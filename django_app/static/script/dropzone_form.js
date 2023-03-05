@@ -213,9 +213,12 @@ function set_form_script(script_string) {
 
 function correct_file_type(file) {
     if (allowed_file_endings.length === 0)
-        return true
-    for (const ending in allowed_file_endings) {
-        if (file.type === allowed_file_endings[ending])
+        return true;
+    for (const ending of allowed_file_endings) {
+        console.log(ending);
+        if (ending === "*")
+            return true;
+        else if (file.type === ending)
             return true;
     }
     return false;
