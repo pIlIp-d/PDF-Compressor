@@ -260,6 +260,22 @@ class Processor(Postprocessor, Preprocessor, ABC):
         return self.__get_files_and_extra_info_from_input_folder(source_path, destination_path) if os.path.isdir(
             source_path) else self.__get_files_and_extra_info_from_input_file(source_path, destination_path)
 
+    @staticmethod
+    def _numerate_doubles(path_list: list[str]):
+        found_doubles: dict[str, list[int]] = {}
+        for i, path in enumerate(path_list):
+            occurrences = path_list.count(path)
+            if occurrences > 1:
+                if found_doubles.get(path) is None:
+                    found_doubles[path] = []
+                found_doubles[path].append(i)
+
+        for path, double in found_doubles.items():
+            counter = 0
+            for double_i in double:
+                path_list[double_i] = "".join(path.split(".")[:-1]) + "_" + str(counter) + path.split(".")[-1]
+                counter += 1
+
     def process(self, source_path, destination_path="default"):
         """
         implements advanced checks, behaviour, optimization for process_file<br>
@@ -293,6 +309,8 @@ class Processor(Postprocessor, Preprocessor, ABC):
             destination_path
         )
         is_merging = force_merge or is_merging
+
+        self._numerate_doubles(destination_path_list)
 
         if is_merging and not self._can_merge:
             raise ValueError("Merging is not supported for this Processor. " + str(self))
