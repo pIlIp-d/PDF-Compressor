@@ -67,7 +67,7 @@ class ExampleTask(ProcessingTask):
 make file-processing much simpler by using the [Processor](../plugin_system/processing_classes/processor.py) class
 
 ```python
-"from plugin_system.processing_classes.processor import Processor
+from plugin_system.processing_classes.processor import Processor
 
 
 class MyProcessor(Processor):

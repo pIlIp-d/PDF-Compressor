@@ -110,6 +110,13 @@ After `finished_all_files()` is called the finished files are shown to the user 
 diagrams are using the PlantUML integration plugin / syntax  
 syntax can be found here: [https://plantuml.com](https://plantuml.com)
 
+# Test Execution
+
+`coverage run -p -m unittest discover`  
+`coverage combine`  
+`coverage report`  
+`coverage html`
+
 # TODOs
 * settings presets for plugin forms
 * **add remove all files button (per User) to download page**

@@ -1,3 +1,4 @@
+// is called by plugin specific javascript
 function addChangeableClass(object, callbackFunction) {
     console.log(object)
     object.addEventListener("dblclick", function (e) {

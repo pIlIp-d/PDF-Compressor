@@ -10,3 +10,4 @@ htmgem~=0.0.2
 ansi~=0.3.6
 Wand~=0.6.11
 python-ffmpeg>=2.0.2
+requests
