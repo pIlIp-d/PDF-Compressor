@@ -8,7 +8,7 @@ function make_request(method, url, async = true, response_handler = null, post_d
 
 
 function save_plugin_in_url(plugin_name) {
-    current_plugin = plugin_name;
+    console.log(plugin_name);
     let new_url = location.href.split("?")[0]
     let parameters = ["plugin="];
     // reserve other parameters if they exist
@@ -27,5 +27,6 @@ function save_plugin_in_url(plugin_name) {
         else
             new_url += parameters[p];
     }
+    console.log(new_url);
     window.history.pushState(null, "", new_url);
 }

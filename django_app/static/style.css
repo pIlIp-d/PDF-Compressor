@@ -26,7 +26,6 @@
 #compression_options_form {
     text-align: left;
     font-size: large;
-    margin-bottom: 1.5rem;
     width: 100%;
 }
 
@@ -137,4 +136,12 @@ button:disabled, button[disabled] {
 }
 .disabled_container option {
     color: #000;
+}
+
+.processing_form  {
+    background: lightgray;
+}
+
+#all_files_form {
+    margin-top: 1rem;
 }

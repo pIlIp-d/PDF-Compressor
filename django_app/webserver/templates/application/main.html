@@ -12,6 +12,10 @@
     <script defer src="{{ dir }}static/script/forms.js"></script>
     <script defer src="{{ dir }}static/script/changeable.js"></script>
     <script defer src="{{ dir }}static/script/dropzone_form.js"></script>
+    <script defer src="{{ dir }}static/script/upload_view/Row.js"></script>
+    <script defer src="{{ dir }}static/script/upload_view/AllFilesRow.js"></script>
+    <script defer src="{{ dir }}static/script/upload_view/Options.js"></script>
+    <script defer src="{{ dir }}static/script/upload_view/ProcessingButton.js"></script>
 
     <title>Croco-File-Crusher</title>
 </head>
@@ -43,13 +47,16 @@
     <form action="{{ dir }}start_processing_and_show_download_view/" method="post" name="compression_options_form"
           id="compression_options_form">
         {% csrf_token %}
-        <label for="destination_type_select">-></label>
-        <select name="destination_type_select" id="destination_type_select">
-            <option value="null">Choose a Result File Type</option>
-        </select>
-        <input type="hidden" name="request_id" value="{{ request_id }}"/>
+        <div id="file_list"></div>
+       <!-- <div id="all_files_form" class="processing_form">
+            <label for="destination_type_select">Apply to all</label>
+            <select name="destination_type_select" id="destination_type_select">
+                <option value="null">Choose a Result File Type</option>
+            </select>
+            <input type="hidden" name="request_id" value="{{ request_id }}"/>
 
         <div id="form_content"></div>
+        </div>-->
     </form>
 
 </div>
