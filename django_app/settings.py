@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 from plugin_system.plugins.automatic_converter.plugin_config import AutomaticConvertPlugin
-from plugin_system.plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, PngCompressorPlugin, \
+from plugin_system.plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, \
+    PngCompressorPlugin, \
     ImageToPdfConvertPlugin, PdfToImageConvertPlugin, GoodNotesCompressorPlugin
 from plugin_system.plugins.minimal_plugin_example.plugin_config import RenamePngPlugin
 
@@ -41,21 +42,30 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     "django_app.webserver",
-    #"django_tables2"
+    # "django_tables2"
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_app.webserver.middlewares.UserIdMiddleware',
     'django_app.webserver.middlewares.RequestIdMiddleware',
 ]
+
+FRONTEND_URL = "http://localhost:5173"
+# allow requests from the frontend
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [FRONTEND_URL]
+
+CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
 
 ROOT_URLCONF = 'django_app.urls'
 
