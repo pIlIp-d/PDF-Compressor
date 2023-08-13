@@ -18,6 +18,9 @@ from django_app.task_scheduler.tasks.zip_task import ZipTask
 from django_app.webserver.models.processed_file import ProcessedFile
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
+
 
 # TODO favicon.ico
 # TODO move valid_file_endings from UploadedFile -> request Table
@@ -31,6 +34,14 @@ def internal_server_error(error_string: str):
     return JsonResponse({"status": 500, "error": error_string}, status=500)
 
 
+def get_csrf(request):
+    return JsonResponse({'csrfToken': get_token(request)})
+
+
+def ping(request):
+    return JsonResponse({'result': 'OK'})
+
+UploadedFile
 @only_for_localhost
 @require_http_methods(["GET"])
 @requires_parameters("GET", ["request_id"])
@@ -73,8 +84,6 @@ def finished_all_files(request):
 
     return JsonResponse({"status": 200})
 
-k = pathlib.Path("")
-k.iterdir()
 
 @csrf_protect
 @require_http_methods(["GET"])
@@ -98,10 +107,10 @@ def get_all_files_of_request(request):
     return JsonResponse({"status": 200, "files": files_json}, status=200)
 
 
-@csrf_protect  # TODO csrf_protect doesn't work, yet
-@require_http_methods(["GET"])
+@csrf_protect
+@require_http_methods(["DELETE"])
 @requires_parameters("GET", ["file_origin"])
-def remove_file(request):
+def remove_file(request, file_id):
     if request.GET.get("file_origin") == "uploaded":
         file_class = UploadedFile
     elif request.GET.get("file_origin") == "processed":
@@ -110,7 +119,7 @@ def remove_file(request):
         return JsonResponse({"status": 412, "error": "Unknown value for file_origin."}, status=412)
 
     file = file_class.objects.filter(
-        id=request.GET.get("file_id")
+        id=file_id
     ).first()
 
     if file is not None and file.processing_request.user_id == request.session["user_id"]:
@@ -137,11 +146,12 @@ def get_allowed_input_file_types(request):
 
 @csrf_protect
 @require_http_methods(["POST"])
-@requires_parameters("POST", ["request_id"])
+# @requires_parameters("POST", ["request_id"])
 @requires_parameters("FILES", ["file"])
 def upload_file(request):
+    print(request.FILES.get('file'))
     user_id = request.session['user_id']
-    request_id = request.POST.get('request_id')
+    request_id = request.POST.get('request_id') or 1
     uploaded_file = UploadedFile(
         uploaded_file=request.FILES.get('file'),
         processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
@@ -253,4 +263,18 @@ def get_possible_destination_file_types(request):
         "status": 200,
         "possible_file_types": get_intersection_of_file_endings_from_different_input_filetypes(
             list_of_file_types_per_file)
+    }, status=200)
+
+
+@require_http_methods(["GET"])
+def get_possible_destination_file_types_by_file_id(request, file_id):
+    file_mime_type = UploadedFile.objects.get(id=file_id).get_mime_type()
+
+    list_of_file_types = dict()
+    for plugin in settings.PROCESSOR_PLUGINS:
+        list_of_file_types[plugin.name] = plugin.get_destination_types(file_mime_type)
+
+    return JsonResponse({
+        "status": 200,
+        "possible_file_types": list_of_file_types
     }, status=200)
