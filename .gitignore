@@ -5,3 +5,4 @@ venv
 django_app/media/
 temporary_files/
 */__pycache__/
+*/node_modules/
