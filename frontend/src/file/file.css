@@ -1,0 +1,29 @@
+.file-row {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 5.5rem 2rem max-content 2rem;
+}
+
+.fade-overflow {
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.fs-7 {
+    font-size: 0.7rem;
+}
+
+
+.Dropdown-menu {
+    width: max-content !important;
+}
+
+.Dropdown-placeholder {
+    font-size: 0.7rem;
+    text-align: left;
+}
+
+.Dropdown-control {
+
+}
