@@ -82,8 +82,9 @@ class PdfCompressorForm(PluginForm):
         # TODO document/implement a combi type
 
     def get_advanced_options(self) -> list[str]:
-        return ["compression_mode", "merge_files", "ocr_mode", "simple_and_lossless", "default_pdf_dpi", "simple_and_lossless",
-                "tesseract_language"]
+        return ["compression_mode", "merge_files", "ocr_mode", "simple_and_lossless", "default_pdf_dpi",
+                "simple_and_lossless", "tesseract_language"]
+
 
 class GoodNotesCompressorForm(PdfCompressorForm):
     def __init__(self):
@@ -110,10 +111,12 @@ class PngCompressorForm(PluginForm):
 
 
 class ImageToPdfConvertForm(PluginForm):
+    """
     merge_files = forms.BooleanField(
         label='Merge files into a single PDF.',
         initial=False
     )
+    """
     ocr_mode = forms.TypedChoiceField(
         choices=(
             ('auto', 'Auto'),
@@ -149,14 +152,6 @@ class ImageToPdfConvertForm(PluginForm):
 
 
 class PdfToImageConvertForm(PluginForm):
-    result_file_type = forms.TypedChoiceField(
-        choices=(
-            ('image/png', 'image/png'),  # TODO add important notice: ',' at the end is required
-        ),
-        initial='image/png',
-        label='Result File Type:',
-        coerce=str
-    )
     default_pdf_dpi = forms.IntegerField(
         label='Default DPI:',
         min_value=10,
