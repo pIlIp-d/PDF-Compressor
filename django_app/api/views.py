@@ -5,6 +5,7 @@ from functools import reduce
 from glob import glob
 
 from django.http import JsonResponse
+from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
@@ -41,7 +42,6 @@ def get_csrf(request):
 def ping(request):
     return JsonResponse({'result': 'OK'})
 
-UploadedFile
 @only_for_localhost
 @require_http_methods(["GET"])
 @requires_parameters("GET", ["request_id"])
@@ -154,7 +154,8 @@ def upload_file(request):
     request_id = request.POST.get('request_id') or 1
     uploaded_file = UploadedFile(
         uploaded_file=request.FILES.get('file'),
-        processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
+        user_id=user_id,
+#        processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
         valid_file_endings=get_file_extension(request.FILES.get('file').name)
     )
     uploaded_file.save()
@@ -212,7 +213,7 @@ def test_get_intersections():
 @require_http_methods(["GET"])
 @requires_parameters("GET", ["plugin", "destination_file_type"])
 def get_form_html_for_web_view(request):
-    if request.GET.get("plugin") not in [p.name for p in settings.PROCESSOR_PLUGINS]:
+    if not is_valid_plugin(request.GET.get("plugin")):
         return invalid_parameter_error("plugin")
     try:
         destination_file_type = request.GET.get("destination_file_type")
@@ -224,6 +225,66 @@ def get_form_html_for_web_view(request):
             "status": 200,
             "form_html": form_html,
             "form_script": form_script
+        }, status=200)
+    except ValueError as e1:
+        if settings.DEBUG:
+            raise e1
+        return invalid_parameter_error("destination_file_type")
+    except ImportError as error:
+        if settings.DEBUG:
+            raise error
+        return internal_server_error(str(error))
+
+
+def is_valid_plugin(plugin):
+    return plugin in [p.name for p in settings.PROCESSOR_PLUGINS]
+
+
+@require_http_methods(["GET"])
+@requires_parameters("GET", ["plugin", "destination_file_type"])
+def get_settings_config_for_processor(request):
+    if not is_valid_plugin(request.GET.get("plugin")):
+        print(request.GET.get("plugin"))
+        return invalid_parameter_error("plugin")
+    try:
+        destination_file_type = "*"  # request.GET.get("destination_file_type")
+        plugin = Plugin.get_processing_plugin_by_name(request.GET.get("plugin"))
+        #   if destination_file_type not in plugin.get_destination_types():
+        #     raise ValueError("No support for the given Value. Plugin:", plugin.name, "Value:", destination_file_type)
+
+        form = plugin.get_form_class()()
+
+        def get_value_from_field_if_it_exists(field, name: str, attr: str):
+            # helps to map the django internal keys to the ones used in the frontend formular
+            return {"" + name: getattr(field, attr)} if hasattr(field, attr) else {}
+
+        advanced_form_fields = form.get_advanced_options()
+        hierarchy = form.get_hierarchy()
+        form_data = {
+            "fields": [
+                {
+                    "name": field_name,
+                    "type": field.widget.input_type,
+                    **get_value_from_field_if_it_exists(field, "label", "label"),
+                    **get_value_from_field_if_it_exists(field, "defaultValue", "initial"),
+                    **get_value_from_field_if_it_exists(field, "step", "step_size"),
+                    **get_value_from_field_if_it_exists(field, "min", "min_value"),
+                    **get_value_from_field_if_it_exists(field, "max", "max_value"),
+                    **get_value_from_field_if_it_exists(field, "help_text", "help_text"),
+                    "choices": [{"value": value, "display": display} for value, display in
+                                field.choices] if hasattr(field, "choices") else []
+                }
+                for field_name, field in form.fields.items()
+            ]
+        }
+
+        return JsonResponse({
+            "status": 200,
+            "config": {
+                "form_data": form_data,
+                "advanced_form_fields": advanced_form_fields,
+                "hierarchy": hierarchy
+            }
         }, status=200)
     except ValueError as e1:
         if settings.DEBUG:

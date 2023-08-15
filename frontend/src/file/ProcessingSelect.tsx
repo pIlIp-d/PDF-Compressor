@@ -50,7 +50,7 @@ const ProcessingSelect = ({disabled, currentProcessor, setProcessor, fileId}: Pr
             {Object.keys(options).map((optionsKey, key1) => (
                 <optgroup key={key1} label={optionsKey}>
                     {options[optionsKey].map((mime, key2) => (
-                        <option key={key1 + "-" + key2} value={`${optionsKey}/${mime}`}>
+                        <option key={key1 + "-" + key2} value={`${optionsKey}-${mime}`}>
                             {mime}
                         </option>
                     ))}
