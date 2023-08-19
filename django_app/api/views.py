@@ -1,10 +1,10 @@
 import datetime
+import json
 import os
-import pathlib
+import shutil
 from functools import reduce
 from glob import glob
 
-from django.http import JsonResponse
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
@@ -42,6 +42,7 @@ def get_csrf(request):
 def ping(request):
     return JsonResponse({'result': 'OK'})
 
+
 @only_for_localhost
 @require_http_methods(["GET"])
 @requires_parameters("GET", ["request_id"])
@@ -50,6 +51,9 @@ def started_processing(request):
     processing_request.started = True
     processing_request.save()
     return JsonResponse({"status": 200})
+
+def get_files_in_folder(folder_path: str):
+    return glob(os.path.join(folder_path, "*"), include_hidden=True)
 
 
 @only_for_localhost
@@ -60,20 +64,27 @@ def finished_all_files(request):
     processing_request.finished = True
     processing_request.save()
 
-    folder = os.path.join(
-        MEDIA_ROOT,
-        os.path.join("uploaded_files", processing_request.user_id, str(processing_request.id) + "_processed")
+    source_folder = os.path.join(
+        MEDIA_ROOT, "uploaded_files", processing_request.user_id, str(processing_request.id)
     )
+    shutil.rmtree(source_folder)
+    destination_folder = source_folder + "_processed"
     zip_path = os.path.join(
-        folder, "processed_files_" + datetime.datetime.now().strftime(TIME_FORMAT) + ".zip"
+        destination_folder, "processed_files_" + datetime.datetime.now().strftime(TIME_FORMAT) + ".zip"
     )
-    os.makedirs(folder, exist_ok=True)
+    # TODO replace with: if no folder exists throw an error
+    os.makedirs(destination_folder, exist_ok=True)
 
-    # run synchronize
-    ZipTask(folder, zip_path).run()
+    processed_files = get_files_in_folder(destination_folder)
+    # if multiple files, compress them into a zip and use the zip instead
+    if len(get_files_in_folder(destination_folder)) > 1:
+        ZipTask(destination_folder, zip_path).run()
+        for f in processed_files:
+            if os.path.isfile(f):
+                os.remove(f)
 
-    # add files to download view
-    for file in reversed(glob(os.path.join(folder, "*"))):
+    # add the resulting files in the processed dir to the db
+    for file in reversed(get_files_in_folder(destination_folder)):
         def get_media_normalized_path(absolute_path):
             absolute_media_path = os.path.abspath(MEDIA_ROOT)
             if not absolute_path.startswith(absolute_media_path):
@@ -104,7 +115,14 @@ def get_all_files(request):
 @requires_parameters("GET", ["request_id"])
 def get_all_files_of_request(request):
     files_json = ProcessedFile.get_all_processing_files(request.session["user_id"], request.GET.get("request_id"))
-    return JsonResponse({"status": 200, "files": files_json}, status=200)
+    request = ProcessingFilesRequest.objects.filter(
+            id=request.GET.get("request_id"),
+            user_id=request.session["user_id"])
+    return JsonResponse({
+        "status": 200,
+        "files": files_json,
+        "request_finished": False if len(request) == 0 else request[0].finished
+    }, status=200)
 
 
 @csrf_protect
@@ -122,7 +140,7 @@ def remove_file(request, file_id):
         id=file_id
     ).first()
 
-    if file is not None and file.processing_request.user_id == request.session["user_id"]:
+    if file is not None and (not file.processing_request or file.processing_request.user_id == request.session["user_id"]):
         file.delete()
     else:
         return JsonResponse({"status": 412, "error": "No file with that id found for you."}, status=412)
@@ -149,13 +167,13 @@ def get_allowed_input_file_types(request):
 # @requires_parameters("POST", ["request_id"])
 @requires_parameters("FILES", ["file"])
 def upload_file(request):
+    print(request.POST)
     print(request.FILES.get('file'))
     user_id = request.session['user_id']
-    request_id = request.POST.get('request_id') or 1
     uploaded_file = UploadedFile(
         uploaded_file=request.FILES.get('file'),
         user_id=user_id,
-#        processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
+        #        processing_request=ProcessingFilesRequest.get_or_create_new_request(user_id, request_id),
         valid_file_endings=get_file_extension(request.FILES.get('file').name)
     )
     uploaded_file.save()
@@ -339,3 +357,38 @@ def get_possible_destination_file_types_by_file_id(request, file_id):
         "status": 200,
         "possible_file_types": list_of_file_types
     }, status=200)
+
+
+@csrf_protect
+@require_http_methods(["POST"])
+def process_files(request):
+    POST_DATA = json.loads(request.body)
+    processing_request = ProcessingFilesRequest.get_or_create_new_request(
+        user_id=request.session["user_id"],
+        request_id=get_random_string(50)
+    )
+
+    file_ids = POST_DATA.get("files")
+    print(file_ids, POST_DATA)
+    files = []
+    for file_id in file_ids:
+        file = UploadedFile.objects.get(id=file_id)
+        file.processing_request = processing_request
+        file.save()
+        files.append(file)
+
+    *plugin_name, result_file_type = POST_DATA.get("processor").split("-")
+    plugin = Plugin.get_processing_plugin_by_name("-".join(plugin_name))
+
+    input_file_list = UploadedFile.get_uploaded_file_list_of_current_request(processing_request)
+    if len(input_file_list) < 1:
+        return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
+
+    task_id = plugin.get_task()(
+        request_parameters={**POST_DATA, "result_file_type": result_file_type},
+        processing_request=processing_request,
+        files=files
+    ).create()
+    processing_request.task_id = task_id
+    processing_request.save()
+    return JsonResponse({"processing_request_id": processing_request.id})

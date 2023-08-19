@@ -5,6 +5,7 @@ app_name = 'api'
 
 urlpatterns = [
     path('upload_file/', views.upload_file, name='upload-file'),
+    path('process_files/', views.process_files),
     path('file/<int:file_id>/', views.remove_file, name='remove-file'),
     path('get_all_files/', views.get_all_files),
     path('get_all_files_of_request/', views.get_all_files_of_request),
