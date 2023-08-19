@@ -25,7 +25,7 @@ class ProcessingTask(Task, ABC):
         for file in files:
             print(file.id)
             print(os.path.join(MEDIA_ROOT, file.uploaded_file.name), self._source_path)
-            shutil.copy(os.path.join(MEDIA_ROOT, file.uploaded_file.name), self._source_path)# maybe replace with move
+            shutil.move(os.path.join(MEDIA_ROOT, file.uploaded_file.name), self._source_path)# maybe replace with move
 
         # destination is either merged file or directory
         self._destination_path = "merge" if self._request_parameters.get("merge_files") else "default"
