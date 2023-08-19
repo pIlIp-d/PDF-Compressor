@@ -5,7 +5,7 @@ import ProcessingSelect from "./file/ProcessingSelect.tsx";
 import {Requester} from "./Requester.ts";
 import CustomToolTip from "./CustomToolTip.tsx";
 import {TabType} from "./App.tsx";
-import processingSelect from "./file/ProcessingSelect.tsx";
+import {BACKEND_HOST} from "./config.ts";
 
 type FileProps = {
     id: string;
@@ -46,11 +46,6 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
         setShowSettings(old => !old);
     }
 
-    type FormInput = {
-        name: string;
-        value: any;
-    }
-
     function submitForm(items: HTMLFormControlsCollection) {
         const formData = new FormData();
         for (let i = 0; i < items.length; i++) {
@@ -87,7 +82,7 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
                     file_origin: string
                 }) => f.file_origin == "processed")
                 if (processedFiles.length > 0)
-                    setDownloadPath(processedFiles[0].filename_path);
+                    setDownloadPath(BACKEND_HOST + "/" + processedFiles[0].filename_path);
                 // TODO error handling
                 // TODO show processedFiles and make them downloadable
             }
@@ -158,12 +153,13 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
                 <ProcessingSelect disabled={status !== "success" || processingState != "initial"}
                                   currentProcessor={currentProcessor}
                                   setProcessor={setProcessor} fileId={id} currentTab={currentTab}/>
-                <span className={`m-auto bi bi-sliders ${(status !== "success" || currentProcessor == "null") && "opacity-50"}`}
-                      onClick={toggleSettings}></span>
+                <span
+                    className={`m-auto bi bi-sliders ${(status !== "success" || currentProcessor == "null") && "opacity-50"}`}
+                    onClick={toggleSettings}></span>
                 {processingState == "initial" &&
                     < button className={"btn btn-secondary"} onClick={() => {
                         if (formRef.current) submitForm(formRef.current.elements);
-                    }} disabled={status !== "success"}>Convert
+                    }} disabled={status !== "success" || currentProcessor == "null"}>Convert
                     </button>
                 }
                 {processingState == "processing" &&
@@ -176,7 +172,7 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
                 }
                 {processingState == "processed" &&
                     <button className={"btn btn-success"}>
-                        <a href={downloadPath} download style={{"color": "inherit", "textDecoration": "inherit"}}>
+                        <a href={downloadPath} download={true} target={"_blank"} style={{"color": "inherit", "textDecoration": "inherit"}}>
                             Download
                         </a>
                     </button>
