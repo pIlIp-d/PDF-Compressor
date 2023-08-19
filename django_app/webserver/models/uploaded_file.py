@@ -12,8 +12,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     filename = filename.replace(" ", "_")
     path = os.path.join(
         ".", "uploaded_files",
-        instance.processing_request.user_id,
-        str(instance.processing_request.id),
+        instance.user_id,
         filename
     )
     check_file_extension(instance, path)
@@ -22,7 +21,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     # a file is present already
     filename_number = 1
     file_ending = get_file_extension(path)
-    while os.path.isfile(os.path.join(MEDIA_ROOT, path)):
+    while os.path.isfile(os.path.join(MEDIA_ROOT, path)): # TODO make it threadsafe
         path_without_file_ending = path[:-len(file_ending)]
 
         # path is already numbered .path/filename_00.xxx
@@ -38,9 +37,10 @@ def get_uploaded_file_path(instance, filename: str) -> str:
 
 
 class UploadedFile(models.Model):
+    user_id = models.CharField(max_length=50, default="")
     valid_file_endings = models.TextField(default="")
     id = models.BigAutoField(auto_created=True, primary_key=True, unique=True, serialize=False, verbose_name='ID')
-    processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE)
+    processing_request = models.ForeignKey(ProcessingFilesRequest, on_delete=models.CASCADE, blank=True, null=True)
     uploaded_file = models.FileField(upload_to=get_uploaded_file_path, max_length=255)
     date_of_upload = models.DateTimeField(auto_now_add=True)
 
