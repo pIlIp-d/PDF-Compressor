@@ -1,40 +1,50 @@
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {Requester} from "../Requester.ts";
-import {Simulate} from "react-dom/test-utils";
-import select = Simulate.select;
+import {TabType} from "../App.tsx";
 
 type ProcessingSelectProps = {
     disabled: boolean;
     currentProcessor: string;
     setProcessor: Dispatch<SetStateAction<string>>;
     fileId: string;
+    currentTab: TabType
 }
 
 type SelectOption = { [key: string]: [string] };
 
-const ProcessingSelect = ({disabled, currentProcessor, setProcessor, fileId}: ProcessingSelectProps) => {
+const ProcessingSelect = ({disabled, currentProcessor, setProcessor, fileId, currentTab}: ProcessingSelectProps) => {
     const [options, setOptions] = useState<SelectOption>({});
     const selectRef = useRef<HTMLSelectElement>(null);
 
     useEffect(() => {
         if (!disabled) {
+            setProcessor("null");
             // get possible destination types and set them as option
             Requester(`/get_possible_destination_file_types/${fileId}`).then((response) => {
                 if ("possible_file_types" in response.data) {
                     let types = response.data.possible_file_types;
-                    const listOfTypes = deduplicate(flattenObjectOfLists(types));
+                    for (const t in types) {
+                        switch (currentTab) {
+                            case "Convert":
+                            case "Merge":
+                                types[t] = types[t].filter((i: string) => i != "compression")
+                                break;
+                            case "Compress":
+                                types[t] = types[t].filter((i: string) => i == "compression")
+                                break;
+                        }
+                    }
                     types = filterOutEmptyLists(types);
 
                     // put the types into the types-list (f.e image/png -> {'image': 'png'}
-                    types = {...types, ...categorizeByMimeType(listOfTypes)};
+                    //let listOfTypes = deduplicate(flattenObjectOfLists(types));
+                    //types = {...types, ...categorizeByMimeType(listOfTypes)};
 
-                    setOptions(prevOptions => {
-                        return {...prevOptions, ...types};
-                    });
+                    setOptions(types);
                 }
             });
         }
-    }, [disabled]);
+    }, [disabled, currentTab]);
 
     useEffect(() => {
         if (selectRef.current)
