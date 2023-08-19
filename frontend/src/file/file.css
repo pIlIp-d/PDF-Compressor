@@ -1,6 +1,6 @@
 .file-row {
     display: grid;
-    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 5.5rem 2rem max-content 2rem;
+    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 6.5rem 2rem max-content 2rem;
 }
 
 .fade-overflow {

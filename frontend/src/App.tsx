@@ -8,13 +8,13 @@ import axios from "axios";
 import {Requester} from "./Requester.ts";
 
 
-type TabType = "Convert" | "Compress" | "Merge";
+export type TabType = "Convert" | "Compress" | "Merge";
 
 const App: React.FC = () => {
     const [files, setFiles] = useState<FileType[]>([]);
     const location = useLocation()
 
-    const [currentTab, setCurrentTab] = useState<TabType>();
+    const [currentTab, setCurrentTab] = useState<TabType>("Convert");
 
     async function removeFile(id: string) {
         setFiles(oldFiles => oldFiles.filter(f => f.id != id));
@@ -49,7 +49,9 @@ const App: React.FC = () => {
         console.log(tab);
     }, [location]);
     return (
-        <div className={"container-lg mt-5"}>
+        <div className={"container-lg mt-3"}>
+            <h1>DragonFile</h1>
+            <br/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
                     <a className={`text-dark nav-link ${currentTab === "Convert" && "active fw-bold"}`}
@@ -74,7 +76,10 @@ const App: React.FC = () => {
                         status={file.status}
                         name={file.name}
                         size={file.size}
-                        onDelete={async () => await removeFile(file.id)}/>
+                        onDelete={async () => await removeFile(file.id)}
+                        currentTab={currentTab}
+                    />
+
                 )}
                 <div className={"w-100 py-2"}>
                     <FileUploader setFiles={setFiles}></FileUploader>
