@@ -1,11 +1,11 @@
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState} from "react";
 import {Requester} from "../Requester.ts";
 import {TabType} from "../App.tsx";
 
 type ProcessingSelectProps = {
     disabled: boolean;
     currentProcessor: string;
-    setProcessor: Dispatch<SetStateAction<string>>;
+    setProcessor: (processor: string)=>void;
     fileId: string;
     currentTab: TabType
 }

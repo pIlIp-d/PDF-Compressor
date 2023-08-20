@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useState} from "react";
+import {RefObject, useCallback, useEffect, useState} from "react";
 import {Requester} from "./Requester.ts";
 import CustomToolTip from "./CustomToolTip.tsx";
 
@@ -6,6 +6,7 @@ type SettingsContainerProps = {
     showSettings: boolean;
     currentProcessor: string;
     formRef: RefObject<HTMLFormElement>;
+    onChange: () => void;
 }
 
 
@@ -30,7 +31,7 @@ type HierarchyType = {
     }
 };
 
-const SettingsContainer = ({showSettings, currentProcessor, formRef}: SettingsContainerProps) => {
+const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: SettingsContainerProps) => {
 
     const [formFields, setFormFields] = useState<{ [key: string]: FormField }>({});
     const [hierarchy, setHierarchy] = useState<HierarchyType>({});
@@ -69,13 +70,15 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef}: SettingsCo
                     //if ("config" in response.data)
                     getSettingsHTMLFromConfig(response.data.config);
                 });
+        onChange();
     }, [currentProcessor]);
 
     function onUpdate(fieldName: string, value: string) {
         // store the new value
         setFormFields((prev) => {
-            prev[fieldName].value = value;
-            return prev;
+            const newState = {...prev};
+            newState[fieldName].value = value;
+            return newState;
         })
         // update disabled states with the hierarchy
 
@@ -101,14 +104,15 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef}: SettingsCo
                 return {...prev, [child]: {...prev[child], ...currentChild}};
             });
         });
-        forceUpdate();
+        forceUpdate(); // TODO can be removed??
+
+        onChange();
     }
 
     useEffect(() => {
         Object.keys(formFields).map((key: string) => {
             onUpdate(key, formFields[key].value);
         });
-
     }, [showSettings]);
 
     return <div className={`px-3 w-100 ${showSettings || "d-none"}`}>

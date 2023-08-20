@@ -1,4 +1,3 @@
-import {SetStateAction} from 'react';
 import {useDropzone} from 'react-dropzone'
 import axios from "axios";
 import {v4 as uuidv4} from 'uuid';
@@ -6,19 +5,12 @@ import {FileType} from "./FileType.ts";
 import {Requester} from "./Requester.ts";
 
 type FileUploaderType = {
-    setFiles: (file: SetStateAction<FileType[]>) => void;
+    updateFile: (id: string, newProps: Partial<FileType>) => void;
+    addFile: (file: FileType) => void;
 }
 
-const FileUploader = ({setFiles}: FileUploaderType) => {
+const FileUploader = ({updateFile, addFile}: FileUploaderType) => {
 
-    function updateFile(id: string, newProps: Partial<FileType>) {
-        setFiles(prevFiles => {
-            return prevFiles.map(file => {
-                if (file.id === id) return {...file, ...newProps};
-                else return file;
-            });
-        });
-    }
 
     const uploadFile = async (file: File, id: string) => {
         try {
@@ -49,12 +41,11 @@ const FileUploader = ({setFiles}: FileUploaderType) => {
         }
     }
 
-    const handleDrop = async (acceptedFiles: File[], rf) => {
-        console.log(rf);
+    const handleDrop = async (acceptedFiles: File[]) => {
         const tasks = [];
         for (const file of acceptedFiles) {
             const id = uuidv4();
-            setFiles(f => [...f, {progress: 0, id: id, status: "uploading", name: file.name, size: file.size}]);
+            addFile({progress: 0, id: id, status: "uploading", name: file.name, size: file.size});
             tasks.push(uploadFile(file, id));
         }
         await Promise.all(tasks);
