@@ -4,10 +4,12 @@ from plugin_system.plugin_form import PluginForm
 
 
 class PdfCompressorForm(PluginForm):
+    """
     merge_files = forms.BooleanField(
         label='Merge files into a single PDF.',
         initial=False
     )
+    """
     simple_and_lossless = forms.BooleanField(
         label='Simple and lossless:',
         initial=True,
