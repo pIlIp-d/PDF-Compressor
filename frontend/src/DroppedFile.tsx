@@ -1,11 +1,13 @@
 import {humanReadableFileSize} from "./file/humanReadableFileSize.ts";
 import "./file/file.css"
-import {ReactNode, useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState} from "react";
 import ProcessingSelect from "./file/ProcessingSelect.tsx";
 import {Requester} from "./Requester.ts";
 import CustomToolTip from "./CustomToolTip.tsx";
 import {TabType} from "./App.tsx";
 import {BACKEND_HOST} from "./config.ts";
+import SettingsContainer from "./SettingsContainer.tsx";
+import axios from "axios";
 
 type FileProps = {
     id: string;
@@ -17,20 +19,10 @@ type FileProps = {
     currentTab: TabType;
 }
 
-interface FormField {
-    name: string;
-    label: string;
-    type: string;
-    required: boolean;
-    help_text: string;
-    choices: { value: string; display: string }[];
-    /*possibly more, but these have custom html and therefore need to be specified*/
-}
 
 const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: FileProps) => {
     const [currentProcessor, setProcessor] = useState<string>("null");
     const [showSettings, setShowSettings] = useState(false);
-    const [settingsHTML, setSettingsHTML] = useState<ReactNode>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const [processingState, setProcessingState] = useState<"initial" | "processing" | "processed">("initial");
     const [requestId, setRequestId] = useState<null | number>(null);
@@ -100,46 +92,8 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
             }
     }, [processingState]);
 
-    function getSettingsHTMLFromConfig(config: any) {
-        console.log(config);
-        if ("form_data" in config) {
-            return <form ref={formRef} className={"border-top py-2"}>
-                {config.form_data.fields.map((field: FormField, key: number) => <div key={key}>
-                    <CustomToolTip enabled={true} tooltipText={field.help_text} children={<>
-                        <label htmlFor={field.name}>{field.label}</label>
-                        {field.type === 'select' ?
-                            (<select name={field.name} required={field.required}>{field.choices.map((choice) => (
-                                <option key={choice.value} value={choice.value}>{choice.display}</option>
-                            ))}</select>) :
-                            (<input {...field}/>)
-                        }
-                    </>
-                    }/>
-                </div>)}
-            </form>;
-        }
-        return <></>;
-    }
 
-    useEffect(() => {
-        const parts = currentProcessor.split('-');
-        const mime_type = parts.pop(); // Remove and retrieve the last element
-        const processor_name = parts.join('-'); // Join the remaining elements with '-'
-        console.log(mime_type);
-        console.log(processor_name);
 
-        if (currentProcessor != "null")
-            Requester("/get_settings_config_for_processor", {
-                params: {
-                    plugin: processor_name,
-                    destination_file_type: mime_type
-                }
-            })
-                .then((response) => {
-                    //if ("config" in response.data)
-                    setSettingsHTML(getSettingsHTMLFromConfig(response.data.config));
-                });
-    }, [currentProcessor]);
     return (
         <div className={"pt-2 px-2"}>
             <div className={"file-row h-100  m-3 align-items-center"}>
@@ -155,7 +109,7 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
                                   setProcessor={setProcessor} fileId={id} currentTab={currentTab}/>
                 <span
                     className={`m-auto bi bi-sliders ${(status !== "success" || currentProcessor == "null") && "opacity-50"}`}
-                    onClick={toggleSettings}></span>
+                    onClick={(status !== "success" || currentProcessor == "null")?()=>{} :toggleSettings}></span>
                 {processingState == "initial" &&
                     < button className={"btn btn-secondary"} onClick={() => {
                         if (formRef.current) submitForm(formRef.current.elements);
@@ -171,9 +125,9 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
                     </button>
                 }
                 {processingState == "processed" &&
-                    <button className={"btn btn-success"}>
-                        <a href={downloadPath} download={true} target={"_blank"} style={{"color": "inherit", "textDecoration": "inherit"}}>
+                    <button className={"btn btn-success"} onClick={()=>download(downloadPath)}>
                             Download
+                        <a href={downloadPath} download target={"_blank"} style={{"color": "inherit", "textDecoration": "inherit"}}>
                         </a>
                     </button>
                 }
@@ -182,9 +136,7 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
                     onClick={onDelete}
                 ></span>
             </div>
-            <div className={`px-3 w-100 ${showSettings || "d-none"}`}>
-                {settingsHTML}
-            </div>
+            <SettingsContainer showSettings={showSettings} currentProcessor={currentProcessor} formRef={formRef}/>
             <div className="progress" style={{height: "2px"}}>
                 <div className={`progress-bar ${status === "failed" ? "bg-danger" : "bg-success"}`}
                      role="progressbar" aria-valuenow={progress}
@@ -194,5 +146,22 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab}: F
         </div>
     );
 }
+
+ function download(fileUrl: string){
+          axios({
+              url: fileUrl,
+              method:'GET',
+              responseType: 'blob'
+      })
+      .then((response) => {
+             const url = window.URL
+             .createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', fileUrl.split("/").pop() as string);
+                    document.body.appendChild(link);
+                    link.click();
+      })
+      }
 
 export default DroppedFile;

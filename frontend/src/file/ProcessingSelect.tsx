@@ -35,12 +35,13 @@ const ProcessingSelect = ({disabled, currentProcessor, setProcessor, fileId, cur
                         }
                     }
                     types = filterOutEmptyLists(types);
-
-                    // put the types into the types-list (f.e image/png -> {'image': 'png'}
-                    //let listOfTypes = deduplicate(flattenObjectOfLists(types));
-                    //types = {...types, ...categorizeByMimeType(listOfTypes)};
-
                     setOptions(types);
+
+                    // activate the option if there is only one
+                    const amountOfOptions = Object.keys(types).reduce((prev, current) => prev + types[current].length, 0);
+                    if (amountOfOptions == 1)
+                        setProcessor(Object.keys(types)[0] + "-" + Object.values(types)[0]);
+
                 }
             });
         }
@@ -67,31 +68,6 @@ const ProcessingSelect = ({disabled, currentProcessor, setProcessor, fileId, cur
                 </optgroup>
             ))}
         </select></>;
-}
-
-function flattenObjectOfLists(obj: { [key: string]: any[] }) {
-    const flattenedList = [];
-    for (const key of Object.keys(obj))
-        for (const element of obj[key])
-            flattenedList.push(element);
-    return flattenedList;
-}
-
-function deduplicate(list: any[]): any[] {
-    return list.filter((item, pos) => list.indexOf(item) == pos);
-}
-
-function categorizeByMimeType(listOfTypes: string[]) {
-    const resultingDict: { [key: string]: string[] } = {};
-    for (const raw_type of listOfTypes) {
-        const category = raw_type.split("/", 1)[0];
-        if (raw_type.includes("/")) {
-            if (!(category in resultingDict))
-                resultingDict[category] = [];
-            resultingDict[category].push(raw_type.split("/", 2)[1]);
-        }
-    }
-    return resultingDict;
 }
 
 function filterOutEmptyLists(list: { [key: string]: string[] }) {

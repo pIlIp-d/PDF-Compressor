@@ -284,7 +284,7 @@ def get_settings_config_for_processor(request):
                     "name": field_name,
                     "type": field.widget.input_type,
                     **get_value_from_field_if_it_exists(field, "label", "label"),
-                    **get_value_from_field_if_it_exists(field, "defaultValue", "initial"),
+                    **get_value_from_field_if_it_exists(field, "value", "initial"),
                     **get_value_from_field_if_it_exists(field, "step", "step_size"),
                     **get_value_from_field_if_it_exists(field, "min", "min_value"),
                     **get_value_from_field_if_it_exists(field, "max", "max_value"),
@@ -384,6 +384,7 @@ def process_files(request):
     if len(input_file_list) < 1:
         return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
+    print(POST_DATA)
     task_id = plugin.get_task()(
         request_parameters={**POST_DATA, "result_file_type": result_file_type},
         processing_request=processing_request,
