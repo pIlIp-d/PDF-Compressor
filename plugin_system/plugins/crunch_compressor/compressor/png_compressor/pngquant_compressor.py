@@ -42,7 +42,6 @@ class PngQuantCompressor(AbstractPngCompressor):
         self.__system_extra = "powershell.exe" if os.name == 'nt' else ""
         self.__pngquant_options = " ".join((
             f"--quality={min_quality}-{max_quality}",
-            "--skip-if-larger",
             "--force",
             f"--speed {speed}",
             "--strip",
