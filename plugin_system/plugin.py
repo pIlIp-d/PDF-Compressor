@@ -37,6 +37,9 @@ class Plugin(ABC):
         self._only_zip_as_result = only_zip_as_result
         self._merger = merger
 
+    def is_merger(self):
+        return self._merger
+
     def get_destination_types(self, from_file_type: str):
         def ___deduplicate(list_with_duplicates: list) -> list:
             return list(set(list_with_duplicates))
