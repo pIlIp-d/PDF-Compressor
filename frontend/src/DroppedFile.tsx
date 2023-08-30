@@ -11,19 +11,36 @@ type FileProps = {
     progress: number;
     status: "uploading" | "failed" | "success";
     name: string;
-    size: number;
+    sizeBefore: number;
+    sizeAfter: number;
     onDelete: () => void;
     currentTab: TabType;
-    setDownloadPath: (path: string) => void;
+    download: () => void;
     processingState: "initial" | "processing" | "processed"
     setFormContent: (val: HTMLFormControlsCollection | null) => void;
     startProcessing: () => void;
     currentProcessor: string
     setCurrentProcessor: (processor: string) => void;
-    download: () => void;
+    setInputFileTypes: (types: { [key: string]: string[] }) => void;
 }
 
-const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab, download, processingState, setFormContent, startProcessing, currentProcessor, setCurrentProcessor, downloadPath}: FileProps) => {
+const DroppedFile = ({
+                         id,
+                         progress,
+                         status,
+                         name,
+                         sizeBefore,
+                         sizeAfter,
+                         onDelete,
+                         currentTab,
+                         download,
+                         processingState,
+                         setFormContent,
+                         startProcessing,
+                         currentProcessor,
+                         setCurrentProcessor,
+                         setInputFileTypes
+                     }: FileProps) => {
     const [showSettings, setShowSettings] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -42,45 +59,64 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab, do
 
     return (
         <div className={"pt-2 px-2"}>
-            <div className={"file-row h-100  m-3 align-items-center"}>
+            <div className={`file-row h-100  m-3 align-items-center ${currentTab} ${processingState}`}>
                 <div id={"file-icon"}>
                     <CustomToolTip enabled={status === "failed"} tooltipText={"Potential Error"} children={
                         <span className={"bi bi-file-earmark-text"}/>
                     }/>
                 </div>
                 <span className={"fade-overflow fw-bold"}>{name}</span>
-                <span className={`fw-lighter fs-7 text-end mx-2`}>{humanReadableFileSize(size)}</span>
-                <ProcessingSelect disabled={status !== "success" || processingState != "initial"}
-                                  currentProcessor={currentProcessor}
-                                  setProcessor={(processor) => {
-                                      if (processor == "null")
-                                          setFormContent(null);
-                                      setCurrentProcessor(processor);
-                                  }} fileId={id} currentTab={currentTab}/>
-                <span
-                    className={`m-auto bi bi-sliders ${(status !== "success" || currentProcessor == "null") && "opacity-50"}`}
-                    onClick={(status !== "success" || currentProcessor == "null") ? () => {
-                    } : toggleSettings}></span>
-                {processingState == "initial" &&
-                    <button className={"btn btn-secondary"} onClick={startProcessing}
-                            disabled={status !== "success" || currentProcessor == "null"}>Convert
-                    </button>
+                <span className={`fw-lighter fs-7 text-end mx-2`}>
+                    {humanReadableFileSize(sizeBefore)}
+                    {
+                        currentTab == "Compress" && processingState == "processed" && <>
+                            <i className="bi bi-arrow-right-short"></i>
+                            <span className={"text-success"}>{humanReadableFileSize(sizeAfter)}</span>
+                        </>
+                    }
+                </span>
+                {processingState != "processed" && currentTab != "Merge" && <>
+                    <ProcessingSelect disabled={status !== "success" || processingState !== "initial"}
+                                      currentProcessor={currentProcessor}
+                                      setProcessor={(processor) => {
+                                          if (processor == "null")
+                                              setFormContent(null);
+                                          setCurrentProcessor(processor);
+                                      }} fileIds={id} currentTab={currentTab} setInputFileTypes={setInputFileTypes}/>
+                    <span
+                        className={`m-auto bi bi-sliders ${(status !== "success" || currentProcessor == "null" || processingState != "initial") && "opacity-50"}`}
+                        onClick={(status !== "success" || currentProcessor == "null" || processingState != "initial") ? () => {
+                        } : toggleSettings}>
+
+                        </span>
+                </>
                 }
-                {processingState == "processing" &&
-                    <button className={"btn btn-secondary"} disabled={true}>Loading
-                        <div className="spinner-border spinner-border-sm" role="status"
-                             style={{"animationDuration": "2s"}}>
-                            <span className="visually-hidden">...</span>
-                        </div>
-                    </button>
+                {currentTab != "Merge" && <>
+                    {processingState == "initial" &&
+                        <button className={"btn btn-secondary"} onClick={startProcessing}
+                                disabled={status !== "success" || currentProcessor == "null"}>
+                            {currentTab == "Convert" ? "Convert" :
+                                currentTab == "Compress" ? "Compress" : ""
+                            }
+                        </button>
+                    }
+                    {processingState == "processing" &&
+                        <button className={"btn btn-secondary"} disabled={true}>Loading
+                            <div className="spinner-border spinner-border-sm" role="status"
+                                 style={{"animationDuration": "2s"}}>
+                                <span className="visually-hidden">...</span>
+                            </div>
+                        </button>
+                    }
+                    {processingState == "processed" &&
+                        <button className={"btn btn-success"} onClick={() => download()}>
+                            Download
+                        </button>
+                    }
+                </>
                 }
-                {processingState == "processed" &&
-                    <button className={"btn btn-success"} onClick={() => download()}>
-                        Download
-                    </button>
-                }
-                <span
-                    className={`m-auto bi bi-x-lg ${status !== "success" && "opacity-50"}`}
+                <span role={"button"}
+                    className={`m-auto bi bi-x-lg ${status !== "success" && "pe-none opacity-50"}`}
                     onClick={onDelete}
                 ></span>
             </div>
@@ -97,7 +133,8 @@ const DroppedFile = ({id, progress, status, name, size, onDelete, currentTab, do
                      aria-valuemax="100" style={{width: progress + "%"}}></div>
             </div>
         </div>
-    );
+    )
+        ;
 }
 
 export default DroppedFile;

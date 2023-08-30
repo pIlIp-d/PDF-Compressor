@@ -1,6 +1,23 @@
 .file-row {
     display: grid;
+}
+.file-row.Convert.initial, .file-row.Convert.processing{
     grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 6.5rem 2rem max-content 2rem;
+}
+.file-row.Compress.initial, .file-row.Compress.processing{
+    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 6.5rem 2rem max-content 2rem;
+}
+.file-row.Merge.initial, .file-row.Merge.processing{
+    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 2rem;
+}
+.file-row.Convert.processed{
+    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem max-content 2rem;
+}
+.file-row.Compress.processed{
+    grid-template-columns: 1.5rem minmax(2rem, auto) 10rem max-content 2rem;
+}
+.file-row.Merge.processed{
+    grid-template-columns: 1.5rem minmax(2rem, auto) 5rem 2rem;
 }
 
 .fade-overflow {

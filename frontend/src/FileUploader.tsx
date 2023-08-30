@@ -7,10 +7,11 @@ import {Requester} from "./Requester.ts";
 type FileUploaderType = {
     updateFile: (id: string, newProps: Partial<FileType>) => void;
     addFile: (file: FileType) => void;
+    currentProcessor: string;
+    inputFileTypes: {[processor: string]: string[]};
 }
 
-const FileUploader = ({updateFile, addFile}: FileUploaderType) => {
-
+const FileUploader = ({updateFile, addFile, currentProcessor, inputFileTypes}: FileUploaderType) => {
 
     const uploadFile = async (file: File, id: string) => {
         try {
@@ -30,8 +31,8 @@ const FileUploader = ({updateFile, addFile}: FileUploaderType) => {
                     }
                 });
             if (response.status == 200) {
-                updateFile(id, {id: response.data.file_id});
-                id = response.data.file_id;
+                updateFile(id, {id: ""+response.data.file_id});
+                id = ""+response.data.file_id;
                 updateFile(id, {status: "success"});
             } else {
                 updateFile(id, {status: "failed"});
@@ -45,8 +46,16 @@ const FileUploader = ({updateFile, addFile}: FileUploaderType) => {
         const tasks = [];
         for (const file of acceptedFiles) {
             const id = uuidv4();
-            addFile({progress: 0, id: id, status: "uploading", name: file.name, size: file.size});
-            tasks.push(uploadFile(file, id));
+
+            const processorName = currentProcessor.split("-");
+            processorName.pop();  //remove last element / result mime-type
+
+            if (currentProcessor != "null" && !inputFileTypes[processorName.join("-")].includes(file.type) )
+                console.log("INCORRECT TYPE", file.type, currentProcessor);
+            else {
+                addFile({progress: 0, id: id, status: "uploading", name: file.name, size: file.size});
+                tasks.push(uploadFile(file, id));
+            }
         }
         await Promise.all(tasks);
     };
