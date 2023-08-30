@@ -55,9 +55,7 @@ class ProcessedFile(models.Model):
                 "request_id": request_id,
                 "date_of_upload": file_obj.date_of_upload.strftime(TIME_FORMAT),
                 "file_origin": file_origin,
-                "size": "%.2fmb" % (
-                    0 if not file_is_present
-                    else os.path.getsize(abs_file_path) / 1000000),
+                "size": 0 if not file_is_present else os.path.getsize(abs_file_path),
                 "exception": exception
             }
 
