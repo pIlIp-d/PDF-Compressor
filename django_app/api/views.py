@@ -190,26 +190,20 @@ def get_intersection_of_file_endings_from_different_input_filetypes(
     """
     if len(list_of_file_types_per_file_grouped_by_plugin) == 0:
         return dict()
-    # get intersecting plugins from all list entries
-    plugin_intersections = set.intersection(
-        *[set(types_of_file.keys()) for types_of_file in list_of_file_types_per_file_grouped_by_plugin]
-    )
-    list_of_value_intersections_of_plugin_per_file = [
-        {
-            plugin: file[plugin]
-            for plugin in file.keys()
-            if plugin in plugin_intersections
-        } for file in list_of_file_types_per_file_grouped_by_plugin
-    ]
-    intersections = dict()
-    for plugin in list_of_value_intersections_of_plugin_per_file[0].keys():
-        buffer = list()
-        for file_endings in list_of_value_intersections_of_plugin_per_file:
-            if len(file_endings[plugin]) > 0:
-                buffer.append(set(file_endings[plugin]))
-        if len(buffer) > 0:
-            intersections[plugin] = list(set.intersection(*buffer))
-    return intersections
+
+    # Initialize the result dictionary with the first plugin's data
+    result = list_of_file_types_per_file_grouped_by_plugin[0]
+
+    for plugin_data in list_of_file_types_per_file_grouped_by_plugin[1:]:
+        for plugin, file_types in plugin_data.items():
+            # If the plugin exists in the result and has matching values, keep the intersection
+            if plugin in result:
+                result[plugin] = list(set(result[plugin]) & set(file_types))
+
+    # Remove plugins with empty intersections
+    result = {plugin: file_types for plugin, file_types in result.items() if file_types}
+
+    return result
 
 
 # TODO move to proper test file
@@ -317,45 +311,49 @@ def get_settings_config_for_processor(request):
 @require_http_methods(["GET"])
 def get_possible_destination_file_types(request):
     from_file_types = []
-    if "request_id" in request.GET:
-        request_id = request.GET.get("request_id")
-        request = ProcessingFilesRequest.get_or_create_new_request(
-            user_id=request.session.get("user_id"),
-            request_id=request_id
-        )
-        files_of_request = UploadedFile.get_uploaded_file_list_of_current_request(request)
-        from_file_types = [
-            file.get_mime_type() for file in files_of_request
-        ]
+    if "file_ids" in request.GET and request.GET.get("file_ids") != "":
+        file_ids = request.GET.get("file_ids").split(",")
+        for file_id in file_ids:
+            file = UploadedFile.objects.get(
+                id=file_id,
+                user_id=request.session.get("user_id")
+            )
+            from_file_types.append(file.get_mime_type())
 
     if len(from_file_types) == 0:
         from_file_types = [None]
 
     list_of_file_types_per_file = list()
+    list_of_mergers = dict()
     for from_file_type in from_file_types:
         list_of_file_types = dict()
         for plugin in settings.PROCESSOR_PLUGINS:
             list_of_file_types[plugin.name] = plugin.get_destination_types(from_file_type)
+            list_of_mergers[plugin.name] = plugin.is_merger()
         list_of_file_types_per_file.append(list_of_file_types)
         # TODO also allow multi steps convert -> shortest path inside graph
     return JsonResponse({
         "status": 200,
         "possible_file_types": get_intersection_of_file_endings_from_different_input_filetypes(
-            list_of_file_types_per_file)
+            list_of_file_types_per_file),
+        "input_file_types": {plugin.name: plugin.get_input_file_types() for plugin in settings.PROCESSOR_PLUGINS},
+        "list_of_mergers": list_of_mergers
     }, status=200)
-
 
 @require_http_methods(["GET"])
 def get_possible_destination_file_types_by_file_id(request, file_id):
     file_mime_type = UploadedFile.objects.get(id=file_id).get_mime_type()
 
     list_of_file_types = dict()
+    list_of_mergers = dict()
     for plugin in settings.PROCESSOR_PLUGINS:
         list_of_file_types[plugin.name] = plugin.get_destination_types(file_mime_type)
+        list_of_mergers[plugin.name] = plugin.is_merger()
 
     return JsonResponse({
         "status": 200,
-        "possible_file_types": list_of_file_types
+        "possible_file_types": list_of_file_types,
+        "list_of_mergers": list_of_mergers
     }, status=200)
 
 
@@ -368,8 +366,7 @@ def process_files(request):
         request_id=get_random_string(50)
     )
 
-    file_ids = POST_DATA.get("files")
-    print(file_ids, POST_DATA)
+    file_ids = json.loads(POST_DATA.get("files"))
     files = []
     for file_id in file_ids:
         file = UploadedFile.objects.get(id=file_id)
@@ -384,7 +381,6 @@ def process_files(request):
     if len(input_file_list) < 1:
         return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
-    print(POST_DATA)
     task_id = plugin.get_task()(
         request_parameters={**POST_DATA, "result_file_type": result_file_type},
         processing_request=processing_request,
