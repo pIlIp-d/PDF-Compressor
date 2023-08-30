@@ -1,6 +1,6 @@
 import {RefObject, useCallback, useEffect, useState} from "react";
-import {Requester} from "./Requester.ts";
-import CustomToolTip from "./CustomToolTip.tsx";
+import {Requester} from "../utils/Requester.ts";
+import CustomToolTip from "./utils/CustomToolTip.tsx";
 
 type SettingsContainerProps = {
     showSettings: boolean;
@@ -116,7 +116,7 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
     }, [showSettings]);
 
     return <div className={`px-3 w-100 ${showSettings || "d-none"}`}>
-        <form ref={formRef} className={"border-top py-2"}>
+        <form ref={formRef} className={"border-top py-2 "}>
             {Object.keys(formFields).map((key: string) => {
                 const field = formFields[key];
                 if (field.type == "checkbox")

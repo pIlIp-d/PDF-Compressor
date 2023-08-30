@@ -1,8 +1,13 @@
-import ProcessingSelect from "./file/ProcessingSelect.tsx";
-import SettingsContainer from "./SettingsContainer.tsx";
+import ProcessingSelect from "./filerow/ProcessingSelect.tsx";
+import SettingsContainer from "./filerow/SettingsContainer.tsx";
 import {Dispatch, SetStateAction, useRef, useState} from "react";
-import {TabType} from "./App.tsx";
 import "./processAllBar.css";
+import FileUploader from "./FileUploader.tsx";
+import {TabType} from "./utils/TabType.ts";
+import {FileType} from "./utils/FileType.ts";
+import SettingsButton from "./filerow/SettingsButton.tsx";
+import DeleteButton from "./filerow/DeleteButton.tsx";
+import FileProcessingButton from "./filerow/FileProessingButton.tsx";
 
 
 type ProcessAllBarProps = {
@@ -18,7 +23,9 @@ type ProcessAllBarProps = {
     allFilesCanBeDownloaded: boolean;
     allFilesReadyForProcessing: boolean;
     currentlyProcessing: boolean;
-    setInputFileTypes: (types: { [key: string]: string[] }) => void;
+    //setInputFileTypes: (types: { [key: string]: string[] }) => void;
+    updateFile: (id: string, newProps: Partial<FileType>) => void;
+    addFile: (file: FileType) => void;
 }
 
 const ProcessAllBar = ({
@@ -34,19 +41,22 @@ const ProcessAllBar = ({
                            allReadyForProcessorSelection,
                            allFilesCanBeDownloaded,
                            currentlyProcessing,
-                           setInputFileTypes
+                           updateFile,
+                           addFile
                        }: ProcessAllBarProps) => {
     const allFilesFormRef = useRef<HTMLFormElement>(null);
     const [showAllFilesSettings, setShowAllFilesSettings] = useState(false);
+    const [inputFileTypes, setInputFileTypes] = useState<{ [key: string]: string[] }>({});
 
     function toggleSettings() {
         setShowAllFilesSettings(old => !old);
     }
 
     return <>
-        <div className={"border border-top-0 rounded-bottom p-3"}>
+        <div className={"border border-top-0 rounded-bottom p-3 bg-white"}>
             <div className={"process-all-bar"}>
-                <div className={"paceholder"}></div>
+                <FileUploader updateFile={updateFile} addFile={addFile} currentProcessor={currentAllFilesProcessor}
+                              inputFileTypes={inputFileTypes}/>
                 <ProcessingSelect
                     currentTab={currentTab}
                     disabled={allReadyForProcessorSelection}
@@ -58,35 +68,20 @@ const ProcessAllBar = ({
                         setCurrentAllFilesProcessor(processor);
                     }}
                 />
-
-                <span
-                    className={`m-auto bi bi-sliders ${currentTab != "Merge" ? "opacity-0" : (currentAllFilesProcessor == "null") ? "opacity-50" : ""}`}
-                    onClick={(currentTab != "Merge" || currentAllFilesProcessor == "null") ? () => {
-                    } : toggleSettings}>
-            </span>
-                {
-                    allFilesCanBeDownloaded ?
-                        <button
-                            className={"btn btn-success"}
-                            onClick={downloadAll}>
-                            {currentTab != "Merge" ? "Download All" : "Download"}
-                        </button> :
-                        <button
-                            className={"btn btn-secondary"}
-                            disabled={!allFilesReadyForProcessing || currentlyProcessing}
-                            onClick={processAll}>
-                            {currentTab == "Merge" ? "Merge Files" : currentTab == "Compress" ? "Compress All" : "Convert All"}
-                            {currentlyProcessing &&
-                                <div className="spinner-border spinner-border-sm" role="status"
-                                     style={{"animationDuration": "2s"}}>
-                                    <span className="visually-hidden">...</span>
-                                </div>
-                            }
-                        </button>
+                {currentTab == "Merge" ?
+                    <SettingsButton disabled={currentAllFilesProcessor == "null"} onClick={toggleSettings}/>
+                    :
+                    <div>{/*placeholder*/}</div>
                 }
-                <div role={"button"} className={`m-auto ${fileIds.length === 0 && "pe-none"}`} onClick={deleteAll}>
-                    <span className={` bi bi-x-lg ${fileIds.length === 0 && "opacity-50"}`}> All</span>
-                </div>
+                <FileProcessingButton
+                    isDownloadButton={allFilesCanBeDownloaded}
+                    isLoading={currentlyProcessing}
+                    isDisabled={!allFilesCanBeDownloaded && !allFilesReadyForProcessing || currentlyProcessing}
+                    text={currentTab}
+                    onClick={allFilesCanBeDownloaded ? downloadAll : processAll}
+                    additionalText={" All"}
+                />
+                <DeleteButton onClick={deleteAll} disabled={fileIds.length === 0} additionalText={" All"}/>
             </div>
             {currentTab == "Merge" &&
                 <SettingsContainer

@@ -1,8 +1,8 @@
 import {useDropzone} from 'react-dropzone'
 import axios from "axios";
 import {v4 as uuidv4} from 'uuid';
-import {FileType} from "./FileType.ts";
-import {Requester} from "./Requester.ts";
+import {FileType} from "./utils/FileType.ts";
+import {Requester} from "./utils/Requester.ts";
 
 type FileUploaderType = {
     updateFile: (id: string, newProps: Partial<FileType>) => void;
@@ -64,11 +64,11 @@ const FileUploader = ({updateFile, addFile, currentProcessor, inputFileTypes}: F
     return (
         <>
             <div className={"text-center"} {...getRootProps()}>
-                <input {...getInputProps()} />
+                <input { ...getInputProps()} />
                 {
                     isDragActive
                         ? <p>Drop the files here ...</p>
-                        : <span className={"bi bi-plus-lg fs-1"}/>
+                        : <span role={"button"} className={"add-files-btn bi bi-plus fs-3"}>Add Files</span>
                 }
             </div>
         </>

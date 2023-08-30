@@ -1,5 +1,5 @@
 import axios, {AxiosRequestConfig} from "axios";
-import {API_HOST} from "./config.ts";
+import {API_HOST} from "../../config.ts";
 
 /**
  * Wrapper for axios requests, injects all necessary parameters to work with the django backend

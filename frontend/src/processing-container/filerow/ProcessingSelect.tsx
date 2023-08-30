@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import {Requester} from "../Requester.ts";
-import {TabType} from "../App.tsx";
+import {Requester} from "../utils/Requester.ts";
+import {TabType} from "../utils/TabType.ts";
 
 type ProcessingSelectProps = {
     disabled: boolean;
