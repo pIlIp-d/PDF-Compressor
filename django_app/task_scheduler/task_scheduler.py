@@ -47,6 +47,7 @@ class TaskScheduler:
                         ("Something has gone wrong with this file: " + e.source_file.split("/")[-1], task.task_id)
                     )
                     conn.commit()
+                    # todo finish task at this point
                     raise e.exception
 
     @classmethod
