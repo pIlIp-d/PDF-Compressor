@@ -6,6 +6,7 @@ from django.db import models
 from django_app.settings import MEDIA_ROOT
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.validators import check_file_extension, check_file_size, get_file_extension
+from datetime import datetime
 
 
 def get_uploaded_file_path(instance, filename: str) -> str:
@@ -13,6 +14,7 @@ def get_uploaded_file_path(instance, filename: str) -> str:
     path = os.path.join(
         ".", "uploaded_files",
         instance.user_id,
+        datetime.now().strftime("%Y:%m:%d"),
         filename
     )
     check_file_extension(instance, path)
@@ -32,7 +34,6 @@ def get_uploaded_file_path(instance, filename: str) -> str:
         # create file path with increased number
         path = path_without_file_ending + f"_{filename_number}" + file_ending
         filename_number += 1
-
     return path
 
 
