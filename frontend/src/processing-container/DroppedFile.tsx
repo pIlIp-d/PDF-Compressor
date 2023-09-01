@@ -64,32 +64,46 @@ const DroppedFile = ({
             <span className={"fade-overflow fw-bold"}>{name}</span>
             <FileSizeText sizeBefore={sizeBefore} sizeAfter={sizeAfter}
                           showSizeAfter={currentTab == "Compress" && processingState == "processed"}/>
-            {currentTab != "Merge" && processingState != "processed" &&
+            {currentTab != "Merge" &&
                 <>
-                    <ProcessingSelect disabled={status !== "success" || processingState !== "initial"}
-                                      currentProcessor={currentProcessor}
-                                      setProcessor={(processor) => {
-                                          if (processor == "null")
-                                              setFormContent(null);
-                                          setCurrentProcessor(processor);
-                                      }} fileIds={id} currentTab={currentTab} setInputFileTypes={setInputFileTypes}/>
-                    <SettingsButton
-                        disabled={status !== "success" || currentProcessor == "null" || processingState != "initial"}
-                        onClick={toggleSettings}/>
+                    {status == "failed" ?
+                        <>
+                            <div>{/*placeholder*/}</div>
+                            <div>{/*placeholder*/}</div>
+                            <div>{/*placeholder*/}</div>
+                        </>
+                        : <>
+                            {processingState != "processed" &&
+                                <>
+                                    <ProcessingSelect
+                                        disabled={status !== "success" || processingState !== "initial"}
+                                        currentProcessor={currentProcessor}
+                                        setProcessor={(processor) => {
+                                            if (processor == "null")
+                                                setFormContent(null);
+                                            setCurrentProcessor(processor);
+                                        }} fileIds={id} currentTab={currentTab}
+                                        setInputFileTypes={setInputFileTypes}/>
+                                    <SettingsButton
+                                        disabled={status !== "success" || currentProcessor == "null" || processingState != "initial"}
+                                        onClick={toggleSettings}/>
+                                </>
+                            }
+                            <FileProcessingButton
+                                isDownloadButton={processingState == "processed"}
+                                isLoading={processingState == "processing"}
+                                isDisabled={status !== "success" || currentProcessor == "null" || processingState == "processing"}
+                                text={currentTab}
+                                onClick={processingState == "initial" ? startProcessing : download}
+                            />
+                        </>
+                    }
                 </>
             }
-            {currentTab != "Merge" &&
-                <FileProcessingButton
-                    isDownloadButton={processingState == "processed"}
-                    isLoading={processingState == "processing"}
-                    isDisabled={status !== "success" || currentProcessor == "null" || processingState == "processing"}
-                    text={currentTab}
-                    onClick={processingState == "initial" ? startProcessing : download}
-                />
-            }
-            <DeleteButton onClick={onDelete} disabled={status !== "success"}/>
+            <DeleteButton onClick={onDelete} disabled={status == "uploading"}/>
         </div>
-        {currentTab != "Merge" &&
+        {
+            currentTab != "Merge" &&
             <SettingsContainer
                 showSettings={showSettings} currentProcessor={currentProcessor} formRef={formRef}
                 onChange={() => {
@@ -98,7 +112,8 @@ const DroppedFile = ({
                 }}/>
         }
         <ProgressBar progress={progress} isGreen={status !== "failed"}/>
-    </div>;
+    </div>
+        ;
 }
 
 export default DroppedFile;
