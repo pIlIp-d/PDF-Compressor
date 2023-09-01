@@ -11,7 +11,7 @@ const App = () => {
     useEffect(() => {
         Requester("/get_csrf/").then((response) => {
             if ("csrfToken" in response.data) {
-                // setting csrftoken header for all following requests
+                // setting csrfToken header for all following requests
                 axios.defaults.headers.common['X-CSRFTOKEN'] = response.data.csrfToken;
             }
         });

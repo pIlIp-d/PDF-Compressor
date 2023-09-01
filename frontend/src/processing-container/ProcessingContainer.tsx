@@ -133,13 +133,13 @@ const ProcessingContainer = ({}: ProcessingContainerProps) => {
 
     function updateFile(id: string, newProps: Partial<FileType>) {
         setFileData(prevFileData => {
-            const newfilesData = prevFileData.map(fileData => {
+            const newFilesData = prevFileData.map(fileData => {
                 if (fileData.file.id === id) {
                     return {...fileData, file: {...fileData.file, ...newProps}};
                 } else return fileData;
             });
-            setFileIds(newfilesData.map(f => "" + f.file.id));
-            return newfilesData;
+            setFileIds(newFilesData.map(f => "" + f.file.id));
+            return newFilesData;
         });
     }
 

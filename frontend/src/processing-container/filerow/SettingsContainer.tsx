@@ -41,11 +41,10 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
     const forceUpdate = useCallback(() => updateState({}), []);
 
 
-    function getSettingsHTMLFromConfig(config: any) {
+    function getSettingsHTMLFromConfig(config: { form_data: { fields: FormField[] }, hierarchy: HierarchyType }) {
         setHierarchy(config.hierarchy);
         if ("form_data" in config && "fields" in config.form_data) {
             config.form_data.fields.map((val: FormField) => {
-                console.log("What the fuck");
                 setFormFields((prev) => {
                     val.disabled = false;
                     return {...prev, [val.name]: val}
@@ -67,7 +66,6 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
                 }
             })
                 .then((response) => {
-                    //if ("config" in response.data)
                     getSettingsHTMLFromConfig(response.data.config);
                 });
         onChange();
@@ -83,7 +81,7 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
         // update disabled states with the hierarchy
 
         const disabledStates: { [key: string]: boolean } = {}
-        Object.keys(hierarchy).map((hierarchyKey) => {
+        Object.keys(hierarchy).map((hierarchyKey: string) => {
             hierarchy[hierarchyKey].children.forEach((child: string) => {
                 if (!(child in disabledStates))
                     disabledStates[child] = false;
@@ -119,8 +117,6 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
         <form ref={formRef} className={"border-top py-2 "}>
             {Object.keys(formFields).map((key: string) => {
                 const field = formFields[key];
-                if (field.type == "checkbox")
-                    console.log("VALLLLLL:", field.value);
                 return <div key={key}>
                     <CustomToolTip enabled={true} tooltipText={field.help_text} children={<>
                         <label htmlFor={field.name}>{field.label}</label>

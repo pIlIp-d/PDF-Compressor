@@ -112,8 +112,7 @@ const DroppedFile = ({
                 }}/>
         }
         <ProgressBar progress={progress} isGreen={status !== "failed"}/>
-    </div>
-        ;
+    </div>;
 }
 
 export default DroppedFile;

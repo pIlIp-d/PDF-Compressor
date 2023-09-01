@@ -1,6 +1,6 @@
-import {TabType} from "../App.tsx";
 import {useLocation} from "react-router-dom";
 import {Dispatch, SetStateAction, useEffect} from "react";
+import {TabType} from "./utils/TabType.ts";
 
 type TabBarProps = {
     currentTab: TabType;
@@ -25,15 +25,15 @@ const TabBar = ({currentTab, setCurrentTab}: TabBarProps) => {
     return <ul className="nav nav-tabs">
         <li className="nav-item">
             <a className={`text-dark nav-link ${currentTab === "Convert" && "active fw-bold bg-white"}`}
-               href="#Convert">Convert</a>
+               href={"#Convert"}>Convert</a>
         </li>
         <li className="nav-item">
             <a className={`text-dark nav-link ${currentTab === "Compress" && "active fw-bold bg-white"}`}
-               href="#Compress">Compress</a>
+               href={"#Compress"}>Compress</a>
         </li>
         <li className="nav-item">
             <a className={`text-dark nav-link  ${currentTab === "Merge" && " active fw-bold bg-white"}`}
-               href="#Merge">Merge</a>
+               href={"#Merge"}>Merge</a>
         </li>
     </ul>;
 }
