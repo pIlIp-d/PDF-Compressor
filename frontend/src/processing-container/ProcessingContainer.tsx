@@ -7,6 +7,7 @@ import {BACKEND_HOST} from "../config.ts";
 import {useEffect, useRef, useState} from "react";
 import {download} from "./utils/download.ts";
 import {TabType} from "./utils/TabType.ts";
+import {AxiosResponse} from "axios";
 
 type ProcessingContainerProps = {}
 
@@ -54,8 +55,12 @@ const ProcessingContainer = ({}: ProcessingContainerProps) => {
                                 updateFileData(key, {downloadPath: BACKEND_HOST + "/" + processedFiles[0].filename_path});
                                 updateFileData(key, {sizeAfter: processedFiles[0].size});
                             }
-                            // TODO error handling
-                            // TODO show processedFiles and make them downloadable
+                            const uploadedFiles: {
+                                exception: string
+                            }[] = response.data.files.filter((f: {
+                                file_origin: string
+                            }) => f.file_origin == "uploaded");
+                            updateFile(filesData[key].file.id, {error: uploadedFiles[0].exception});
                         }
                     })
                 }
@@ -119,7 +124,7 @@ const ProcessingContainer = ({}: ProcessingContainerProps) => {
                 currentProcessor: currentAllFilesProcessor,
                 inputFileTypes: {},
                 requestId: null,
-                sizeAfter: 0
+                sizeAfter: 0,
             });
             setFileIds(newState.map(f => "" + f.file.id));
             return newState;
@@ -233,13 +238,14 @@ const ProcessingContainer = ({}: ProcessingContainerProps) => {
 
     return <>
         <TabBar currentTab={currentTab} setCurrentTab={setCurrentTab}/>
-        <div className={"border border-top-0 bg-white"}>
+        <div className={"border border-top-0  border-bottom-0 bg-white"}>
             {filesData.map((fileData, key) => {
                     return <DroppedFile
                         key={key}
                         id={fileData.file.id}
                         progress={fileData.file.progress}
                         status={fileData.file.status}
+                        error={fileData.file.error}
                         name={fileData.file.name}
                         sizeBefore={fileData.file.size}
                         sizeAfter={fileData.sizeAfter}
@@ -267,7 +273,7 @@ const ProcessingContainer = ({}: ProcessingContainerProps) => {
             deleteAll={deleteAll}
             allReadyForProcessorSelection={filesData.some(f => f.file.status !== "success") || filesData.some(f => f.processingState != "initial")}
             allFilesCanBeDownloaded={filesData.length > 0 && (!filesData.some(f => f.processingState != "processed") || processingStateForMerge == "processed")}
-            allFilesReadyForProcessing={filesData.filter(f => f.processingState == "initial").length > 0 && !filesData.filter(f => f.processingState == "initial").some(f => f.currentProcessor == "null")&& (currentTab != "Merge" || currentAllFilesProcessor != "null") }
+            allFilesReadyForProcessing={filesData.filter(f => f.processingState == "initial").length > 0 && !filesData.filter(f => f.processingState == "initial").some(f => f.currentProcessor == "null") || (currentTab == "Merge" && currentAllFilesProcessor != "null")}
             currentlyProcessing={filesData.some(f => f.processingState == "processing") || processingStateForMerge == "processing"}
             updateFile={updateFile}
             addFile={addFile}

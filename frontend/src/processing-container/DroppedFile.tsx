@@ -1,7 +1,6 @@
 import "./filerow/file.css"
-import { useRef, useState} from "react";
+import {useRef, useState} from "react";
 import ProcessingSelect from "./filerow/ProcessingSelect.tsx";
-import {TabType} from "../App.tsx";
 import SettingsContainer from "./filerow/SettingsContainer.tsx";
 import FileSizeText from "./filerow/FileSizeText.tsx";
 import FileIcon from "./filerow/FileIcon.tsx";
@@ -9,11 +8,13 @@ import SettingsButton from "./filerow/SettingsButton.tsx";
 import FileProcessingButton from "./filerow/FileProessingButton.tsx";
 import ProgressBar from "./filerow/ProgressBar.tsx";
 import DeleteButton from "./filerow/DeleteButton.tsx";
+import {TabType} from "./utils/TabType.ts";
 
 type FileProps = {
     id: string;
     progress: number;
     status: "uploading" | "failed" | "success";
+    error: string;
     name: string;
     sizeBefore: number;
     sizeAfter: number;
@@ -32,6 +33,7 @@ const DroppedFile = ({
                          id,
                          progress,
                          status,
+                         error,
                          name,
                          sizeBefore,
                          sizeAfter,
@@ -50,7 +52,6 @@ const DroppedFile = ({
 
     if (status === "failed") {
         progress = 100;
-        setTimeout(onDelete, 2000);
     }
 
     function toggleSettings() {
@@ -59,7 +60,7 @@ const DroppedFile = ({
 
     return <div className={"pt-2 px-2"}>
         <div className={`file-row h-100  m-3 align-items-center ${currentTab} ${processingState}`}>
-            <FileIcon showTooltip={status === "failed"} toolTipText={"Potential Error"}/>
+            <FileIcon toolTipText={error}/>
             <span className={"fade-overflow fw-bold"}>{name}</span>
             <FileSizeText sizeBefore={sizeBefore} sizeAfter={sizeAfter}
                           showSizeAfter={currentTab == "Compress" && processingState == "processed"}/>

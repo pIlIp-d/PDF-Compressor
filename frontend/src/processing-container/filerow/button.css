@@ -1,0 +1,7 @@
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+    background-color: rgba(43,51,210, 0.8) !important;
+}
+
+.loading-button{
+    cursor: wait !important;
+}

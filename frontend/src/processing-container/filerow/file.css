@@ -39,12 +39,8 @@
     text-align: left;
 }
 
-.Dropdown-control {
-
-}
-
 html{
-    background: #eeeeee;
+    background: rgba(43,51,210,0.15);
 }
 
 .delete-btn:hover {

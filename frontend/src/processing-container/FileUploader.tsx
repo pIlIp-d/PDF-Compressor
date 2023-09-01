@@ -3,6 +3,7 @@ import axios from "axios";
 import {v4 as uuidv4} from 'uuid';
 import {FileType} from "./utils/FileType.ts";
 import {Requester} from "./utils/Requester.ts";
+import {toast} from "react-toastify";
 
 type FileUploaderType = {
     updateFile: (id: string, newProps: Partial<FileType>) => void;
@@ -12,7 +13,6 @@ type FileUploaderType = {
 }
 
 const FileUploader = ({updateFile, addFile, currentProcessor, inputFileTypes}: FileUploaderType) => {
-
     const uploadFile = async (file: File, id: string) => {
         try {
             const formData = new FormData();
@@ -36,9 +36,11 @@ const FileUploader = ({updateFile, addFile, currentProcessor, inputFileTypes}: F
                 updateFile(id, {status: "success"});
             } else {
                 updateFile(id, {status: "failed"});
+                updateFile(id, {error: "Error during Upload, please try again, but maybe the file is too big or the Server has a Problem."});
             }
         } catch (error) {
             updateFile(id, {status: "failed"});
+            updateFile(id, {error: "Error during Upload, please try again, maybe the file is too big or the Server has a Problem."});
         }
     }
 
@@ -51,9 +53,9 @@ const FileUploader = ({updateFile, addFile, currentProcessor, inputFileTypes}: F
             processorName.pop();  //remove last element / result mime-type
 
             if (currentProcessor != "null" && !inputFileTypes[processorName.join("-")].includes(file.type) )
-                console.log("INCORRECT TYPE", file.type, currentProcessor);
+                toast.warning("Incorrect File Type for this processor.", {autoClose: 5000});
             else {
-                addFile({progress: 0, id: id, status: "uploading", name: file.name, size: file.size});
+                addFile({progress: 0, id: id, status: "uploading", name: file.name, size: file.size, error: ""});
                 tasks.push(uploadFile(file, id));
             }
         }

@@ -1,3 +1,4 @@
+import logging
 import pickle
 import threading
 import time
@@ -39,16 +40,23 @@ class TaskScheduler:
                 try:
                     task.run()
                     task.finish_task()
-                except ProcessingException as e:
+                except (Exception, ProcessingException) as e:
                     conn = get_connection()
                     cur = conn.cursor()
                     cur.execute(
                         "UPDATE task_objects SET exception = ? where `id` = ?;",
-                        ("Something has gone wrong with this file: " + e.source_file.split("/")[-1], task.task_id)
+                        (
+                            "Something has gone wrong with this file: " + e.source_file.split("/")[-1]
+                            if isinstance(e, ProcessingException)
+                            else "Something has gone wrong with this file, try again or change some settings.",
+                            task.task_id
+                        )
                     )
                     conn.commit()
-                    # todo finish task at this point
-                    raise e.exception
+                    task.finish_task()
+                    if isinstance(e, ProcessingException):
+                        logging.warning(e.exception)
+                    logging.warning(e)
 
     @classmethod
     def check_for_unfinished_tasks(cls) -> bool:

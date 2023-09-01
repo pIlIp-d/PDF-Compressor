@@ -4,4 +4,5 @@ export type FileType = {
     status: "uploading" | "failed" | "success";
     name: string;
     size: number;
+    error: string;
 }
