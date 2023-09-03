@@ -1,5 +1,5 @@
 /htmlcov/
-.coverage
+*/.coverage
 */venv
 */migrations/
 backend/django_app/media/
