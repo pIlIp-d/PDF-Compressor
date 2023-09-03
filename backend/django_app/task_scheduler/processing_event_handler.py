@@ -10,10 +10,10 @@ class ProcessingEventHandler(EventHandler):
         self.__request_id = request_id
 
     def started_processing(self):
-        self.__make_request("api/started_processing/")
+        self.__make_request("started_processing/")
 
     def finished_all_files(self):
-        self.__make_request("api/finished_all_files/")
+        self.__make_request("finished_all_files/")
 
     def __make_request(self, path):
         status = requests.get(f"{manage.METHOD}://localhost:{manage.PORT}/" + path,
