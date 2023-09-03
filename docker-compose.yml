@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  backend:
+    container_name: "django-backend"
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    command: python3 /backend/manage.py runserver
+    ports:
+      - "8080:8080"
+
+  frontend:
+    container_name: "node-frontend"
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    command: npm run dev
+    ports:
+      - "5173:5173"
