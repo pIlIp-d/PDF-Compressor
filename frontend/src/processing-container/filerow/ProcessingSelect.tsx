@@ -26,7 +26,6 @@ const ProcessingSelect = ({
     const [options, setOptions] = useState<SelectOption>({});
     const selectRef = useRef<HTMLSelectElement>(null);
 
-    console.log(fileIds, typeof fileIds == "string" ? fileIds : Array.from(fileIds).join(","))
     useEffect(() => {
         if (!disabled) {
             // get possible destination types and set them as option
@@ -83,7 +82,7 @@ const ProcessingSelect = ({
             else
                 setProcessor("null");
         }
-    }, [currentProcessor]);
+    }, [currentProcessor, fileIds]);
 
     return <select disabled={disabled}
                    ref={selectRef}

@@ -236,6 +236,10 @@ const ProcessingContainer = ({}: ProcessingContainerProps) => {
         }
     }
 
+    useEffect(() => {
+        filesData.map((_, key) => updateFileData(key, {currentProcessor: "null"}));
+    }, [currentTab]);
+
     return <>
         <TabBar currentTab={currentTab} setCurrentTab={setCurrentTab}/>
         <div className={"border border-top-0  border-bottom-0 bg-white"}>

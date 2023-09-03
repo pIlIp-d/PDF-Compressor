@@ -58,16 +58,18 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
         const mime_type = parts.pop(); // Remove and retrieve the last element
         const processor_name = parts.join('-'); // Join the remaining elements with '-'
 
-        if (currentProcessor != "null")
+        if (currentProcessor != "null") {
             Requester("/get_settings_config_for_processor", {
                 params: {
                     plugin: processor_name,
                     destination_file_type: mime_type
                 }
-            })
-                .then((response) => {
-                    getSettingsHTMLFromConfig(response.data.config);
-                });
+            }).then((response) => {
+                getSettingsHTMLFromConfig(response.data.config);
+            });
+        } else {
+            setFormFields({});
+        }
         onChange();
     }, [currentProcessor]);
 
@@ -118,35 +120,36 @@ const SettingsContainer = ({showSettings, currentProcessor, formRef, onChange}: 
             {Object.keys(formFields).map((key: string) => {
                 const field = formFields[key];
                 return <div key={key}>
-                    <CustomToolTip enabled={true} tooltipText={field.help_text} children={<>
-                        <label htmlFor={field.name}>{field.label}</label>
-                        {field.type === 'select' ?
-                            (<select
-                                value={field.value}
-                                disabled={field.disabled}
-                                onChange={((e) => onUpdate(field.name, e.target.value))}
-                                name={field.name} required={field.required}
-                            >{field.choices.map((choice) => (
-                                <option key={choice.value}
-                                        value={choice.value}>{choice.display}</option>
-                            ))}</select>) :
-                            field.type === 'checkbox' ?
-                                (<input
-                                    {
-                                        ...Object.keys(field)
-                                            .filter((f) => f != "value")
-                                            .reduce((prev, f) => ({...prev, [f]: field[f]}), {})
-                                    }
-                                    checked={String(field.value) == "true"}
-                                    onChange={((e) => onUpdate(field.name, "" + e.target.checked))}
-                                />)
-                                :
-                                (<input
-                                    {...field}
+                    <CustomToolTip enabled={true} tooltipText={field.help_text} children={
+                        <>
+                            <label htmlFor={field.name}>{field.label}</label>
+                            {field.type === 'select' ?
+                                (<select
+                                    value={field.value}
+                                    disabled={field.disabled}
                                     onChange={((e) => onUpdate(field.name, e.target.value))}
-                                />)
-                        }
-                    </>
+                                    name={field.name} required={field.required}
+                                >{field.choices.map((choice) => (
+                                    <option key={choice.value}
+                                            value={choice.value}>{choice.display}</option>
+                                ))}</select>) :
+                                field.type === 'checkbox' ?
+                                    (<input
+                                        {
+                                            ...Object.keys(field)
+                                                .filter((f) => f != "value")
+                                                .reduce((prev, f) => ({...prev, [f]: field[f]}), {})
+                                        }
+                                        checked={String(field.value) == "true"}
+                                        onChange={((e) => onUpdate(field.name, "" + e.target.checked))}
+                                    />)
+                                    :
+                                    (<input
+                                        {...field}
+                                        onChange={((e) => onUpdate(field.name, e.target.value))}
+                                    />)
+                            }
+                        </>
                     }/>
                 </div>
             })}
