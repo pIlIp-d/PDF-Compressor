@@ -130,3 +130,8 @@ if __name__ == "__main__":
     ''' + "}"
         config_file.write(config_string.replace("\\", "\\\\"))
     print(f"PluginConfig finished and saved to %s/config.json" % os.path.dirname(__file__))
+
+
+if __name__ == "__main__":
+    main()
+
