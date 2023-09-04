@@ -11,11 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 
-from plugin_system.plugins.automatic_converter.plugin_config import AutomaticConvertPlugin
 from plugin_system.plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, \
     PngCompressorPlugin, \
     ImageToPdfConvertPlugin, PdfToImageConvertPlugin, GoodNotesCompressorPlugin
-from plugin_system.plugins.minimal_plugin_example.plugin_config import RenamePngPlugin
+from plugin_system.plugins.image_converter.plugin import ImageConverterPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -153,6 +152,5 @@ PROCESSOR_PLUGINS = {
     ImageToPdfConvertPlugin("png_to_pdf_converter"),
     PdfToImageConvertPlugin("pdf_to_image_converter"),
     GoodNotesCompressorPlugin("goodnotes_compressor"),
-    AutomaticConvertPlugin("automatic_converter"),
-    # RenamePngPlugin("rename_png"),
+    ImageConverterPlugin("image_converter")
 }
