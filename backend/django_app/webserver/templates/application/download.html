@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ dir }}static/style.css">
+    <link rel="stylesheet" href="{{ dir }}static/download.css">
+    <link rel="stylesheet" href="{{ dir }}static/variables.css">
+    <script defer src="{{ dir }}static/script/script.js"></script>
+    <script defer src="{{ dir }}static/script/download.js"></script>
+    <title>Croco-File-Crusher</title>
+</head>
+<body>
+<noscript><p>Your Browser doesn't support JavaScript.</p></noscript>
+<script>
+    let ROOT_DIR = "{{ dir }}";
+</script>
+{% csrf_token %}
+<div hidden id="user_id">{{ user_id }}</div>
+<div hidden id="request_id">{{ request_id }}</div>
+
+<div id="header">
+    <a href="/"><h1 id="heading">Croco-File-Crusher</h1></a>
+    <h2 id="subheading">Download the processed Files here.</h2>
+</div>
+<div id="content_container"></div>
+<footer>
+    <button id="delete-all-button" class="material-element material-button">Delete All</button>
+    <button id="delete-selected-button" class="material-element material-button">Delete Selected</button>
+    <button id="download-selected-button" class="material-element material-button">Download Selected</button>
+</footer>
+</body>
+</html>

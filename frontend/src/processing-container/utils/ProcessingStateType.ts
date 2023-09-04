@@ -1,0 +1,1 @@
+type ProcessingStateType = "initial" | "processing" | "processed";

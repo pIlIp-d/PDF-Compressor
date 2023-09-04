@@ -1,0 +1,5 @@
+
+.process-all-bar {
+    display: grid;
+    grid-template-columns: minmax(2rem, auto) 12rem 2rem max-content 4rem;
+}

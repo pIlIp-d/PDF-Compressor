@@ -1,0 +1,22 @@
+@startuml
+title "Browser Architecture"
+
+component Django #lightblue
+component Browser #pink {
+    component dropzone_forms.js {
+        component DestinationTypeSelect
+        component dropzone.js
+        component ProcessingButton
+        dropzone_forms.js .> dropzone.js: implements
+    }
+    component forms.js
+}
+
+Browser --> Django: shows templates
+Browser -> forms.js: refines form styles at runtime
+DestinationTypeSelect --> Django: requests data
+DestinationTypeSelect -> forms.js: updates and loads form
+dropzone_forms.js --> ProcessingButton: updates state
+dropzone.js --> Django: uploaded Files
+ProcessingButton --> Django: sends formular
+@enduml

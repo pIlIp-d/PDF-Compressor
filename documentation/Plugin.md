@@ -14,8 +14,9 @@
 2. add a get_destination_types implementation
 
 an implemented example can be found in `plugins/minimal_plugin_example/`
+
 ```python
-from django_app.plugin_system.plugin import Plugin
+from plugin_system.plugin import Plugin
 
 
 class ExamplePlugin(Plugin):
@@ -63,10 +64,10 @@ class ExampleTask(ProcessingTask):
     ###################
 ```
 ### Processor
-make file-processing much simpler by using the [Processor](../django_app/plugin_system/processing_classes/processor.py) class
+make file-processing much simpler by using the [Processor](../plugin_system/processing_classes/processor.py) class
 
 ```python
-from django_app.plugin_system.processing_classes.processor import Processor
+from plugin_system.processing_classes.processor import Processor
 
 
 class MyProcessor(Processor):
@@ -98,7 +99,7 @@ class MyProcessor(Processor):
 
 ```python
 from django import forms
-from django_app.plugin_system.plugin_form import PluginForm
+from plugin_system.plugin_form import PluginForm
 
 
 class ExampleForm(PluginForm):

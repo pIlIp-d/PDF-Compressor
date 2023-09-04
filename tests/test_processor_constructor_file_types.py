@@ -1,9 +1,10 @@
 import multiprocessing
 import os
 import shutil
+from glob import glob
 from unittest import TestCase
 
-from django_app.utility.os_utility import OsUtility
+from plugin_system.processing_classes.processing_exception import ProcessingException
 from tests.help_classes import SimpleProcessorForFileTypes, clean_up_after_class, TESTDATA_DIR
 
 manager = multiprocessing.Manager()
@@ -25,7 +26,7 @@ class TestProcessorConstructorFileTypes(TestCase):
         SimpleProcessorForFileTypes(
             file_type_from, file_type_to
         ).process(source_path, destination_path)
-        counted_output_files = len(OsUtility.get_file_list(destination_path))
+        counted_output_files = len(glob(os.path.join(destination_path, "*")))
         if os.path.isfile(destination_path):
             os.remove(destination_path)
         elif os.path.isdir(destination_path):
@@ -74,7 +75,7 @@ class TestProcessorConstructorFileTypes(TestCase):
         self.assertRaises(ValueError, self.__execute_processor, file_type_to="")
 
     def test_process_file_type_to_is_invalid_string(self):
-        self.assertRaises(ValueError, self.__execute_processor, file_type_to="pdf")
+        self.assertRaises(ProcessingException, self.__execute_processor, file_type_to="pdf")  # ValueError
 
     def test_process_file_type_to_is_valid_string(self):
         self.__execute_processor(file_type_to="txt")

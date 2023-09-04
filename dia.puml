@@ -1,0 +1,47 @@
+@startuml
+
+!define TITLE_COMPONENT_STYLE [\
+  BackgroundColor=#E7E7E7;\
+  FontColor=#000000;\
+  BorderColor=#000000;\
+  ArrowColor=#707070;\
+]
+
+!define COMPONENT_STYLE [\
+  BackgroundColor=#FFFFFF;\
+  FontColor=#000000;\
+  BorderColor=#000000;\
+  ArrowColor=#707070;\
+]
+
+!define CONTAINER_STYLE [\
+  BackgroundColor=#FFFFFF;\
+  FontColor=#000000;\
+  BorderColor=#000000;\
+  ArrowColor=#707070;\
+]
+
+package "Frontend" <<TITLE_COMPONENT_STYLE>> {
+  rectangle "React App" {
+    rectangle "React Core" as react_core
+    rectangle "React-DOM Renderer" as react_dom_renderer
+    rectangle "React-Three/Fiber" as react_three_fiber
+    rectangle "Three.js Renderer" as threejs_renderer
+  }
+}
+
+package "Backend" <<TITLE_COMPONENT_STYLE>> {
+  rectangle "User Backend" as user_backend
+  rectangle "SAP Cloud Foundry Backend" as sap_cf_backend
+}
+
+actor "User" as user
+
+user --> react_dom_renderer
+user_backend --> react_dom_renderer
+react_core --> react_dom_renderer
+react_core --> react_three_fiber
+react_three_fiber --> threejs_renderer
+sap_cf_backend --> user_backend
+
+@enduml

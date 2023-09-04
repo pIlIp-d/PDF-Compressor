@@ -3,7 +3,8 @@ import shutil
 import multiprocessing
 from unittest import TestCase
 
-from django_app.plugin_system.processing_classes.event_handler import EventHandler
+from plugin_system.processing_classes.event_handler import EventHandler
+from plugin_system.processing_classes.processing_exception import ProcessingException
 from tests.help_classes import SimpleExampleProcessor, ErrorProcessor, DestinationFolderSubClass, \
     FailedProcessingException, clean_up_after_class, TESTDATA_DIR
 
@@ -100,7 +101,7 @@ class TestProcessor(TestCase):
         self.assertEqual(0, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_error_while_processing(self):
-        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
+        self.assertRaises(ProcessingException, self.__execute_monitored_error_processor)  # FailedProcessingException
         self.assertEqual(1, ns.amount_of_started_processing_calls)
 
     def test_started_processed_with_processor_is_processor_with_destination_folder_instance(self):
@@ -131,7 +132,7 @@ class TestProcessor(TestCase):
         self.assertEqual(0, ns.amount_of_finished_all_files_calls)
 
     def test_finished_all_files_with_error_while_processing(self):
-        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
+        self.assertRaises(ProcessingException, self.__execute_monitored_error_processor)  # FailedProcessingException
         self.assertEqual(0, ns.amount_of_finished_all_files_calls)
 
     def test_finished_all_files_with_processor_is_processor_with_destination_folder_instance(self):
@@ -162,7 +163,7 @@ class TestProcessor(TestCase):
         self.assertEqual(0, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_error_while_processing(self):
-        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
+        self.assertRaises(ProcessingException, self.__execute_monitored_error_processor)  # FailedProcessingException
         self.assertEqual(1, ns.amount_of_preprocess_calls)
 
     def test_preprocess_with_processor_is_processor_with_destination_folder_instance(self):
@@ -193,7 +194,7 @@ class TestProcessor(TestCase):
         self.assertEqual(0, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_error_while_processing(self):
-        self.assertRaises(FailedProcessingException, self.__execute_monitored_error_processor)
+        self.assertRaises(ProcessingException, self.__execute_monitored_error_processor)  # FailedProcessingException
         self.assertEqual(0, ns.amount_of_postprocess_calls)
 
     def test_postprocess_with_processor_is_processor_with_destination_folder_instance(self):
