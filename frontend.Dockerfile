@@ -1,6 +1,8 @@
 FROM node:latest
 
-COPY frontend /frontend
+COPY frontend/package-lock.json frontend/package.json frontend/tsconfig.json frontend/tsconfig.node.json frontend/vite.config.ts /frontend/
+COPY frontend/src /frontend/src
+
 RUN apt-get update
 
 WORKDIR /frontend

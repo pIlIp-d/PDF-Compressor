@@ -1,7 +1,14 @@
 FROM python:3.11
 
-COPY backend /backend
-RUN apt-get update && apt-get install -y pngquant advancecomp pngcrush wine tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+COPY backend/requirements.txt backend/manage.py /backend/
+COPY backend/django_app /backend/django_app
+COPY backend/plugin_system /backend/plugin_system
+
+
+RUN apt-get update && apt-get install -y \
+    pngquant advancecomp pngcrush wine \
+    tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \
+    imagemagick
 
 WORKDIR /backend
 
