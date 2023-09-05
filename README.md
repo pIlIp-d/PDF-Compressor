@@ -12,8 +12,8 @@ output file after conversion to make sure it meets your requirements.
 ### Overview
 
 1. [clone Repo](#1-clone-repo)
-2. [Install python packages](#2-install-python-packages)
-3. [Webserver Setup](#3-webserver-setup)
+2. [Install Docker and Docker Compose](#2-install-docker-and-docker-compose)
+3. [Starting the Project](#3-starting-the-project)
 4. [Setup Your Plugins](#4-Setup-Your-Plugins)
 
 ----
