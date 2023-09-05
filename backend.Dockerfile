@@ -8,7 +8,7 @@ COPY backend/plugin_system /backend/plugin_system
 RUN apt-get update && apt-get install -y \
     pngquant advancecomp pngcrush wine \
     tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \
-    imagemagick
+    imagemagick ffmpeg
 
 WORKDIR /backend
 
