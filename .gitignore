@@ -8,3 +8,5 @@ backend/django_app/media/
 */node_modules/
 *.sqlite3
 */config.json
+.idea/
+.vscode/
