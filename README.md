@@ -1,5 +1,7 @@
 # Pdf-Compressor
 
+![Demo](./pdf-compressor-demo.png)
+
 A Modular File processing tool. Enables file upload processing via plugins and download.
 
 
