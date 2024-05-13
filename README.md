@@ -1,9 +1,8 @@
 # Pdf-Compressor
 
-![Demo](./pdf-compressor-demo.png)
-
 A Modular File processing tool. Enables file upload processing via plugins and download.
 
+![Demo](./pdf-compressor-demo.png)
 
 It's important to note that some file conversions may result in loss of quality or data, especially when converting
 between different file types that are not compatible with each other. Therefore, it's always a good idea to test the
