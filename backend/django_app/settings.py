@@ -11,11 +11,18 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 
-from plugin_system.plugins.crunch_compressor.plugin_config.plugin_config import PdfCompressorPlugin, \
-    PngCompressorPlugin, \
-    ImageToPdfConvertPlugin, PdfToImageConvertPlugin, GoodNotesCompressorPlugin
-from plugin_system.plugins.ffmpeg_converter.plugin import FfmpegConverterPlugin
-from plugin_system.plugins.image_converter.plugin import ImageConverterPlugin
+from plugin_system.plugins.crunch_compressor.plugin_config.plugin_config import \
+    GoodNotesCompressorPlugin, \
+    ImageToPdfConvertPlugin, \
+    PdfCompressorPlugin, \
+    PdfToImageConvertPlugin, \
+    PngCompressorPlugin
+
+# , \
+#     PngCompressorPlugin, \
+#     ImageToPdfConvertPlugin, PdfToImageConvertPlugin, GoodNotesCompressorPlugin
+# from plugin_system.plugins.ffmpeg_converter.plugin import FfmpegConverterPlugin
+# from plugin_system.plugins.image_converter.plugin import ImageConverterPlugin
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -145,6 +152,6 @@ PROCESSOR_PLUGINS = {
     ImageToPdfConvertPlugin("png_to_pdf_converter"),
     PdfToImageConvertPlugin("pdf_to_image_converter"),
     GoodNotesCompressorPlugin("goodnotes_compressor"),
-    ImageConverterPlugin("image_converter"),
-    FfmpegConverterPlugin("ffmpeg_converter")
+    # ImageConverterPlugin("image_converter"),
+    # FfmpegConverterPlugin("ffmpeg_converter")
 }

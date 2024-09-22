@@ -2,14 +2,10 @@ import mimetypes
 import subprocess
 import sys
 
-from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from plugin_system.processing_classes.event_handler import EventHandler
-from plugin_system.processing_classes.processor import Processor
-
 
 class FfmpegConverter(Processor):
-    def __init__(self, file_type_to: str, event_handlers: list[EventHandler]):
-        super().__init__(event_handlers, ["*"], file_type_to, False, False)
+    def __init__(self, file_type_to: str):
+        super().__init__([], ["*"], file_type_to, False, False)
 
     def process_file(self, source_file: str, destination_path: str) -> None:
         self.preprocess(source_file, destination_path)

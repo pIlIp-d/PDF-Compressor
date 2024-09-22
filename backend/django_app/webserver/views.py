@@ -10,21 +10,38 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
 from django_app import settings
-from .decorators import only_for_localhost, requires_parameters
+from .decorators import requires_parameters
 from plugin_system.plugin import Plugin
 from ..settings import TIME_FORMAT, MEDIA_ROOT
 from ..webserver.models.uploaded_file import UploadedFile
 from ..webserver.validators import get_file_extension
-from ..task_scheduler.tasks.zip_task import ZipTask
 from ..webserver.models.processed_file import ProcessedFile
 from ..webserver.models.processing_files_request import ProcessingFilesRequest
 
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
+from ..celery import app as celery_app
+
+
+def zip_file(source_folder, destination_file):
+    filename_without_file_ending = ".".join(os.path.basename(destination_file).split(".")[:-1])
+    # create zip-archive
+    compression_format = "zip"
+    shutil.make_archive(
+        filename_without_file_ending,
+        format=compression_format,
+        root_dir=source_folder
+    )
+    # move file into final destination
+    shutil.move(
+        os.path.join(".", filename_without_file_ending + ".zip"),
+        os.path.join(destination_file)
+    )
 
 
 def invalid_parameter_error(parameter_name: str):
     return JsonResponse({"status": 412, "error": f"Invalid value for parameter '{parameter_name}"}, status=412)
+
 
 def internal_server_error(error_string: str):
     return JsonResponse({"status": 500, "error": error_string}, status=500)
@@ -38,57 +55,8 @@ def ping(request):
     return JsonResponse({'result': 'OK'})
 
 
-@only_for_localhost
-@require_http_methods(["GET"])
-@requires_parameters("GET", ["request_id"])
-def started_processing(request):
-    processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
-    processing_request.started = True
-    processing_request.save()
-    return JsonResponse({"status": 200})
-
 def get_files_in_folder(folder_path: str):
     return glob(os.path.join(folder_path, "*"), include_hidden=True)
-
-
-@only_for_localhost
-@require_http_methods(["GET"])
-@requires_parameters("GET", ["request_id"])
-def finished_all_files(request):
-    processing_request = ProcessingFilesRequest.get_request_by_id(request.GET.get("request_id"))
-    processing_request.finished = True
-    processing_request.save()
-
-    source_folder = os.path.join(
-        MEDIA_ROOT, "uploaded_files", processing_request.user_id, str(processing_request.id)
-    )
-    shutil.rmtree(source_folder)
-    destination_folder = source_folder + "_processed"
-    zip_path = os.path.join(
-        destination_folder, "processed_files_" + datetime.datetime.now().strftime(TIME_FORMAT) + ".zip"
-    )
-    # TODO replace with: if no folder exists throw an error
-    os.makedirs(destination_folder, exist_ok=True)
-
-    processed_files = get_files_in_folder(destination_folder)
-    # if multiple files, compress them into a zip and use the zip instead
-    if len(get_files_in_folder(destination_folder)) > 1:
-        ZipTask(destination_folder, zip_path).run()
-        for f in processed_files:
-            if os.path.isfile(f):
-                os.remove(f)
-
-    # add the resulting files in the processed dir to the db
-    for file in reversed(get_files_in_folder(destination_folder)):
-        def get_media_normalized_path(absolute_path):
-            absolute_media_path = os.path.abspath(MEDIA_ROOT)
-            if not absolute_path.startswith(absolute_media_path):
-                raise ValueError("File is not inside the Media folder")
-            return absolute_path[len(absolute_media_path) + 1:]
-
-        ProcessedFile.add_processed_file(get_media_normalized_path(file), processing_request)
-
-    return JsonResponse({"status": 200})
 
 
 @csrf_protect
@@ -105,18 +73,59 @@ def get_all_files(request):
     return JsonResponse({"status": 200, "files": files_json}, status=200)
 
 
+def zip_result(processing_request):
+    source_folder = os.path.join(
+        MEDIA_ROOT, "uploaded_files", processing_request.user_id, str(processing_request.id)
+    )
+    shutil.rmtree(source_folder)
+    destination_folder = source_folder + "_processed"
+    zip_path = os.path.join(
+        destination_folder, "processed_files_" + datetime.datetime.now().strftime(TIME_FORMAT) + ".zip"
+    )
+    # TODO replace with: if no folder exists throw an error
+    os.makedirs(destination_folder, exist_ok=True)
+
+    processed_files = get_files_in_folder(destination_folder)
+    # if multiple files, compress them into a zip and use the zip instead
+    if len(get_files_in_folder(destination_folder)) > 1:
+        zip_file(destination_folder, zip_path)
+        for f in processed_files:
+            if os.path.isfile(f):
+                os.remove(f)
+
+    print("PROCESSED_FILES", get_files_in_folder(destination_folder))
+    # add the resulting files in the processed dir to the db
+    for file in reversed(get_files_in_folder(destination_folder)):
+        def get_media_normalized_path(absolute_path):
+            absolute_media_path = os.path.abspath(MEDIA_ROOT)
+            if not absolute_path.startswith(absolute_media_path):
+                raise ValueError("File is not inside the Media folder")
+            return absolute_path[len(absolute_media_path) + 1:]
+
+        ProcessedFile.add_processed_file(get_media_normalized_path(file), processing_request)
+    processing_request.finished = True
+    processing_request.save()
+
+
 @csrf_protect
 @require_http_methods(["GET"])
 @requires_parameters("GET", ["request_id"])
 def get_all_files_of_request(request):
+    processing_request = ProcessingFilesRequest.objects.filter(
+        id=request.GET.get("request_id"),
+        user_id=request.session["user_id"])[0]
+    celery_task = celery_app.AsyncResult(processing_request.celery_task_id)
+
+    if celery_task.status == "SUCCESS" and not processing_request.finished:
+        zip_result(processing_request)
+    elif celery_task.status == "FAILURE":
+        pass
+
     files_json = ProcessedFile.get_all_processing_files(request.session["user_id"], request.GET.get("request_id"))
-    request = ProcessingFilesRequest.objects.filter(
-            id=request.GET.get("request_id"),
-            user_id=request.session["user_id"])
     return JsonResponse({
         "status": 200,
         "files": files_json,
-        "request_finished": False if len(request) == 0 else request[0].finished
+        "request_finished": celery_task.status == "SUCCESS"
     }, status=200)
 
 
@@ -135,7 +144,8 @@ def remove_file(request, file_id):
         id=file_id
     ).first()
 
-    if file is not None and (not file.processing_request or file.processing_request.user_id == request.session["user_id"]):
+    if file is not None \
+            and (not file.processing_request or file.processing_request.user_id == request.session["user_id"]):
         file.delete()
     else:
         return JsonResponse({"status": 412, "error": "No file with that id found for you."}, status=412)
@@ -254,7 +264,7 @@ def get_settings_config_for_processor(request):
         print(request.GET.get("plugin"))
         return invalid_parameter_error("plugin")
     try:
-        destination_file_type = "*"  # request.GET.get("destination_file_type")
+        # destination_file_type = "*"  # request.GET.get("destination_file_type")
         plugin = Plugin.get_processing_plugin_by_name(request.GET.get("plugin"))
         #   if destination_file_type not in plugin.get_destination_types():
         #     raise ValueError("No support for the given Value. Plugin:", plugin.name, "Value:", destination_file_type)
@@ -335,6 +345,7 @@ def get_possible_destination_file_types(request):
         "list_of_mergers": list_of_mergers
     }, status=200)
 
+
 @require_http_methods(["GET"])
 def get_possible_destination_file_types_by_file_id(request, file_id):
     file_mime_type = UploadedFile.objects.get(id=file_id).get_mime_type()
@@ -376,11 +387,44 @@ def process_files(request):
     if len(input_file_list) < 1:
         return JsonResponse({"status": 412, "error": "No files were found for this request."}, status=412)
 
-    task_id = plugin.get_task()(
-        request_parameters={**POST_DATA, "result_file_type": result_file_type},
-        processing_request=processing_request,
-        files=files
-    ).create()
-    processing_request.task_id = task_id
+    _request_parameters = {**POST_DATA, "result_file_type": result_file_type}
+
+    _source_path = os.path.join(MEDIA_ROOT, processing_request.get_source_dir())
+
+    paths = []
+
+    if not os.path.exists(_source_path):
+        os.mkdir(_source_path)
+    for file in files:
+        print(file.id)
+        print(os.path.join(MEDIA_ROOT, file.uploaded_file.name), _source_path)
+        shutil.copy(os.path.join(MEDIA_ROOT, file.uploaded_file.name), _source_path)
+        paths.append(os.path.join(_source_path, os.path.basename(file.uploaded_file.name)))
+    print(paths)
+
+    # destination is either merged file or directory
+    _destination_path = "merge" if _request_parameters.get("merge_files") else "default"
+
+    task = plugin.get_task()
+
+    processing_request = processing_request
+
+    if _destination_path == "merge":
+        _destination_path = ""
+    elif _destination_path == "default":
+        _destination_path = _source_path + "_processed"
+    if not os.path.isdir(_destination_path):
+        os.mkdir(_destination_path)
+
+    print(_request_parameters,
+          paths, _destination_path)
+
+    celery_task = task.delay(request_parameters=_request_parameters,
+                             files=paths, destination_path=_destination_path)
+
+    processing_request.celery_task_id = celery_task
+    processing_request.save()
+    print("TASK", celery_task)
+    # processing_request.task_id = task_id
     processing_request.save()
     return JsonResponse({"processing_request_id": processing_request.id})

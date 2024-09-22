@@ -3,7 +3,7 @@ import os
 from django.db import models
 
 from django_app.settings import TIME_FORMAT, MEDIA_ROOT
-from django_app.task_scheduler.db_con import get_connection
+# from django_app.task_scheduler.db_con import get_connection
 from django_app.webserver.models.processing_files_request import ProcessingFilesRequest
 from django_app.webserver.models.uploaded_file import UploadedFile
 
@@ -72,9 +72,11 @@ class ProcessedFile(models.Model):
             return files
 
         def ___get_task_exceptions(task_id: int):
-            cur = get_connection().cursor()
-            exception = cur.execute("SELECT exception FROM task_objects where `id` = ?;", (task_id,)).fetchone()
-            return "" if exception is None else exception[0]
+            return ""
+            # TODO make exceptions surface to gui
+            # cur = get_connection().cursor()
+            # exception = cur.execute("SELECT exception FROM task_objects where `id` = ?;", (task_id,)).fetchone()
+            # return "" if exception is None else exception[0]
 
         def ___get_processed_files(___processing_request):
             files = []

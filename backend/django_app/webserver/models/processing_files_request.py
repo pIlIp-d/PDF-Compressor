@@ -11,9 +11,9 @@ class ProcessingFilesRequest(models.Model):
     user_id = models.CharField(max_length=64)
     request_id = models.CharField(max_length=64)
     date_of_request = models.DateTimeField(auto_now_add=True)
-    started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
     task_id = models.IntegerField(default=-1)
+    celery_task_id = models.CharField(max_length=64, null=True)
 
     def __str__(self):
         return "Object(ProcessingFilesRequest): " + str(self.pk)

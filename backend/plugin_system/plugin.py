@@ -33,7 +33,7 @@ class Plugin(ABC):
         self.name = name
         self._from_file_types = from_file_types
         self._form = form
-        self._task = task
+        self.task = task
         self._only_zip_as_result = only_zip_as_result
         self._merger = merger
 
@@ -75,7 +75,7 @@ class Plugin(ABC):
         return self._import_by_string_path(self._form)
 
     def get_task(self):
-        return self._import_by_string_path(self._task)
+        return self._import_by_string_path(self.task)
 
     @classmethod
     def get_processing_plugin_by_name(cls, name: str):

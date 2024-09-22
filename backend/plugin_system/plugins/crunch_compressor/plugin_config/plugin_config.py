@@ -10,7 +10,7 @@ class PdfCompressorPlugin(Plugin):
             name,
             [self.PDF_MIME_TYPE],
             form,
-            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.PdfCompressionTask",
+            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.pdfCompressionTask",
             merger=True
         )
 
@@ -19,6 +19,7 @@ class PdfCompressorPlugin(Plugin):
         if from_file_type == self.PDF_MIME_TYPE:
             result.append(self.COMPRESSION_TYPE)
         return result
+
 
 class GoodNotesCompressorPlugin(PdfCompressorPlugin):
     def __init__(self, name: str):
@@ -31,7 +32,7 @@ class PngCompressorPlugin(Plugin):
             name,
             ["image/png"],
             "plugin_system.plugins.crunch_compressor.plugin_config.forms.PngCompressorForm",
-            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.PngCompressionTask"
+            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.pngCompressionTask"
         )
 
     def get_destination_types(self, from_file_type: str = None) -> list[str]:
@@ -48,7 +49,7 @@ class ImageToPdfConvertPlugin(Plugin):
             ['image/xbm', 'image/bmp', 'image/webp', 'image/icns', 'image/sgi', 'image/gif', 'image/png', 'image/jpeg',
              'image/tiff', 'image/jp2'],
             "plugin_system.plugins.crunch_compressor.plugin_config.forms.ImageToPdfConvertForm",
-            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.ImageToPdfConvertTask",
+            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.imageToPdfConvertTask",
             merger=True
         )
 
@@ -65,7 +66,7 @@ class PdfToImageConvertPlugin(Plugin):
             name,
             [self.PDF_MIME_TYPE],
             "plugin_system.plugins.crunch_compressor.plugin_config.forms.PdfToImageConvertForm",
-            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.PdfToImageConvertTask",
+            "plugin_system.plugins.crunch_compressor.plugin_config.tasks.pdfToImageConvertTask",
             only_zip_as_result=True
         )
 

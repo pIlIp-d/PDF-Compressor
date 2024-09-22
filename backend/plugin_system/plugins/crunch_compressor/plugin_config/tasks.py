@@ -1,63 +1,51 @@
 import mimetypes
+import os
 
-from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from filecrusher import ImagesToPdfConverter, PDFCompressor, PdfToImageConverter, PNGCompressor, CPdfSqueezeCompressor
+from celery import shared_task
+from filecrusher import ImagesToPdfConverter, PDFCompressor, PdfToImageConverter, PNGCompressor, CPdfSqueezeCompressor, batch_process_files_async
+from asgiref.sync import async_to_sync
 
 
-class PdfCompressionTask(ProcessingTask):
-    def run(self):
-        event_handler = super()._get_event_handler()
-        if self._request_parameters.get("simple_and_lossless") == "on":
-            processor = CPdfSqueezeCompressor(event_handlers=event_handler)
-        else:
-            processor = PDFCompressor(
-                compression_mode=int(self._request_parameters.get("compression_mode")),
-                force_ocr=self._request_parameters.get("ocr_mode") == "on",
-                no_ocr=self._request_parameters.get("ocr_mode") == "off",
-                tesseract_language=self._request_parameters.get("tesseract_language"),
-                default_pdf_dpi=int(self._request_parameters.get("default_pdf_dpi")),
-                event_handlers=event_handler
-            )
-        processor.process_file(
-            self._source_path,
-            self._destination_path
+@shared_task
+def pdfCompressionTask(request_parameters, files, destination_path):
+    print(os.path.exists(files[0]))
+    print(files[0].endswith(".pdf"))
+
+    if request_parameters.get("simple_and_lossless") == "on":
+        processor = CPdfSqueezeCompressor()
+    else:
+        processor = PDFCompressor(
+            compression_mode=int(request_parameters.get("compression_mode")),
+            force_ocr=request_parameters.get("ocr_mode") == "on",
+            no_ocr=request_parameters.get("ocr_mode") == "off",
+            tesseract_language=request_parameters.get("tesseract_language"),
+            default_pdf_dpi=int(request_parameters.get("default_pdf_dpi")),
         )
+    async_to_sync(batch_process_files_async)(files, destination_path, processor)
 
 
-class PngCompressionTask(ProcessingTask):
-    def run(self):
-        event_handler = super()._get_event_handler()
-        PNGCompressor(
-            compression_mode=int(self._request_parameters.get("compression_mode")),
-            event_handlers=event_handler
-        ).process_file(
-            source_path=self._source_path,
-            destination_path=self._destination_path
-        )
+@shared_task
+def pngCompressionTask(request_parameters, files, destination_path):
+    processor = PNGCompressor(
+        compression_mode=int(request_parameters.get("compression_mode")),
+    )
+    async_to_sync(batch_process_files_async)(files, destination_path, processor)
 
 
-class ImageToPdfConvertTask(ProcessingTask):
-    def run(self):
-        event_handler = super()._get_event_handler()
-        ImagesToPdfConverter(
-            force_ocr=self._request_parameters.get("ocr_mode") == "on",
-            no_ocr=self._request_parameters.get("ocr_mode") == "off",
-            tesseract_language=self._request_parameters.get("tesseract_language"),
-            event_handlers=event_handler
-        ).process_file(
-            source_path=self._source_path,
-            destination_path=self._destination_path
-        )
+@shared_task
+def imageToPdfConvertTask(request_parameters, files, destination_path):
+    processor = ImagesToPdfConverter(
+        force_ocr=request_parameters.get("ocr_mode") == "on",
+        no_ocr=request_parameters.get("ocr_mode") == "off",
+        tesseract_language=request_parameters.get("tesseract_language"),
+    )
+    async_to_sync(batch_process_files_async)(files, destination_path, processor)
 
 
-class PdfToImageConvertTask(ProcessingTask):
-    def run(self):
-        event_handler = super()._get_event_handler()
-        PdfToImageConverter(
-            file_type_to=mimetypes.guess_extension(self._request_parameters.get("result_file_type"))[1:],
-            dpi=int(self._request_parameters.get("default_pdf_dpi")),
-            event_handlers=event_handler
-        ).process_file(
-            source_path=self._source_path,
-            destination_path=self._destination_path if self._destination_path == "merge" else "default"
-        )
+@shared_task
+def pdfToImageConvertTask(request_parameters, files, destination_path):
+    processor = PdfToImageConverter(
+        file_type_to=mimetypes.guess_extension(request_parameters.get("result_file_type"))[1:],
+        dpi=int(request_parameters.get("default_pdf_dpi")),
+    )
+    async_to_sync(batch_process_files_async)(files, destination_path, processor)

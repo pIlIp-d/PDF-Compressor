@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -21,11 +21,9 @@ urlpatterns = [
 
     path('get_settings_config_for_processor', views.get_settings_config_for_processor),
 
-    path('finished_all_files/', views.finished_all_files),
-    path('started_processing/', views.started_processing),
-
     path('get_csrf/', views.get_csrf),
     path('ping/', views.ping),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

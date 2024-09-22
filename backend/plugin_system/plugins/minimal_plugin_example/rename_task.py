@@ -3,7 +3,6 @@ import shutil
 
 from plugin_system.processing_classes.processorwithdestinationfolder import ProcessorWithDestinationFolder
 from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from plugin_system.processing_classes.event_handler import EventHandler
 
 
 class RenamePngTask(ProcessingTask):
@@ -17,9 +16,9 @@ class RenamePngTask(ProcessingTask):
 
 
 class Renamer(ProcessorWithDestinationFolder):
-    def __init__(self, new_filename_prefix: str, event_handlers: list[EventHandler], file_type_from: str,
+    def __init__(self, new_filename_prefix: str, file_type_from: str,
                  file_type_to: str):
-        super().__init__(event_handlers, [file_type_from], file_type_to)
+        super().__init__([file_type_from], file_type_to)
         self._new_filename_prefix = new_filename_prefix
 
     def process_file(self, source_file: str, destination_path: str) -> None:

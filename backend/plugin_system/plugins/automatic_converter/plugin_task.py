@@ -1,23 +1,12 @@
+from celery import shared_task
 from ffmpeg import FFmpeg
 
 from wand.image import Image
 
-from plugin_system.processing_classes.processor import Processor
-from django_app.task_scheduler.tasks.processing_task import ProcessingTask
-from plugin_system.processing_classes.event_handler import EventHandler
 
-
-class AutomaticConvertTask(ProcessingTask):
-    def run(self):
-        AutomaticConvert(
-            super()._get_event_handler(),
-            "", "".join(self._request_parameters.get("new_filetype").split(".")[1:])
-        ).process(self._source_path, self._destination_path)
-
-
-class AutomaticConvert(Processor):
-    def __init__(self, event_handlers: list[EventHandler], file_type_from: str, file_type_to: str):
-        super().__init__(event_handlers, [file_type_from], file_type_to)
+class AutomaticConvert:
+    def __init__(self, file_type_from: str, file_type_to: str):
+        super().__init__([], [file_type_from], file_type_to)
 
     def __automatic_image_convert(self, source_file: str, destination_path: str):
         ny = Image(filename=source_file)
@@ -33,10 +22,19 @@ class AutomaticConvert(Processor):
         print(destination_path)
         try:
             self.__automatic_image_convert(source_file, destination_path)
-        except Exception as e1:
+        except Exception:
             try:
                 self.__automatic_video_audio_convert(source_file, destination_path)
-            except Exception as e2:
+            except Exception:
                 raise Exception("automatic convert Failed.")
 
         self.postprocess(source_file, destination_path)
+
+
+@shared_task
+def automaticConvertTask(request_parameters, source_path, destination_path):
+    AutomaticConvert(
+        file_type_from="",
+        file_type_to="".join(request_parameters.get("new_filetype").split(".")[1:]
+                             )
+    ).process(source_path, destination_path)

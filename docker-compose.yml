@@ -5,9 +5,15 @@ services:
     build:
       context: .
       dockerfile: backend.Dockerfile
-    command: python3 /backend/manage.py runserver
+    volumes:
+      - ./backend/django_app:/backend/django_app
+      - ./backend/plugin_system:/backend/plugin_system
+      - ./backend/startscript.sh:/startscript.sh
+    command: /startscript.sh
     ports:
       - "8080:8080"
+    links:
+      - redis
 
   frontend:
     container_name: "node-frontend"
@@ -17,3 +23,8 @@ services:
     command: npm run dev -- --host
     ports:
       - "5173:5173"
+  redis:
+    container_name: redis
+    image: "redis:alpine"  
+
+#celery -A django_app worker --loglevel=INFO

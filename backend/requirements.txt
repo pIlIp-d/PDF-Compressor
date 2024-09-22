@@ -13,4 +13,6 @@ python-ffmpeg>=2.0.2
 requests
 django-cors-headers
 djangorestframework
-filecrusher>=0.2.3
+filecrusher>=0.2.5
+celery
+celery[redis]
