@@ -16,7 +16,6 @@
     "dropzone": "^6.0.0-beta.2",
     "fuse.js": "^6.6.2",
     "jquery": "^3.7.0",
-    "node-uuid": "^1.4.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropdown": "^1.11.0",
